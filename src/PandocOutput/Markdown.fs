@@ -6,6 +6,41 @@ module PandocOutput.Markdown
 open PandocOutput.Internal.FormatCombinators
 
 
+type Alignment = AlignDefault | AlignLeft | AlignCenter | AlignRight
+
+/// Favour Grid Tables for output.
+module GridTableHelpers = 
+    type Lines = string list
+    type Words = string list
+
+
+
+    /// Precondition: source is a single line with only spaces (no tabs/newlines)
+    let breakline1 (width:int) (source:string) : string list = 
+        let words = source.Split(' ') |> Array.toList
+        let makeLine (words:Words) : string = String.concat " " (List.rev words)
+        let rec work (acc:Lines) (a1:Words) (pos:int) (ss:Words) =  
+            match ss with 
+            | [] -> 
+                if List.isEmpty a1 then 
+                    List.rev acc 
+                else List.rev ((makeLine a1)::acc)
+            | (w::ws) -> 
+                if pos + 1 + w.Length > width then
+                    // The first word encountered might be too long..
+                    if List.isEmpty a1 then 
+                        work (w::acc) [] 1 ws
+                    else
+                        work ((makeLine a1)::acc) [w] w.Length ws
+                else 
+                    work acc (w::a1) (pos + 1 + w.Length) ws
+        work [] [] 0 words
+
+    let breaklines (width:int) (source:string) : string list = 
+        let lines = source.Split([| '\n' |]) 
+        Array.map (breakline1 width) lines |> List.concat 
+
+
 /// We might change this to help process tables, blockquotes etc.
 type Markdown = Doc
 
