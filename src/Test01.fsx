@@ -64,9 +64,6 @@ let test09 () =
 
 
 
-
-let temp01 () = 
-    let temp = tableRow1 fruitSpecs [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
-    printfn "%A" temp
-
-let temp02 () = "hello".PadRight(10, ' ')
+let test10 () = 
+    blockquote (plaintext "Hollow" @@@ plaintext "world!") 
+        |> testRender

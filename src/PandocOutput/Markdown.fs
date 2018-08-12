@@ -41,6 +41,7 @@ module Markdown =
     /// TODO - we should be careful about rexports from FormatCombinators.
     /// We might want to change the type of ``Markdown``.
     let (+++) = PandocOutput.Internal.FormatCombinators.(+++)
+    let (@@@) = PandocOutput.Internal.FormatCombinators.(@@@)
     let backslash = PandocOutput.Internal.FormatCombinators.backslash
 
     let h1 (source:Markdown) : Markdown = 
@@ -100,4 +101,6 @@ module Markdown =
 
     let unordList (items:Markdown list) : Markdown = 
         vcat <| List.map (fun (doc:Markdown) -> mdchar '*' +^+ doc) items
+
+    let blockquote (source:Markdown) = prefix "> " source
 

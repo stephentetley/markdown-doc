@@ -6,7 +6,6 @@ module PandocOutput.Internal.FormatCombinators
 
 open System.Text
 open System
-open System
 
 /// This is not a "pretty printer" as it makes no effort to "fit" the output.
 type Doc = 
@@ -14,13 +13,13 @@ type Doc =
     | Doc of string
     | HDoc of Doc * Doc
     | VDoc of Doc * Doc
-    | Indent of int * Doc
+    | Prefix of string * Doc
     
 
 
 let render (source:Doc) : string = 
     let sb = new StringBuilder ()
-    let rec work (doc:Doc) (indent:int) cont  = 
+    let rec work (doc:Doc) (indent:string) cont  = 
         match doc with
         | Empty -> cont ()
         | Doc str -> sb.Append(str) |> ignore; cont ()
@@ -30,14 +29,14 @@ let render (source:Doc) : string =
             cont ()))
         | VDoc(d1,d2) -> 
             work d1 indent (fun _ -> 
-            sb.Append("\n" + String.replicate indent " ") |> ignore
+            sb.Append("\n" + indent) |> ignore
             work d2 indent (fun _ -> 
             cont ()))
-        | Indent(i,d1) -> 
-            sb.Append(String.replicate i " ") |> ignore
-            work d1 (indent + i) (fun _ -> 
+        | Prefix(s,d1) -> 
+            sb.Append(s) |> ignore
+            work d1 (indent + s) (fun _ -> 
             cont ())
-    work source 0 (fun _ -> ())
+    work source "" (fun _ -> ())
     sb.ToString()
 
 
@@ -105,8 +104,11 @@ let underscore : Doc = formatChar '_'
 // *************************************
 // Combinators
 
+let prefix (s:string) (d:Doc) = 
+    Prefix(s,d)
+
 let indent (i:int) (d:Doc) = 
-    Indent(i,d)
+    prefix (String.replicate i " ") d
 
 /// Horizontal concat
 let (+++) (d1:Doc) (d2:Doc) : Doc = 
