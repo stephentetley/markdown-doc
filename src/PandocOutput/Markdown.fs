@@ -3,10 +3,18 @@
 
 module PandocOutput.Markdown
 
+
+open System.Text
 open PandocOutput.Internal.FormatCombinators
 
 
 type Alignment = AlignDefault | AlignLeft | AlignCenter | AlignRight
+
+    
+type ColumnSpec = 
+    { Width: int
+      Alignment: Alignment }
+
 
 /// Favour Grid Tables for output.
 module GridTableHelpers = 
@@ -40,6 +48,41 @@ module GridTableHelpers =
         let lines = source.Split([| '\n' |]) 
         Array.map (breakline1 width) lines |> List.concat 
 
+    
+    let gridTableLineSep (columnSpecs:ColumnSpec list) : string = 
+        let sb = new StringBuilder("+")
+        let rec work (cols:ColumnSpec list) = 
+            match cols with 
+            | [] -> sb.ToString()
+            | (s :: ss) ->
+                sb.Append(String.replicate s.Width "-") |> ignore
+                sb.Append('+') |> ignore
+                work ss
+        work columnSpecs
+
+    let alignmentLineSep1 (width:int) (align:Alignment) (ch:char) : string = 
+        match align with
+        | AlignDefault -> String.replicate width (ch.ToString())
+        | AlignLeft -> ":" + String.replicate (width-1) (ch.ToString())
+        | AlignCenter -> ":" + String.replicate (width-2) (ch.ToString()) + ":"
+        | AlignRight -> String.replicate (width-1) (ch.ToString()) + ":"
+
+
+    let alignmentLineSep (columnSpecs:ColumnSpec list) (ch:char) : string = 
+        let sb = new StringBuilder("+")
+        let rec work (cols:ColumnSpec list) = 
+            match cols with 
+            | [] -> sb.ToString()
+            | (s :: ss) ->
+                let sep1 = alignmentLineSep1 s.Width s.Alignment ch
+                sb.Append(sep1) |> ignore
+                sb.Append('+') |> ignore
+                work ss
+        work columnSpecs
+
+    let gridTableHeaderSep (columnSpecs:ColumnSpec list) : string = alignmentLineSep columnSpecs '='
+
+    let gridTableNoHeaderSep (columnSpecs:ColumnSpec list) : string = alignmentLineSep columnSpecs '-'
 
 /// We might change this to help process tables, blockquotes etc.
 type Markdown = Doc

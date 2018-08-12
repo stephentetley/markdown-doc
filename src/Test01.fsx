@@ -38,21 +38,11 @@ let test06 () =
 let test07 () = 
     breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
-let gridTableLineSep (cols:int list) : string = 
-    let sb = new StringBuilder("+")
-    let rec work (widths:int list) = 
-        match widths with 
-        | [] -> sb.ToString()
-        | (w :: ws) ->
-            sb.Append(String.replicate w "-") |> ignore
-            sb.Append('+') |> ignore
-            work ws
-    work cols
 
+let specs : ColumnSpec list = 
+    [ { Width = 30; Alignment = AlignRight } 
+    ; { Width = 40; Alignment = AlignLeft } 
+    ]
 
-let column1 (width:int) (align:Alignment) (ch:char) : string = 
-    match align with
-    | AlignDefault -> String.replicate width (ch.ToString())
-    | AlignLeft -> ":" + String.replicate (width-1) (ch.ToString())
-    | AlignCenter -> ":" + String.replicate (width-2) (ch.ToString()) + ":"
-    | AlignRight -> String.replicate (width-1) (ch.ToString()) + ":"
+let test08 () = 
+    gridTableNoHeaderSep specs
