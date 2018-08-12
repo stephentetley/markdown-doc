@@ -54,6 +54,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="PandocOutput\Internal\FormatCombinators.fs" />
     <Compile Include="PandocOutput\Markdown.fs" />
+    <Compile Include="PandocOutput\GridTable.fs" />
     <None Include="Test01.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>

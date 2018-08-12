@@ -3,9 +3,9 @@
 
 #load @"PandocOutput\Internal\FormatCombinators.fs"
 #load @"PandocOutput\Markdown.fs"
+#load @"PandocOutput\GridTable.fs"
 
-open PandocOutput.Markdown
-open PandocOutput.Markdown.GridTableHelpers
+open PandocOutput
 open System.IO
 open System.Text
 open PandocOutput.Internal
