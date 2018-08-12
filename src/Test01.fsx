@@ -8,6 +8,8 @@ open PandocOutput.Markdown
 open PandocOutput.Markdown.GridTableHelpers
 open System.IO
 open System.Text
+open PandocOutput.Internal
+open PandocOutput.Internal
 
 
 let test01 () = 
@@ -39,10 +41,32 @@ let test07 () =
     breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
 
-let specs : ColumnSpec list = 
-    [ { Width = 30; Alignment = AlignRight } 
-    ; { Width = 40; Alignment = AlignLeft } 
+let fruitSpecs : ColumnSpec list = 
+    [ { Width = 30; Alignment = AlignDefault } 
+    ; { Width = 40; Alignment = AlignDefault } 
+    ; { Width = 40; Alignment = AlignDefault } 
     ]
 
 let test08 () = 
-    gridTableNoHeaderSep specs
+    gridTableRegularSep fruitSpecs
+
+
+
+
+
+let test09 () = 
+    let cells = 
+        [ [ plaintext "Fruit"; plaintext "Price"; plaintext "Advantages" ]
+        ; [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
+        ; [ plaintext "Oranges"; plaintext "$2.10"; unordList [plaintext "cures scurvy"; plaintext "tasty"] ] 
+        ]
+    simpleTable fruitSpecs cells |> testRender
+
+
+
+
+let temp01 () = 
+    let temp = tableRow1 fruitSpecs [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
+    printfn "%A" temp
+
+let temp02 () = "hello".PadRight(10, ' ')

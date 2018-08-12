@@ -16,6 +16,13 @@ type ColumnSpec =
       Alignment: Alignment }
 
 
+type System.Text.StringBuilder with
+    member v.AppendLines(lines:string list) : unit = 
+        List.iter (fun s -> v.AppendLine(s) |> ignore) lines
+
+/// We might change this to help process tables, blockquotes etc.
+type Markdown = Doc
+
 /// Favour Grid Tables for output.
 module GridTableHelpers = 
     type Lines = string list
@@ -82,11 +89,68 @@ module GridTableHelpers =
 
     let gridTableHeaderSep (columnSpecs:ColumnSpec list) : string = alignmentLineSep columnSpecs '='
 
-    let gridTableNoHeaderSep (columnSpecs:ColumnSpec list) : string = alignmentLineSep columnSpecs '-'
+    let gridTableRegularSep (columnSpecs:ColumnSpec list) : string = alignmentLineSep columnSpecs '-'
+    
+    let gridTableLine (columnSpecs:ColumnSpec list) (cellLines:string list) : string = 
+        let sb = new StringBuilder("|")
+        let rec work (cols:ColumnSpec list) (cells: string list) = 
+            match cols, cells with 
+            | (s :: ss), (t ::ts) ->
+                let cell1 = " " + t.PadRight(s.Width-1 , ' ')
+                sb.Append(cell1) |> ignore
+                sb.Append('|') |> ignore
+                work ss ts
+            | _,_ -> sb.ToString ()
+        work columnSpecs cellLines
 
-/// We might change this to help process tables, blockquotes etc.
-type Markdown = Doc
+    /// F#'s built-in List.transpose needs perfect input. It cannot handle ragged tables.
+    let raggedTranspose (emptyElement:'a) (table:('a list) list) : ('a list) list = 
+        let headsOf (table:('a list) list) : 'a list = 
+            List.map (fun xs -> match xs with | [] -> emptyElement; | (x::_) -> x) table
+        let tailsOf (table:('a list) list) : ('a list) list = 
+            List.map (fun xs -> match xs with | (_::ys) -> ys; | _ -> []) table
+        let rec work ac rows = 
+            if List.forall (fun (x:'a list)  -> List.isEmpty x) rows then 
+                List.rev ac
+            else 
+                let line1 = headsOf rows
+                let rest = tailsOf rows
+                work (line1::ac) rest
+        work [] table
 
+    let tableRow1 (columnSpecs: ColumnSpec list) (row:Markdown list) : string list = 
+        let cellStrings = List.map render row
+        let cells = List.map2 (fun (spec:ColumnSpec) (s:string) -> breaklines spec.Width s) columnSpecs cellStrings
+        let lines = raggedTranspose "" cells
+        List.map (gridTableLine columnSpecs) lines
+
+    /// The first row is printed as headers.
+    let simpleTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) : Markdown = 
+        let lineSep = gridTableRegularSep columnSpecs 
+        let sb = new System.Text.StringBuilder ()
+        let rec work (rows : (Markdown list) list) : unit = 
+            match rows with 
+            | [] -> ()
+            | (y :: ys)  -> 
+                let lines = tableRow1 columnSpecs y 
+                List.iter (fun (s:string) -> sb.AppendLine(s) |> ignore) lines
+                sb.AppendLine(lineSep) |> ignore
+                work ys
+
+        // Build the table...
+        match contents with
+        | [] -> ()
+        | [x] -> 
+            sb.AppendLine(gridTableHeaderSep columnSpecs) |> ignore
+            sb.AppendLines(tableRow1 columnSpecs x)
+            sb.AppendLine(lineSep) |> ignore
+            ()
+        | (x :: xs) -> 
+            sb.AppendLine(lineSep) |> ignore
+            sb.AppendLines(tableRow1 columnSpecs x) 
+            sb.AppendLine(gridTableHeaderSep columnSpecs) |> ignore
+            work xs
+        formatString <| sb.ToString()
 
 let render = PandocOutput.Internal.FormatCombinators.render
 let testRender = PandocOutput.Internal.FormatCombinators.testRender
@@ -156,3 +220,8 @@ let docxPagebreak : Markdown =
         ; "</w:p>"
         ] |> String.concat "\n" 
     raw2 "{=openxml}" source
+
+
+let unordList (items:Markdown list) : Markdown = 
+    vcat <| List.map (fun (doc:Markdown) -> mdchar '*' +^+ doc) items
+
