@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#load @"PandocOutput\Internal\FormatCombinators.fs"
-#load @"PandocOutput\Markdown.fs"
-#load @"PandocOutput\GridTable.fs"
+#load "PandocOutput\Internal\Common.fs"
+#load "PandocOutput\Internal\FormatCombinators.fs"
+#load "PandocOutput\Markdown.fs"
+#load "PandocOutput\GridTable.fs"
 
 open PandocOutput
 open System.IO
@@ -18,7 +19,7 @@ let test01 () =
 
 
 let test02 () = 
-    plaintext "hello world" +++ plaintext "!"
+    plaintext "hello world" + plaintext "!"
         |> testRender
 
 let test03 () = 

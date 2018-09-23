@@ -52,6 +52,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="PandocOutput\Internal\Common.fs" />
     <Compile Include="PandocOutput\Internal\FormatCombinators.fs" />
     <Compile Include="PandocOutput\Markdown.fs" />
     <Compile Include="PandocOutput\GridTable.fs" />

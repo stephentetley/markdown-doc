@@ -14,7 +14,7 @@ type Doc =
     | HDoc of Doc * Doc
     | VDoc of Doc * Doc
     | Prefix of string * Doc
-    
+    static member (+) (a:Doc, b:Doc) = HDoc(a,b)
 
 
 let render (source:Doc) : string = 
@@ -47,8 +47,7 @@ let testRender (source:Doc) : unit =
 // *************************************
 // Primitive values
 
-let empty : Doc = 
-    Empty
+let empty : Doc = Empty
 
 
 let formatBool (value:bool) : Doc = 

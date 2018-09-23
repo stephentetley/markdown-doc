@@ -38,7 +38,7 @@ module Markdown =
         mdstring text
 
 
-    /// TODO - we should be careful about rexports from FormatCombinators.
+    /// TODO - we should be careful about re-exports from FormatCombinators.
     /// We might want to change the type of ``Markdown``.
     let (+++) = PandocOutput.Internal.FormatCombinators.(+++)
     let (@@@) = PandocOutput.Internal.FormatCombinators.(@@@)
@@ -104,3 +104,10 @@ module Markdown =
 
     let blockquote (source:Markdown) = prefix "> " source
 
+    let comment (body:string) = empty
+
+    /// Indent for a code block (4 spaces)
+    let codeIndent : Markdown = mdstring "    "
+
+    /// Indent for a code block (asterisk and 3 spaces)
+    let unordListIndent : Markdown = mdstring "*   "
