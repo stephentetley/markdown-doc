@@ -3,6 +3,13 @@
 
 namespace PandocOutput
 
+/// Design issue
+/// Whitespace matters in Pandoc.
+/// How explicitly should we treat it in this library?
+/// Do we help the user (making the implementation complicated) or keep 
+/// the implementation simple relying on the user to do the right thin?
+
+
 
 
 open PandocOutput.Internal.FormatCombinators
@@ -31,7 +38,7 @@ module Markdown =
     let render = PandocOutput.Internal.FormatCombinators.render
     let testRender = PandocOutput.Internal.FormatCombinators.testRender
 
-    let inline private mdchar (ch:char) : Markdown = formatChar ch
+    let inline private character (ch:char) : Markdown = formatChar ch
     let inline private mdstring (str:string) : Markdown = formatString str
 
     let plaintext (text:string) : Markdown = 
@@ -45,7 +52,7 @@ module Markdown =
     let backslash = PandocOutput.Internal.FormatCombinators.backslash
 
     let h1 (source:Markdown) : Markdown = 
-        mdchar '#' +^+ source
+        character '#' +^+ source
 
     let h2 (source:Markdown) : Markdown = 
         mdstring "##" +^+ source
@@ -64,11 +71,11 @@ module Markdown =
 
     /// Emphasis
     let asterisks (source:Markdown) : Markdown = 
-        enclose (mdchar '*') (mdchar '*') source
+        enclose (character '*') (character '*') source
 
     /// Emphasis
     let underscores (source:Markdown) : Markdown = 
-        enclose (mdchar '_') (mdchar '_') source
+        enclose (character '_') (character '_') source
 
     /// Strong emphasis
     let doubleAsterisks (source:Markdown) : Markdown = 
@@ -100,8 +107,9 @@ module Markdown =
 
 
     let unordList (items:Markdown list) : Markdown = 
-        vcat <| List.map (fun (doc:Markdown) -> mdchar '*' +^+ doc) items
+        vcat <| List.map (fun (doc:Markdown) -> character '*' +^+ doc) items
 
+    /// Each line is prefixed with "> "
     let blockquote (source:Markdown) = prefix "> " source
 
     let comment (body:string) = empty

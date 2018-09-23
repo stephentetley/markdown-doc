@@ -19,22 +19,22 @@ type Doc =
 
 let render (source:Doc) : string = 
     let sb = new StringBuilder ()
-    let rec work (doc:Doc) (indent:string) cont  = 
+    let rec work (doc:Doc) (lhs:string) cont  = 
         match doc with
         | Empty -> cont ()
         | Doc str -> sb.Append(str) |> ignore; cont ()
         | HDoc(d1,d2) -> 
-            work d1 indent (fun _ ->
-            work d2 indent (fun _ -> 
+            work d1 lhs (fun _ ->
+            work d2 lhs (fun _ -> 
             cont ()))
         | VDoc(d1,d2) -> 
-            work d1 indent (fun _ -> 
-            sb.Append("\n" + indent) |> ignore
-            work d2 indent (fun _ -> 
+            work d1 lhs (fun _ -> 
+            sb.Append("\n" + lhs) |> ignore
+            work d2 lhs (fun _ -> 
             cont ()))
         | Prefix(s,d1) -> 
             sb.Append(s) |> ignore
-            work d1 (indent + s) (fun _ -> 
+            work d1 (lhs + s) (fun _ -> 
             cont ())
     work source "" (fun _ -> ())
     sb.ToString()
