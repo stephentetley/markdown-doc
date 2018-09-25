@@ -7,6 +7,7 @@ open System.Text
 
 open PandocOutput.Internal.Common
 
+
 /// This is not a "pretty printer" as it makes no effort to "fit" the output.
 type Text = 
     | Empty
@@ -50,6 +51,7 @@ let (<+>) (d1:Text) (d2:Text) : Text =
 let bang : Text = character '!'
 let colon : Text = character ':'
 let space : Text = character ' '
+let nbsp : Text = rawtext "&nbsp;"
 
 let enclose (left:Text) (right:Text) (d1:Text) : Text = 
     left + d1 + right
@@ -166,3 +168,30 @@ let private prefixAll (prefix:string) (tile:Tile) : Tile =
 
 
 let codeBlock (tile:Tile) : Tile = prefixAll "    " tile
+
+let gridTableSkeleton (sep1:string) (sep2:string) (sepBody:string) (rows: (string list) list) : string list = 
+    match rows with
+    | [] -> []
+    | headings :: body -> 
+        let body1 = List.map (fun lines -> lines @ [sepBody]) body
+        List.concat <| [[sep1]; headings; [sep2]] @ body1 
+
+/// The first row is printed as headers.
+let textGridTable (columnSpecs:ColumnSpec list) (contents: (Text list) list) : Tile = 
+    let tileCell (spec:ColumnSpec) (cellText:Text) : string list = 
+        renderText spec.Width cellText
+
+    let tileRow (columnSpecs:ColumnSpec list) (cells: Text list) : (string list) list = 
+        List.map2 tileCell columnSpecs cells
+    
+    let listOfRows : CellContent list list = List.map (tileRow columnSpecs) contents
+
+    let contentRows = List.map (gridTableRow columnSpecs) listOfRows
+
+    let sep1 = gridTableRowSep columnSpecs
+    let sep2 = gridTableRowEqualsFormatting columnSpecs
+    Tile <| gridTableSkeleton sep1 sep2 sep1 contentRows
+
+    
+     
+

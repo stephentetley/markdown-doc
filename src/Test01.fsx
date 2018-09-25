@@ -41,14 +41,14 @@ let test07 () =
     breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
 
-let fruitSpecs : ColumnSpec list = 
+let fruitColSpecs : ColumnSpec list = 
     [ { Width = 30; Alignment = AlignDefault } 
     ; { Width = 40; Alignment = AlignDefault } 
     ; { Width = 40; Alignment = AlignDefault } 
     ]
 
 let test08 () = 
-    gridTableRegularSep fruitSpecs
+    gridTableRegularSep fruitColSpecs
 
 
 
@@ -60,7 +60,7 @@ let test09 () =
         ; [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
         ; [ plaintext "Oranges"; plaintext "$2.10"; unordList [plaintext "cures scurvy"; plaintext "tasty"] ] 
         ]
-    simpleTable fruitSpecs cells |> testRender
+    gridTable fruitColSpecs cells |> testRender
 
 
 

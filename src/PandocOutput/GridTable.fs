@@ -69,7 +69,7 @@ module GridTable =
         List.map (gridTableLine columnSpecs) lines
 
     /// The first row is printed as headers.
-    let simpleTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) : Markdown = 
+    let gridTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) : Markdown = 
         let lineSep = gridTableRegularSep columnSpecs 
         let sb = new System.Text.StringBuilder ()
         let rec work (rows : (Markdown list) list) : unit = 
