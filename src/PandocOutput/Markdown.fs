@@ -11,19 +11,11 @@ namespace PandocOutput
 
 
 
-
+open PandocOutput.Internal
 open PandocOutput.Internal.FormatCombinators
 
 [<AutoOpen>]
 module Markdown = 
-
-
-    type Alignment = AlignDefault | AlignLeft | AlignCenter | AlignRight
-
-    
-    type ColumnSpec = 
-        { Width: int
-          Alignment: Alignment }
 
 
     type System.Text.StringBuilder with

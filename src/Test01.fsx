@@ -6,12 +6,11 @@
 #load "PandocOutput\Markdown.fs"
 #load "PandocOutput\GridTable.fs"
 
-open PandocOutput
+
 open System.IO
 open System.Text
 open PandocOutput.Internal
-open PandocOutput.Internal
-
+open PandocOutput
 
 let test01 () = 
     raw2 "haskell" @"qsort [] = []" 

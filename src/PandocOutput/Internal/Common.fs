@@ -6,6 +6,15 @@ namespace PandocOutput.Internal
 [<AutoOpen>]
 module Common = 
 
+
+    type Alignment = AlignDefault | AlignLeft | AlignCenter | AlignRight
+
+    
+    type ColumnSpec = 
+        { Width: int
+          Alignment: Alignment }
+
+
     /// F#'s built-in List.transpose needs perfect input. It cannot handle ragged tables.
     let raggedTranspose (emptyElement:'a) (table:('a list) list) : ('a list) list = 
         let headsOf (table:('a list) list) : 'a list = 

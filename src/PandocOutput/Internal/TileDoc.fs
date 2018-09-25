@@ -14,7 +14,7 @@ type Text =
     | Horizontal of Text * Text
     static member (+) (a:Text, b:Text) = Horizontal(a,b)
 
-let renderText (width:int) (doc:Text) : string list = 
+let renderText1 (doc:Text) : string = 
     let sb = new StringBuilder ()
     let rec work (doc:Text) (cont : unit -> 'a) = 
         match doc with
@@ -25,7 +25,10 @@ let renderText (width:int) (doc:Text) : string list =
             work d2 (fun _ -> 
             cont ()))
     work doc (fun _ -> ()) 
-    sb.ToString () |> breaklines width
+    sb.ToString ()
+
+let renderText (width:int) (doc:Text) : string list = 
+    renderText1 doc |> breaklines width
 
 let empty : Text = Empty
 
@@ -132,10 +135,34 @@ let useImageReference (altText:Text) (identifier:string) : Text =
 
 
 
-//// Prefix2 is for e.g list items where the first prefix is * and the subsequent ones are indents.
-//// Can this representation accommodate tables?
-//type Tile = 
-//    | VDoc of string list
-//    | Prefix of string * Tile
-//    | Suffix of Tile * string
-//    | Prefix2 of string * string * Tile
+/// Maybe a Markdown document is a list of Tiles and tiles don't 
+/// themselves naturally concatenate.
+
+type Tile = 
+    | Tile of string list
+    static member (+) (a:Tile, b:Tile) = 
+        match a,b with
+        | Tile(xs), Tile(ys) -> Tile (xs @ ys)
+
+let private getLines (tile:Tile) : string list = 
+    match tile with | Tile(xs) -> xs
+
+let render (tile:Tile) : string = 
+    let sb = new StringBuilder()
+    List.iter (fun line -> sb.AppendLine(line) |> ignore) <| getLines tile
+    sb.ToString()
+
+/// Default width is 80
+let tile (text:Text) = Tile <| renderText 80 text
+
+let breakingTile (texts:Text list) = 
+    Tile <| List.map (fun line -> renderText1 line + "  ") texts 
+
+
+let private prefixAll (prefix:string) (tile:Tile) : Tile = 
+    let lines = getLines tile
+    Tile <| List.map (fun line -> prefix + line) lines
+
+
+
+let codeBlock (tile:Tile) : Tile = prefixAll "    " tile

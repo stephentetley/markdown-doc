@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-
 namespace PandocOutput
 
 open System.Text
+
 open PandocOutput.Internal
 open PandocOutput.Markdown
 
