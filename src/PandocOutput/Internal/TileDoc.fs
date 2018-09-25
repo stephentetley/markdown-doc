@@ -51,7 +51,7 @@ let (<+>) (d1:Text) (d2:Text) : Text =
 let bang : Text = character '!'
 let colon : Text = character ':'
 let space : Text = character ' '
-let nbsp : Text = rawtext "&nbsp;"
+
 
 let enclose (left:Text) (right:Text) (d1:Text) : Text = 
     left + d1 + right
@@ -159,6 +159,8 @@ let render (tile:Tile) : string =
 /// contextual line width.
 let tile (text:Text) = Tile <| renderText 80 text
 
+let tileW (width:int) (text:Text) = Tile <| renderText width text
+
 let breakingTile (texts:Text list) = 
     Tile <| List.map (fun line -> renderText1 line + "  ") texts 
 
@@ -171,10 +173,20 @@ let h4 (text:Text) : Tile = Tile <| renderText 80 (rawtext "####" <+> text)
 let h5 (text:Text) : Tile = Tile <| renderText 80 (rawtext "#####" <+> text)
 let h6 (text:Text) : Tile = Tile <| renderText 80 (rawtext "######" <+> text)
 
+let nbsp : Tile = Tile <| renderText 80 (rawtext "&nbsp;")
+
 
 let private prefixAll (prefix:string) (tile:Tile) : Tile = 
     let lines = getLines tile
     Tile <| List.map (fun line -> prefix + line) lines
+
+
+let private prefixFirstRest (prefix1:string) (prefix2:string) (tile:Tile) : Tile = 
+    let body = 
+        match getLines tile with
+        | [] -> []
+        | line1 :: rest -> (prefix1 + line1) :: List.map (fun line -> prefix2 + line) rest 
+    Tile <| body
 
 
 
@@ -210,5 +222,15 @@ let textGridTable (columnSpecs:ColumnSpec list) (contents: (Text list) list)
         Tile <| gridTableSkeleton sep1 sep2 sep2 contentRows
 
     
-     
+let unordList (tiles:Tile list) : Tile = 
+    let listItem (tile:Tile) = prefixFirstRest "* " "  " tile
+    let items = List.map listItem tiles 
+    Tile <| List.concat (List.map getLines items)
+
+let ordList (tiles:Tile list) : Tile = 
+    let listItem (ix:int) (tile:Tile) = 
+        prefixFirstRest (sprintf "%i. " (ix+1)) "  " tile
+    let items = List.mapi listItem tiles 
+    Tile <| List.concat (List.map getLines items)
+
 

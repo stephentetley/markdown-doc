@@ -37,10 +37,20 @@ let temp01 () =
 let test03 (hasHeaders:bool) : unit = 
     let cells = 
         [ [ rawtext "Fruit"; rawtext "Price"; rawtext "Advantages" ]
-        ; [ rawtext "Bananas"; rawtext "$1.34"; rawtext "**Needs Tiles for lists**" ]
-        ; [ rawtext "Oranges"; rawtext "$2.10"; rawtext "**Needs Tiles for lists.** This is a bit extra just to see how wrapping works." ]  
+        ; [ rawtext "Bananas"; rawtext "$1.34"; rawtext "**We need Tiles for lists**" ]
+        ; [ rawtext "Oranges"; rawtext "$2.10"; rawtext "**We need Tiles for lists.** This implies rendering tile width should be contextual so we can get it from the ColumnSpec." ]  
         ]
     textGridTable fruitColSpecs cells  hasHeaders       
         |> render
         |> printfn "%s"
 
+let test04 () : unit = 
+    ordList <| List.map (tile << rawtext) ["Bird"; "McHale"; "Parish"]
+        |> render
+        |> printfn "%s"
+
+
+let test05 () : unit = 
+    unordList <| List.map (tileW 35 << rawtext) ["Bird"; "McHale"; "Parish (this is extended text that should continue on to the next line)."]
+        |> render
+        |> printfn "%s"
