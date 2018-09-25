@@ -24,7 +24,6 @@ let test02 () =
         |> render
         |> printfn "%s"
 
-
 let fruitColSpecs : ColumnSpec list = 
     [ { Width = 28; Alignment = AlignDefault } 
     ; { Width = 38; Alignment = AlignDefault } 
@@ -35,13 +34,13 @@ let temp01 () =
     printfn "%s" <| gridTableRowSep fruitColSpecs
     printfn "%s" <| gridTableRowEqualsFormatting fruitColSpecs
 
-let test03 () = 
+let test03 (hasHeaders:bool) : unit = 
     let cells = 
         [ [ rawtext "Fruit"; rawtext "Price"; rawtext "Advantages" ]
-        ; [ rawtext "Bananas"; rawtext "$1.34"; rawtext "**needs Tiles**" ]
-        ; [ rawtext "Oranges"; rawtext "$2.10"; rawtext "**needs Tiles**" ]  
+        ; [ rawtext "Bananas"; rawtext "$1.34"; rawtext "**Needs Tiles for lists**" ]
+        ; [ rawtext "Oranges"; rawtext "$2.10"; rawtext "**Needs Tiles for lists.** This is a bit extra just to see how wrapping works." ]  
         ]
-    textGridTable fruitColSpecs cells         
+    textGridTable fruitColSpecs cells  hasHeaders       
         |> render
         |> printfn "%s"
 

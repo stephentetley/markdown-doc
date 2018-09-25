@@ -155,10 +155,21 @@ let render (tile:Tile) : string =
     sb.ToString()
 
 /// Default width is 80
+/// Probably we really need the equivalent of a Reader monad to allow
+/// contextual line width.
 let tile (text:Text) = Tile <| renderText 80 text
 
 let breakingTile (texts:Text list) = 
     Tile <| List.map (fun line -> renderText1 line + "  ") texts 
+
+// Headers are probably tiles not Texts.
+
+let h1 (text:Text) : Tile = Tile <| renderText 80 (rawtext "#" <+> text)
+let h2 (text:Text) : Tile = Tile <| renderText 80 (rawtext "##" <+> text)
+let h3 (text:Text) : Tile = Tile <| renderText 80 (rawtext "###" <+> text)
+let h4 (text:Text) : Tile = Tile <| renderText 80 (rawtext "####" <+> text)
+let h5 (text:Text) : Tile = Tile <| renderText 80 (rawtext "#####" <+> text)
+let h6 (text:Text) : Tile = Tile <| renderText 80 (rawtext "######" <+> text)
 
 
 let private prefixAll (prefix:string) (tile:Tile) : Tile = 
@@ -169,7 +180,7 @@ let private prefixAll (prefix:string) (tile:Tile) : Tile =
 
 let codeBlock (tile:Tile) : Tile = prefixAll "    " tile
 
-let gridTableSkeleton (sep1:string) (sep2:string) (sepBody:string) (rows: (string list) list) : string list = 
+let private gridTableSkeleton (sep1:string) (sep2:string) (sepBody:string) (rows: (string list) list) : string list = 
     match rows with
     | [] -> []
     | headings :: body -> 
@@ -177,7 +188,8 @@ let gridTableSkeleton (sep1:string) (sep2:string) (sepBody:string) (rows: (strin
         List.concat <| [[sep1]; headings; [sep2]] @ body1 
 
 /// The first row is printed as headers.
-let textGridTable (columnSpecs:ColumnSpec list) (contents: (Text list) list) : Tile = 
+let textGridTable (columnSpecs:ColumnSpec list) (contents: (Text list) list) 
+                    (hasHeaders:bool): Tile = 
     let tileCell (spec:ColumnSpec) (cellText:Text) : string list = 
         renderText spec.Width cellText
 
@@ -188,9 +200,14 @@ let textGridTable (columnSpecs:ColumnSpec list) (contents: (Text list) list) : T
 
     let contentRows = List.map (gridTableRow columnSpecs) listOfRows
 
-    let sep1 = gridTableRowSep columnSpecs
-    let sep2 = gridTableRowEqualsFormatting columnSpecs
-    Tile <| gridTableSkeleton sep1 sep2 sep1 contentRows
+    if hasHeaders then 
+        let sep1 = gridTableRowSep columnSpecs
+        let sep2 = gridTableRowEqualsFormatting columnSpecs
+        Tile <| gridTableSkeleton sep1 sep2 sep1 contentRows
+    else
+        let sep1 = gridTableRowSep columnSpecs
+        let sep2 = gridTableRowDashFormatting columnSpecs
+        Tile <| gridTableSkeleton sep1 sep2 sep2 contentRows
 
     
      
