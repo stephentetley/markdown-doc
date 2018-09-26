@@ -31,6 +31,20 @@ let test04 () =
         ordList [ tile <| rawtext "Hello"; tile <| rawtext "world!" ]
     testRender m1
 
+let fruitColSpecs : ColumnSpec list = 
+    [ { Width = 30; Alignment = Alignment.AlignDefault } 
+    ; { Width = 40; Alignment = Alignment.AlignDefault } 
+    ; { Width = 40; Alignment = Alignment.AlignDefault } 
+    ]
+
+let test05 () = 
+    let cells = 
+        let plain = tile << rawtext
+        [ [ plain "Fruit"; plain "Price"; plain "Advantages" ]
+        ; [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
+        ; [ plain "Oranges"; plain "$2.10"; unordList [plain "cures scurvy"; plain "tasty"] ] 
+        ]
+    gridTable fruitColSpecs cells true |> testRender
 
 
 //let test04 () = 
@@ -47,26 +61,8 @@ let test04 () =
 //    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
 
-//let fruitColSpecs : ColumnSpec list = 
-//    [ { Width = 30; Alignment = AlignDefault } 
-//    ; { Width = 40; Alignment = AlignDefault } 
-//    ; { Width = 40; Alignment = AlignDefault } 
-//    ]
-
-//let test08 () = 
-//    gridTableRegularSep fruitColSpecs
 
 
-
-
-
-//let test09 () = 
-//    let cells = 
-//        [ [ plaintext "Fruit"; plaintext "Price"; plaintext "Advantages" ]
-//        ; [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
-//        ; [ plaintext "Oranges"; plaintext "$2.10"; unordList [plaintext "cures scurvy"; plaintext "tasty"] ] 
-//        ]
-//    gridTable fruitColSpecs cells |> testRender
 
 
 

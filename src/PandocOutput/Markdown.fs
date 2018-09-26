@@ -191,3 +191,17 @@ module Markdown =
         localLineWidth 300 (tile <| text)
 
 
+    type Alignment = PandocOutput.Internal.Common.Alignment
+    type ColumnSpec = PandocOutput.Internal.Common.ColumnSpec
+
+    let gridTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) 
+                        (hasHeaders:bool) : Markdown = 
+        Markdown <| fun ctx ->
+            let renderCell (spec:ColumnSpec) (doc:Markdown) : Tile.CellText = 
+                let mf = getMarkdown doc
+                let tile = mf { ctx with LineWidth = spec.Width }
+                Tile.getLines tile
+            let renderRow (row: Markdown list) : Tile.CellText list = 
+                List.map2 renderCell columnSpecs row
+            let contents1 = List.map renderRow contents 
+            Tile.textGridTable columnSpecs contents1 hasHeaders
