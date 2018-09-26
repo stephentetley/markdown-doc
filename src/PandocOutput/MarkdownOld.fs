@@ -15,7 +15,7 @@ open PandocOutput.Internal
 open PandocOutput.Internal.FormatCombinators
 
 [<AutoOpen>]
-module Markdown = 
+module MarkdownOld = 
 
 
     type System.Text.StringBuilder with

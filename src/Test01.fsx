@@ -3,8 +3,8 @@
 
 #load "PandocOutput\Internal\Common.fs"
 #load "PandocOutput\Internal\FormatCombinators.fs"
-#load "PandocOutput\Markdown.fs"
-#load "PandocOutput\GridTable.fs"
+#load "PandocOutput\MarkdownOld.fs"
+#load "PandocOutput\GridTableOld.fs"
 
 
 open System.IO

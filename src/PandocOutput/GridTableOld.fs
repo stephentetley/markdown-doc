@@ -6,12 +6,12 @@ namespace PandocOutput
 open System.Text
 
 open PandocOutput.Internal
-open PandocOutput.Markdown
+open PandocOutput.MarkdownOld
 
 
 /// Favour Grid Tables for output.
 [<AutoOpen>]
-module GridTable = 
+module GridTableOld = 
 
 
     let gridTableLineSep (columnSpecs:ColumnSpec list) : string = 
