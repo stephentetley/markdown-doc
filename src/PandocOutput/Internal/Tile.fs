@@ -28,3 +28,21 @@ module Tile =
 
     let tile (width:int) (text:SimpleText.SimpleText) = 
         Tile <| SimpleText.renderText width text
+
+
+    let prefixAll (prefix:string) (tile:Tile) : Tile = 
+        let lines = getLines tile
+        Tile <| List.map (fun line -> prefix + line) lines
+
+
+    let prefixFirstRest (prefix1:string) (prefix2:string) (tile:Tile) : Tile = 
+        let body = 
+            match getLines tile with
+            | [] -> []
+            | line1 :: rest -> (prefix1 + line1) :: List.map (fun line -> prefix2 + line) rest 
+        Tile <| body
+
+    let concat (tiles:Tile list) : Tile = 
+        Tile <| List.concat (List.map getLines tiles)
+
+

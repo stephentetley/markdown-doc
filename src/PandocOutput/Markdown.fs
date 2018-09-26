@@ -109,16 +109,53 @@ module Markdown =
     type Markdown = 
         | Markdown of (RenderContext -> Tile.Tile)
 
+    let inline private getMarkdown (doc:Markdown) : RenderContext -> Tile.Tile = 
+        let (Markdown fn) = doc in fn 
+
+
     let render (lineWidth:int) (doc:Markdown) : string = 
-        let (Markdown fn) = doc 
+        let fn = getMarkdown doc 
         let tile = fn {LineWidth = lineWidth}
         Tile.render tile
     
     let testRender (source:Markdown) : unit = 
         render 80 source |> printfn  "----------\n%s\n----------\n"
 
-
     let tile (text:Text) : Markdown = 
         Markdown <| fun ctx -> 
             Tile.tile ctx.LineWidth text
+
+    let private tileMap (fn:Tile.Tile -> Tile.Tile) (doc:Markdown) : Markdown = 
+        let mf = getMarkdown doc
+        Markdown <| fun ctx -> fn (mf ctx)
+
+
+    let h1 (text:Text) : Markdown = tile (rawtext "#" <+> text)
+    let h2 (text:Text) : Markdown = tile (rawtext "##" <+> text)
+    let h3 (text:Text) : Markdown = tile (rawtext "###" <+> text)
+    let h4 (text:Text) : Markdown = tile (rawtext "####" <+> text)
+    let h5 (text:Text) : Markdown = tile (rawtext "#####" <+> text)
+    let h6 (text:Text) : Markdown = tile (rawtext "######" <+> text)
+
+    let nbsp : Markdown = tile (rawtext "&nbsp;")
+
+
+    let codeBlock (tile:Markdown) : Markdown = 
+        tileMap (Tile.prefixAll "    ") tile
+
+    let concat (elements:Markdown list) : Markdown = 
+        Markdown <| fun ctx ->
+            let tiles = List.map (fun (e:Markdown) -> let mf = getMarkdown e in mf ctx) elements
+            Tile.concat tiles
+
+    let unordList (elements:Markdown list) : Markdown = 
+        concat <| List.map (tileMap (Tile.prefixFirstRest "* " "  ")) elements
+
+    let ordList (elements:Markdown list) : Markdown = 
+        let listItem (ix:int) (doc:Markdown) = 
+            tileMap (Tile.prefixFirstRest (sprintf "%i. " (ix+1)) "  ") doc
+        concat <| List.mapi listItem elements 
+        
+
+
 

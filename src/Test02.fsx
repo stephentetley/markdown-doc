@@ -21,13 +21,15 @@ let test02 () =
     let m1 : Markdown = tile (rawtext "Hello" <+> rawtext "world!")
     testRender m1
 
-//let test02 () = 
-//    plaintext "hello world" + plaintext "!"
-//        |> testRender
+let test03 () = 
+    let m1 : Markdown = 
+        unordList [ tile <| rawtext "Hello"; tile <| rawtext "world!" ]
+    testRender m1
 
-//let test03 () = 
-//    docxPagebreak
-//        |> testRender
+let test04 () = 
+    let m1 : Markdown = 
+        ordList [ tile <| rawtext "Hello"; tile <| rawtext "world!" ]
+    testRender m1
 
 
 

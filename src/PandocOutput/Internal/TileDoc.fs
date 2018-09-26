@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-
 /// Now Obsolete
+///
+/// This was an experiment splitting "Markdown" into two types - Tile and Text.
+/// We are now using the experiment as the implementation.
+
 
 module PandocOutput.Internal.TileDoc
 
@@ -179,7 +182,7 @@ let h6 (text:Text) : Tile = Tile <| renderText 80 (rawtext "######" <+> text)
 let nbsp : Tile = Tile <| renderText 80 (rawtext "&nbsp;")
 
 
-let private prefixAll (prefix:string) (tile:Tile) : Tile = 
+let  prefixAll (prefix:string) (tile:Tile) : Tile = 
     let lines = getLines tile
     Tile <| List.map (fun line -> prefix + line) lines
 
