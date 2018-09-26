@@ -59,7 +59,9 @@
     <Compile Include="PandocOutput\Internal\TileDoc.fs" />
     <Compile Include="PandocOutput\MarkdownOld.fs" />
     <Compile Include="PandocOutput\GridTableOld.fs" />
+    <Compile Include="PandocOutput\Markdown.fs" />
     <None Include="Test01.fsx" />
+    <None Include="Test02.fsx" />
     <None Include="TestTileDoc.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>

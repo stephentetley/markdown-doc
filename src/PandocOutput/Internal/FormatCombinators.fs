@@ -40,7 +40,7 @@ let render (source:Doc) : string =
     sb.ToString()
 
 
-/// Print the soc to the console.
+/// Print the Doc to the console.
 let testRender (source:Doc) : unit = 
     render source |> printfn  "----------\n%s\n----------\n"
 

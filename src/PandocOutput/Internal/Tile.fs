@@ -5,6 +5,7 @@ namespace PandocOutput.Internal
 
 open System.Text
 
+
 [<RequireQualifiedAccess>]
 module Tile = 
 
@@ -24,3 +25,6 @@ module Tile =
         let sb = new StringBuilder()
         List.iter (fun line -> sb.AppendLine(line) |> ignore) <| getLines tile
         sb.ToString()
+
+    let tile (width:int) (text:SimpleText.SimpleText) = 
+        Tile <| SimpleText.renderText width text

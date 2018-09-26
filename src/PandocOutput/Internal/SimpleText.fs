@@ -30,9 +30,4 @@ module SimpleText =
     let renderText (width:int) (doc:SimpleText) : string list = 
         renderText1 doc |> breaklines width
 
-    let empty : SimpleText = Empty
 
-    let character (ch:char) : SimpleText = Raw <| ch.ToString()
-
-    /// TODO - should probably also have a version that does escaping...
-    let rawtext (text:string) : SimpleText = Raw text
