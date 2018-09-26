@@ -26,7 +26,7 @@ module Tile =
         List.iter (fun line -> sb.AppendLine(line) |> ignore) <| getLines tile
         sb.ToString()
 
-    let tile (width:int) (text:SimpleText.SimpleText) = 
+    let tile (width:int) (text:SimpleText.Text) = 
         Tile <| SimpleText.renderText width text
 
 
@@ -45,4 +45,31 @@ module Tile =
     let concat (tiles:Tile list) : Tile = 
         Tile <| List.concat (List.map getLines tiles)
 
+    let private gridTableSkeleton (sep1:string) (sep2:string) (sepBody:string) (rows: (string list) list) : string list = 
+        match rows with
+        | [] -> []
+        | headings :: body -> 
+            let body1 = List.map (fun lines -> lines @ [sepBody]) body
+            List.concat <| [[sep1]; headings; [sep2]] @ body1 
 
+    /// The first row is printed as headers.
+    let textGridTable (columnSpecs:ColumnSpec list) (contents: (SimpleText.Text list) list) 
+                        (hasHeaders:bool): Tile = 
+        let tileCell (spec:ColumnSpec) (cellText:SimpleText.Text) : string list = 
+            SimpleText.renderText spec.Width cellText
+
+        let tileRow (columnSpecs:ColumnSpec list) (cells: SimpleText.Text list) : (string list) list = 
+            List.map2 tileCell columnSpecs cells
+    
+        let listOfRows : CellContent list list = List.map (tileRow columnSpecs) contents
+
+        let contentRows = List.map (gridTableRow columnSpecs) listOfRows
+
+        if hasHeaders then 
+            let sep1 = gridTableRowSep columnSpecs
+            let sep2 = gridTableRowEqualsFormatting columnSpecs
+            Tile <| gridTableSkeleton sep1 sep2 sep1 contentRows
+        else
+            let sep1 = gridTableRowSep columnSpecs
+            let sep2 = gridTableRowDashFormatting columnSpecs
+            Tile <| gridTableSkeleton sep1 sep2 sep2 contentRows

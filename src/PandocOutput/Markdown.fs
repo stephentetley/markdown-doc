@@ -17,7 +17,7 @@ open PandocOutput.Internal
 [<AutoOpen>]
 module Markdown = 
 
-    type Text = SimpleText.SimpleText
+    type Text = SimpleText.Text
 
     let empty : Text = SimpleText.Empty
 
@@ -100,6 +100,16 @@ module Markdown =
             | Some ss -> space + doubleQuotes (rawtext ss)
         bang + (squareBrackets altText) + parens (rawtext path + title1)
 
+
+    let useLinkReference (altText:Text) (identifier:string) : Text = 
+        squareBrackets altText + squareBrackets (rawtext identifier)
+
+    let useImageReference (altText:Text) (identifier:string) : Text = 
+        bang + (squareBrackets altText) + (squareBrackets <| rawtext identifier)
+
+
+    /// Tiled markdown i.e. large sections paragraphs, list elements, table cell text...
+
     /// Probably just line width, but opaque anyway...
     type RenderContext = 
         private { LineWidth: int }
@@ -120,6 +130,11 @@ module Markdown =
     
     let testRender (source:Markdown) : unit = 
         render 80 source |> printfn  "----------\n%s\n----------\n"
+
+    let localLineWidth (lineWidth:int) (doc:Markdown) : Markdown = 
+        Markdown <| fun ctx -> 
+            let fn = getMarkdown doc 
+            fn { ctx with LineWidth = lineWidth }
 
     let tile (text:Text) : Markdown = 
         Markdown <| fun ctx -> 
@@ -157,5 +172,22 @@ module Markdown =
         concat <| List.mapi listItem elements 
         
 
+    let defLinkReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
+        let title1  = 
+            match title with
+            | None -> empty
+            | Some ss -> space + doubleQuotes (rawtext ss)
+        let text = squareBrackets (rawtext identifier) + colon <+> angleBrackets (rawtext path) + title1
+        // Potentially we need a non-breaking version of tile.
+        localLineWidth 300 (tile <| text)
+
+
+    let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
+        let title1  = 
+            match title with
+            | None -> empty
+            | Some str -> space + doubleQuotes (rawtext str)
+        let text = squareBrackets (rawtext identifier) + colon <+> rawtext path + title1
+        localLineWidth 300 (tile <| text)
 
 
