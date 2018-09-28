@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "pandoc-output", "src\pandoc-output.fsproj", "{16F5B0C5-C247-42DE-9772-A40E31B42D8F}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "markdown-doc", "src\markdown-doc.fsproj", "{16F5B0C5-C247-42DE-9772-A40E31B42D8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

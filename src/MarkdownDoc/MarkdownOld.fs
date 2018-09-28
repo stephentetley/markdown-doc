@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace PandocOutput
+namespace MarkdownDoc
 
 /// Design issue
 /// Whitespace matters in Pandoc.
@@ -11,8 +11,8 @@ namespace PandocOutput
 
 
 
-open PandocOutput.Internal
-open PandocOutput.Internal.FormatCombinators
+open MarkdownDoc.Internal
+open MarkdownDoc.Internal.FormatCombinators
 
 [<AutoOpen>]
 module MarkdownOld = 
@@ -27,8 +27,8 @@ module MarkdownOld =
 
 
 
-    let render = PandocOutput.Internal.FormatCombinators.render
-    let testRender = PandocOutput.Internal.FormatCombinators.testRender
+    let render = MarkdownDoc.Internal.FormatCombinators.render
+    let testRender = MarkdownDoc.Internal.FormatCombinators.testRender
 
     let inline private character (ch:char) : Markdown = formatChar ch
     let inline private mdstring (str:string) : Markdown = formatString str
@@ -39,9 +39,9 @@ module MarkdownOld =
 
     /// TODO - we should be careful about re-exports from FormatCombinators.
     /// We might want to change the type of ``Markdown``.
-    let (+++) = PandocOutput.Internal.FormatCombinators.(+++)
-    let (@@@) = PandocOutput.Internal.FormatCombinators.(@@@)
-    let backslash = PandocOutput.Internal.FormatCombinators.backslash
+    let (+++) = MarkdownDoc.Internal.FormatCombinators.(+++)
+    let (@@@) = MarkdownDoc.Internal.FormatCombinators.(@@@)
+    let backslash = MarkdownDoc.Internal.FormatCombinators.backslash
 
     let h1 (source:Markdown) : Markdown = 
         character '#' +^+ source

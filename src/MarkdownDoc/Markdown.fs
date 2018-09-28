@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace PandocOutput
+namespace MarkdownDoc
 
 /// Design issue
 /// Whitespace matters in Pandoc.
@@ -11,7 +11,7 @@ namespace PandocOutput
 
 
 
-open PandocOutput.Internal
+open MarkdownDoc.Internal
 
 
 [<AutoOpen>]
@@ -191,8 +191,8 @@ module Markdown =
         localLineWidth 300 (tile <| text)
 
 
-    type Alignment = PandocOutput.Internal.Common.Alignment
-    type ColumnSpec = PandocOutput.Internal.Common.ColumnSpec
+    type Alignment = MarkdownDoc.Internal.Common.Alignment
+    type ColumnSpec = MarkdownDoc.Internal.Common.ColumnSpec
 
     let gridTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) 
                         (hasHeaders:bool) : Markdown = 

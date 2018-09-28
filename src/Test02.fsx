@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#load "PandocOutput\Internal\Common.fs"
-#load "PandocOutput\Internal\SimpleText.fs"
-#load "PandocOutput\Internal\Tile.fs"
-#load "PandocOutput\Markdown.fs"
+#load "MarkdownDoc\Internal\Common.fs"
+#load "MarkdownDoc\Internal\SimpleText.fs"
+#load "MarkdownDoc\Internal\Tile.fs"
+#load "MarkdownDoc\Markdown.fs"
 
 
 
 open System.IO
 open System.Text
-open PandocOutput
+open MarkdownDoc
 
 
 let test01 () = 

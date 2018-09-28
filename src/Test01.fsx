@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#load "PandocOutput\Internal\Common.fs"
-#load "PandocOutput\Internal\FormatCombinators.fs"
-#load "PandocOutput\MarkdownOld.fs"
-#load "PandocOutput\GridTableOld.fs"
+#load "MarkdownDoc\Internal\Common.fs"
+#load "MarkdownDoc\Internal\FormatCombinators.fs"
+#load "MarkdownDoc\MarkdownOld.fs"
+
 
 
 open System.IO
 open System.Text
-open PandocOutput.Internal
-open PandocOutput
+open MarkdownDoc.Internal
+open MarkdownDoc
 
 let test01 () = 
     raw2 "haskell" @"qsort [] = []" 
@@ -47,20 +47,20 @@ let fruitColSpecs : ColumnSpec list =
     ; { Width = 40; Alignment = AlignDefault } 
     ]
 
-let test08 () = 
-    gridTableRegularSep fruitColSpecs
+//let test08 () = 
+//    gridTableRegularSep fruitColSpecs
 
 
 
 
 
-let test09 () = 
-    let cells = 
-        [ [ plaintext "Fruit"; plaintext "Price"; plaintext "Advantages" ]
-        ; [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
-        ; [ plaintext "Oranges"; plaintext "$2.10"; unordList [plaintext "cures scurvy"; plaintext "tasty"] ] 
-        ]
-    gridTable fruitColSpecs cells |> testRender
+//let test09 () = 
+//    let cells = 
+//        [ [ plaintext "Fruit"; plaintext "Price"; plaintext "Advantages" ]
+//        ; [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
+//        ; [ plaintext "Oranges"; plaintext "$2.10"; unordList [plaintext "cures scurvy"; plaintext "tasty"] ] 
+//        ]
+//    gridTable fruitColSpecs cells |> testRender
 
 
 

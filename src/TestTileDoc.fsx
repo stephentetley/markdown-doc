@@ -1,13 +1,11 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
+#load "MarkdownDoc\Internal\Common.fs"
+#load "MarkdownDoc\Internal\TileDoc.fs"
 
-#load "PandocOutput\Internal\Common.fs"
-#load "PandocOutput\Internal\TileDoc.fs"
-
-open PandocOutput.Internal
-open PandocOutput.Internal.TileDoc
-
+open MarkdownDoc.Internal
+open MarkdownDoc.Internal.TileDoc
 
 
 

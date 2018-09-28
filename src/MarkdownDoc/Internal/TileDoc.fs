@@ -7,11 +7,11 @@
 /// We are now using the experiment as the implementation.
 
 
-module PandocOutput.Internal.TileDoc
+module MarkdownDoc.Internal.TileDoc
 
 open System.Text
 
-open PandocOutput.Internal.Common
+open MarkdownDoc.Internal.Common
 
 
 /// This is not a "pretty printer" as it makes no effort to "fit" the output.
