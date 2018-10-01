@@ -2,68 +2,71 @@
 // License: BSD 3 Clause
 
 #load "MarkdownDoc\Internal\Common.fs"
-#load "MarkdownDoc\Internal\FormatCombinators.fs"
-#load "MarkdownDoc\MarkdownOld.fs"
+#load "MarkdownDoc\Internal\SimpleText.fs"
+#load "MarkdownDoc\Internal\Tile.fs"
+#load "MarkdownDoc\Markdown.fs"
 
 
 
 open System.IO
 open System.Text
-open MarkdownDoc.Internal
 open MarkdownDoc
 
-let test01 () = 
-    raw2 "haskell" @"qsort [] = []" 
-        |> testRender
 
+let test01 () = 
+    rawtext "Hello" <+> rawtext "world!"
+        |> testRenderText
 
 let test02 () = 
-    plaintext "hello world" + plaintext "!"
-        |> testRender
+    let m1 : Markdown = tile (rawtext "Hello" <+> rawtext "world!")
+    testRender m1
 
 let test03 () = 
-    docxPagebreak
-        |> testRender
-
-
+    let m1 : Markdown = 
+        unordList [ tile <| rawtext "Hello"; tile <| rawtext "world!" ]
+    testRender m1
 
 let test04 () = 
-    breakline1 20 "The quick brown fox jumped over the lazy dog." 
-    // "hello world".Split(' ')
-
-let test05 () = 
-    breakline1 10 "ABCDEFGHIJKLM NOP RST UV WXYZ"
-
-let test06 () = 
-    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
-
-let test07 () = 
-    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
-
+    let m1 : Markdown = 
+        ordList [ tile <| rawtext "Hello"; tile <| rawtext "world!" ]
+    testRender m1
 
 let fruitColSpecs : ColumnSpec list = 
-    [ { Width = 30; Alignment = AlignDefault } 
-    ; { Width = 40; Alignment = AlignDefault } 
-    ; { Width = 40; Alignment = AlignDefault } 
+    [ { Width = 30; Alignment = Alignment.AlignDefault } 
+    ; { Width = 40; Alignment = Alignment.AlignDefault } 
+    ; { Width = 40; Alignment = Alignment.AlignDefault } 
     ]
 
-//let test08 () = 
-//    gridTableRegularSep fruitColSpecs
+let test05 () = 
+    let cells = 
+        let plain = tile << rawtext
+        [ [ plain "Fruit"; plain "Price"; plain "Advantages" ]
+        ; [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
+        ; [ plain "Oranges"; plain "$2.10"; unordList [plain "cures scurvy"; plain "tasty"] ] 
+        ]
+    gridTable fruitColSpecs cells true |> testRender
+
+
+//let test04 () = 
+//    breakline1 20 "The quick brown fox jumped over the lazy dog." 
+//    // "hello world".Split(' ')
+
+//let test05 () = 
+//    breakline1 10 "ABCDEFGHIJKLM NOP RST UV WXYZ"
+
+//let test06 () = 
+//    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
+
+//let test07 () = 
+//    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
 
 
 
 
-//let test09 () = 
-//    let cells = 
-//        [ [ plaintext "Fruit"; plaintext "Price"; plaintext "Advantages" ]
-//        ; [ plaintext "Bananas"; plaintext "$1.34"; unordList [plaintext "builtin-in wrapper"; plaintext "bright color"] ] 
-//        ; [ plaintext "Oranges"; plaintext "$2.10"; unordList [plaintext "cures scurvy"; plaintext "tasty"] ] 
-//        ]
-//    gridTable fruitColSpecs cells |> testRender
 
 
+//let test10 () = 
+//    blockquote (plaintext "Hollow" @@@ plaintext "world!") 
+//        |> testRender
 
-let test10 () = 
-    blockquote (plaintext "Hollow" @@@ plaintext "world!") 
-        |> testRender

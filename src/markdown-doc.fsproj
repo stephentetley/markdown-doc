@@ -56,12 +56,10 @@
     <Compile Include="MarkdownDoc\Internal\FormatCombinators.fs" />
     <Compile Include="MarkdownDoc\Internal\SimpleText.fs" />
     <Compile Include="MarkdownDoc\Internal\Tile.fs" />
-    <Compile Include="MarkdownDoc\Internal\TileDoc.fs" />
     <Compile Include="MarkdownDoc\MarkdownOld.fs" />
     <Compile Include="MarkdownDoc\Markdown.fs" />
     <None Include="Test01.fsx" />
-    <None Include="Test02.fsx" />
-    <None Include="TestTileDoc.fsx" />
+    <None Include="TestOld.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

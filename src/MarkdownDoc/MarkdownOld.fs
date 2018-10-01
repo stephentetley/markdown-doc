@@ -11,7 +11,6 @@ namespace MarkdownDoc
 
 
 
-open MarkdownDoc.Internal
 open MarkdownDoc.Internal.FormatCombinators
 
 [<AutoOpen>]
