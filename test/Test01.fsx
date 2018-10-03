@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#load "MarkdownDoc\Internal\Common.fs"
-#load "MarkdownDoc\Internal\SimpleText.fs"
-#load "MarkdownDoc\Internal\Tile.fs"
-#load "MarkdownDoc\Markdown.fs"
+#load "..\src\MarkdownDoc\Internal\Common.fs"
+#load "..\src\MarkdownDoc\Internal\SimpleText.fs"
+#load "..\src\MarkdownDoc\Internal\Tile.fs"
+#load "..\src\MarkdownDoc\Markdown.fs"
 
 
 

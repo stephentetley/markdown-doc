@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#load "MarkdownDoc\Internal\Common.fs"
-#load "MarkdownDoc\Internal\FormatCombinators.fs"
-#load "MarkdownDoc\MarkdownOld.fs"
+#load "..\src\MarkdownDoc\Internal\Common.fs"
+#load "..\src\MarkdownDoc\Internal\FormatCombinators.fs"
+#load "..\src\MarkdownDoc\MarkdownOld.fs"
 
 
 

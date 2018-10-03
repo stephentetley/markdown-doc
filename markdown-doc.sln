@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "markdown-doc", "src\markdown-doc.fsproj", "{16F5B0C5-C247-42DE-9772-A40E31B42D8F}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "markdown-doc-test", "test\markdown-doc-test.fsproj", "{4D529F40-8E6C-4C95-82B5-5A9196A85FBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{16F5B0C5-C247-42DE-9772-A40E31B42D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16F5B0C5-C247-42DE-9772-A40E31B42D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16F5B0C5-C247-42DE-9772-A40E31B42D8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D529F40-8E6C-4C95-82B5-5A9196A85FBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D529F40-8E6C-4C95-82B5-5A9196A85FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D529F40-8E6C-4C95-82B5-5A9196A85FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D529F40-8E6C-4C95-82B5-5A9196A85FBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
