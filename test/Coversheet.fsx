@@ -17,6 +17,15 @@ open FSharp.Data
 open MarkdownDoc
 open MarkdownDoc.Pandoc
 
+let safeName (input:string) : string = 
+    let parens = ['('; ')'; '['; ']'; '{'; '}']
+    let bads = ['\\'; '/'; ':'; '?'] 
+    let white = ['\n'; '\t']
+    let ans1 = List.fold (fun (s:string) (c:char) -> s.Replace(c.ToString(), "")) input parens
+    let ans2 = List.fold (fun (s:string) (c:char) -> s.Replace(c,'_')) ans1 bads
+    let ans3 = List.fold (fun (s:string) (c:char) -> s.Replace(c,'_')) ans2 white
+    ans3.Trim() 
+
 
 // ****************************************************************************
 // Build a document
@@ -77,48 +86,14 @@ let makeDoc (item:Item) : Markdown =
            ; contents item.Work
            ]
 
-let itemSample = { Uid = "SAI00004096"; Name = "WALDORF/SLD"; Work = Commission; Phase = Phase1}
-
-let demo01 () = 
-    let output = @"G:\work\Projects\events2\point-blue\markdown\WALDORF.md"
-    renderFile 80 output (makeDoc itemSample)
-
-//let concatOptions (strs:string list) = 
-//    String.concat " " <| List.filter (fun ss -> ss<>"") strs
-
-//type DocxOptions = 
-//    { ReferenceDoc: option<string>
-//      EnabledExtensions: string list 
-//      DisabledExtensions: string list }
-
-//let docxCommand (mdInputPath:string) (outputDocxName:string) (options:DocxOptions) = 
-//    let referenceDoc = 
-//        match options.ReferenceDoc with
-//        | None -> ""
-//        | Some doc -> sprintf "--reference-doc=%s" doc
-//    let parts = 
-//        [ referenceDoc
-//        ; mdInputPath
-//        ; "-f markdown"
-//        ; "-t docx+table_captions"  // TODO
-//        ; "-s"
-//        ; sprintf "-o %s" outputDocxName
-//        ]
-//    concatOptions parts
-
-// Run Pandoc
-// pandoc --reference-doc=include/custom-reference1.docx coversheet.md -f markdown -t docx+table_captions -s -o sample-coversheet.docx
 
 
-let generateDocx (mdInputPath:string) (outputDocxName:string)  =
-    let cwd = @"G:\work\Projects\events2\point-blue\markdown"
+let generateDocx (workingDirectory:string) (mdInputPath:string) (outputDocxName:string)  =
     let opts = 
         { ReferenceDoc = Some @"include/custom-reference1.docx" 
           DocxExtensions = extensions ["table_captions"] }
-    runPandocDocx cwd mdInputPath opts outputDocxName 
+    runPandocDocx workingDirectory mdInputPath opts outputDocxName 
 
-let demoRun1 () =
-    generateDocx "WALDORF.md" "WALDORF.docx"
 
 // ****************************************************************************
 // Generate output from a work list
@@ -156,4 +131,23 @@ let rowToItem (row:InputRow) : option<Item> =
 let items () : Item list = 
     List.choose id << List.map rowToItem <| rows ()
 
+
+
+let itemSample = { Uid = "SAI00004096"; Name = "WALDORF/2 SLD"; Work = Commission; Phase = Phase1}
+
+let outputItem (item:Item) : unit = 
+    let cwd = @"G:\work\Projects\events2\point-blue\markdown"
+    let name1 = safeName item.Name
+    let mdPath = System.IO.Path.Combine("output", sprintf "%s-cover.md" name1)
+    let docxPath = System.IO.Path.Combine("output", sprintf "%s-cover.docx" name1)
+    let mdOutPath = System.IO.Path.Combine(cwd, mdPath)
+    renderFile 80 mdOutPath (makeDoc itemSample)
+    generateDocx cwd mdPath docxPath
+
+
+let demo01 () = 
+    outputItem itemSample
+
+let main () =
+    items () |> List.iter outputItem
 

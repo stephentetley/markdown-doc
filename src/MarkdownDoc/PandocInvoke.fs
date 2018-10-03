@@ -40,11 +40,11 @@ module Pandoc =
             | Some doc -> sprintf "--reference-doc=%s" doc
         let parts = 
             [ referenceDoc
-            ; mdInputPath
+            ; sprintf "\"%s\"" mdInputPath
             ; "-f markdown"
             ; sprintf "-t docx%s" (renderExtensions options.DocxExtensions) 
             ; "-s"
-            ; sprintf "-o %s" outputDocxName
+            ; sprintf "-o \"%s\"" outputDocxName
             ]
         concatOptions parts
 
