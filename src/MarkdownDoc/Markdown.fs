@@ -135,7 +135,11 @@ module Markdown =
         let fn = getMarkdown doc 
         let tile = fn {LineWidth = lineWidth}
         Tile.render tile
-    
+
+    let renderFile (lineWidth:int) (outputPath:string) (doc:Markdown) : unit = 
+        System.IO.File.WriteAllText(path = outputPath, contents = render lineWidth doc)
+        
+
     let testRender (source:Markdown) : unit = 
         render 80 source |> printfn  "----------\n%s\n----------\n"
 

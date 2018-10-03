@@ -32,8 +32,8 @@ type Item =
 let nbsp2 : Markdown = 
     preformatted [nbsp; nbsp]
 
-let logo () : Markdown = 
-    tile (inlineImage (rawtext " ") @"include/YW-log.jpg" None)
+let logo : Markdown = 
+    tile (inlineImage (rawtext " ") @"include/YW-logo.jpg" None)
 
 let title1 (phase:PhaseType) : Markdown = 
     let caption = 
@@ -44,7 +44,16 @@ let title1 (phase:PhaseType) : Markdown =
 
 let title2 (sai:string) (name:string) : Markdown = 
     h2 (rawtext sai <+> rawtext name)
-      
+
+let partners : Markdown = 
+    let partnerLine name desc : Markdown = 
+        let body : Text = (doubleAsterisks <| rawtext name) <+> rawtext desc 
+        tile body
+    concat [ h2 (rawtext "Asset Replacement Project Partners")
+           ; partnerLine "Metasphere" "Project Delivery"
+           ; partnerLine "OnSite" "Installation and Commmissioning"
+           ]
+
 let workDoc (work:WorkType) : Text = 
     match work with
     | Commission -> rawtext "Point Blue Installation / Commissioning Form"
@@ -54,18 +63,56 @@ let contents (work:WorkType) : Markdown =
     h3 (rawtext "Contents") + unordList [ tile (workDoc work)]
 
 let makeDoc (item:Item) : Markdown = 
-    concat [ logo ()
+    concat [ logo
            ; nbsp2
            ; title1 item.Phase
            ; nbsp2
            ; title2 item.Uid item.Name
            ; nbsp2
+           ; partners
+           ; nbsp2
+           ; contents item.Work
            ]
 
 let itemSample = { Uid = "SAI00004096"; Name = "WALDORF/SLD"; Work = Commission; Phase = Phase1}
 
 let demo01 () = 
-    render 80 (makeDoc itemSample)
+    let output = @"G:\work\Projects\events2\point-blue\markdown\WALDORF.md"
+    renderFile 80 output (makeDoc itemSample)
+
+let concatOptions (strs:string list) = 
+    String.concat " " <| List.filter (fun ss -> ss<>"") strs
+
+type DocxOptions = 
+    { ReferenceDoc: option<string>
+      EnabledExtensions: string list 
+      DisabledExtensions: string list }
+
+let docxCommand (mdInputPath:string) (outputDocxName:string) (options:DocxOptions) = 
+    let referenceDoc = 
+        match options.ReferenceDoc with
+        | None -> ""
+        | Some doc -> sprintf "--reference-doc=%s" doc
+    let parts = 
+        [ referenceDoc
+        ; mdInputPath
+        ; "-f markdown"
+        ; "-t docx+table_captions"  // TODO
+        ; "-s"
+        ; sprintf "-o %s" outputDocxName
+        ]
+    concatOptions parts
+
+// Run Pandoc
+// pandoc --reference-doc=include/custom-reference1.docx coversheet.md -f markdown -t docx+table_captions -s -o sample-coversheet.docx
+let runPandocDocx () =
+    let cwd = @"G:\work\Projects\events2\point-blue\markdown"
+    let opts = 
+        { ReferenceDoc = Some @"include/custom-reference1.docx" 
+          EnabledExtensions = []
+          DisabledExtensions = [] }
+    let command = docxCommand "WALDORF.md" "WALDORF.docx" opts
+    MarkdownDoc.Internal.Common.shellRun cwd "pandoc" command
 
 
 
