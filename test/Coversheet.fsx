@@ -133,20 +133,32 @@ let items () : Item list =
 
 
 
-let itemSample = { Uid = "SAI00004096"; Name = "WALDORF/2 SLD"; Work = Commission; Phase = Phase1}
+// let itemSample = { Uid = "SAI00004096"; Name = "WALDORF/2 SLD"; Work = Commission; Phase = Phase1}
+
+let makeFileName (item:Item) (extension:string) : string = 
+    let pid = 
+        match item.Phase with
+        | Phase1 -> "P1"
+        | Phase2 -> "P2"
+    let work = 
+        match item.Work with
+        | Commission -> "C"
+        | Revisit -> "R"
+    sprintf "%s-%s%s-cover.%s" (safeName item.Name) pid work extension
 
 let outputItem (item:Item) : unit = 
     let cwd = @"G:\work\Projects\events2\point-blue\markdown"
-    let name1 = safeName item.Name
-    let mdPath = System.IO.Path.Combine("output", sprintf "%s-cover.md" name1)
-    let docxPath = System.IO.Path.Combine("output", sprintf "%s-cover.docx" name1)
+    let phase = 
+        match item.Phase with
+        | Phase1 -> "phase1"
+        | Phase2 -> "phase2"
+    let mdPath = System.IO.Path.Combine("output", phase, makeFileName item "md")
+    let docxPath = System.IO.Path.Combine("output", phase, makeFileName item "docx")
     let mdOutPath = System.IO.Path.Combine(cwd, mdPath)
-    renderFile 80 mdOutPath (makeDoc itemSample)
+    renderFile 80 mdOutPath (makeDoc item)
     generateDocx cwd mdPath docxPath
 
 
-let demo01 () = 
-    outputItem itemSample
 
 let main () =
     items () |> List.iter outputItem
