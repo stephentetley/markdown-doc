@@ -38,6 +38,8 @@ module Markdown =
     let colon : Text = character ':'
     let space : Text = character ' '
 
+    let nbsp : Text = rawtext "&nbsp;"
+
     let enclose (left:Text) (right:Text) (d1:Text) : Text = 
         left + d1 + right
 
@@ -146,6 +148,11 @@ module Markdown =
         Markdown <| fun ctx -> 
             Tile.tile ctx.LineWidth text
 
+    let preformatted (lines:Text list) : Markdown = 
+        Markdown <| fun _ -> 
+            Tile.preformatted lines
+
+
     let private tileMap (fn:Tile.Tile -> Tile.Tile) (doc:Markdown) : Markdown = 
         let mf = getMarkdown doc
         Markdown <| fun ctx -> fn (mf ctx)
@@ -158,7 +165,7 @@ module Markdown =
     let h5 (text:Text) : Markdown = tile (rawtext "#####" <+> text)
     let h6 (text:Text) : Markdown = tile (rawtext "######" <+> text)
 
-    let nbsp : Markdown = tile (rawtext "&nbsp;")
+    
 
 
     let codeBlock (tile:Markdown) : Markdown = 

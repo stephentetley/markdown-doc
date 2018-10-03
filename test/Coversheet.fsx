@@ -29,6 +29,12 @@ type Item =
       Work: WorkType
       Phase: PhaseType }
 
+let nbsp2 : Markdown = 
+    preformatted [nbsp; nbsp]
+
+let logo () : Markdown = 
+    tile (inlineImage (rawtext " ") @"include/YW-log.jpg" None)
+
 let title1 (phase:PhaseType) : Markdown = 
     let caption = 
         match phase with
@@ -37,7 +43,7 @@ let title1 (phase:PhaseType) : Markdown =
     h1 (rawtext caption)
 
 let title2 (sai:string) (name:string) : Markdown = 
-    h2 (rawtext sai + rawtext name)
+    h2 (rawtext sai <+> rawtext name)
       
 let workDoc (work:WorkType) : Text = 
     match work with
@@ -46,6 +52,22 @@ let workDoc (work:WorkType) : Text =
 
 let contents (work:WorkType) : Markdown = 
     h3 (rawtext "Contents") + unordList [ tile (workDoc work)]
+
+let makeDoc (item:Item) : Markdown = 
+    concat [ logo ()
+           ; nbsp2
+           ; title1 item.Phase
+           ; nbsp2
+           ; title2 item.Uid item.Name
+           ; nbsp2
+           ]
+
+let itemSample = { Uid = "SAI00004096"; Name = "WALDORF/SLD"; Work = Commission; Phase = Phase1}
+
+let demo01 () = 
+    render 80 (makeDoc itemSample)
+
+
 
 
 // ****************************************************************************
@@ -83,4 +105,5 @@ let rowToItem (row:InputRow) : option<Item> =
 
 let items () : Item list = 
     List.choose id << List.map rowToItem <| rows ()
+
 

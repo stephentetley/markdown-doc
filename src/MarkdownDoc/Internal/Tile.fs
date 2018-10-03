@@ -28,8 +28,11 @@ module Tile =
         List.iter (fun line -> sb.AppendLine(line) |> ignore) <| getLines tile
         sb.ToString()
 
-    let tile (width:int) (text:SimpleText.Text) = 
+    let tile (width:int) (text:SimpleText.Text) : Tile = 
         Tile <| SimpleText.renderText width text
+
+    let preformatted (lines:SimpleText.Text list) : Tile = 
+        Tile <| List.map SimpleText.renderText1  lines
 
 
     let prefixAll (prefix:string) (tile:Tile) : Tile = 
@@ -44,8 +47,13 @@ module Tile =
             | line1 :: rest -> (prefix1 + line1) :: List.map (fun line -> prefix2 + line) rest 
         Tile <| body
 
+    /// A each tile is interspersed with a blank line.
+    /// If the input list is empty, return an empty Tile.
     let concat (tiles:Tile list) : Tile = 
-        Tile <| List.concat (List.map getLines tiles)
+        match tiles with 
+        | [] -> Tile []
+        | x :: xs -> List.fold (fun ac b -> ac + b) x xs
+        
 
     // ************************************************************************
     // Tables
