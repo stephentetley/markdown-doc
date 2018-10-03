@@ -12,8 +12,11 @@ open FSharp.Data
 #load "..\src\MarkdownDoc\Internal\SimpleText.fs"
 #load "..\src\MarkdownDoc\Internal\Tile.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
+#load "..\src\MarkdownDoc\PandocInvoke.fs"
 
 open MarkdownDoc
+open MarkdownDoc.Pandoc
+
 
 // ****************************************************************************
 // Build a document
@@ -80,42 +83,42 @@ let demo01 () =
     let output = @"G:\work\Projects\events2\point-blue\markdown\WALDORF.md"
     renderFile 80 output (makeDoc itemSample)
 
-let concatOptions (strs:string list) = 
-    String.concat " " <| List.filter (fun ss -> ss<>"") strs
+//let concatOptions (strs:string list) = 
+//    String.concat " " <| List.filter (fun ss -> ss<>"") strs
 
-type DocxOptions = 
-    { ReferenceDoc: option<string>
-      EnabledExtensions: string list 
-      DisabledExtensions: string list }
+//type DocxOptions = 
+//    { ReferenceDoc: option<string>
+//      EnabledExtensions: string list 
+//      DisabledExtensions: string list }
 
-let docxCommand (mdInputPath:string) (outputDocxName:string) (options:DocxOptions) = 
-    let referenceDoc = 
-        match options.ReferenceDoc with
-        | None -> ""
-        | Some doc -> sprintf "--reference-doc=%s" doc
-    let parts = 
-        [ referenceDoc
-        ; mdInputPath
-        ; "-f markdown"
-        ; "-t docx+table_captions"  // TODO
-        ; "-s"
-        ; sprintf "-o %s" outputDocxName
-        ]
-    concatOptions parts
+//let docxCommand (mdInputPath:string) (outputDocxName:string) (options:DocxOptions) = 
+//    let referenceDoc = 
+//        match options.ReferenceDoc with
+//        | None -> ""
+//        | Some doc -> sprintf "--reference-doc=%s" doc
+//    let parts = 
+//        [ referenceDoc
+//        ; mdInputPath
+//        ; "-f markdown"
+//        ; "-t docx+table_captions"  // TODO
+//        ; "-s"
+//        ; sprintf "-o %s" outputDocxName
+//        ]
+//    concatOptions parts
 
 // Run Pandoc
 // pandoc --reference-doc=include/custom-reference1.docx coversheet.md -f markdown -t docx+table_captions -s -o sample-coversheet.docx
-let runPandocDocx () =
+
+
+let generateDocx (mdInputPath:string) (outputDocxName:string)  =
     let cwd = @"G:\work\Projects\events2\point-blue\markdown"
     let opts = 
         { ReferenceDoc = Some @"include/custom-reference1.docx" 
-          EnabledExtensions = []
-          DisabledExtensions = [] }
-    let command = docxCommand "WALDORF.md" "WALDORF.docx" opts
-    MarkdownDoc.Internal.Common.shellRun cwd "pandoc" command
+          DocxExtensions = extensions ["table_captions"] }
+    runPandocDocx cwd mdInputPath opts outputDocxName 
 
-
-
+let demoRun1 () =
+    generateDocx "WALDORF.md" "WALDORF.docx"
 
 // ****************************************************************************
 // Generate output from a work list

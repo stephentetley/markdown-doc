@@ -58,6 +58,7 @@
     <Compile Include="MarkdownDoc\Internal\Tile.fs" />
     <Compile Include="MarkdownDoc\MarkdownOld.fs" />
     <Compile Include="MarkdownDoc\Markdown.fs" />
+    <Compile Include="MarkdownDoc\PandocInvoke.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
