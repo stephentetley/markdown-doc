@@ -118,6 +118,12 @@ module Markdown =
     
     type Markdown = 
         | Markdown of (RenderContext -> Tile.Tile)
+        static member (+) (a:Markdown, b:Markdown) = 
+            Markdown <| fun ctx -> 
+                let (Markdown f1) = a 
+                let (Markdown f2) = b
+                f1 ctx + f2 ctx
+
 
     let inline private getMarkdown (doc:Markdown) : RenderContext -> Tile.Tile = 
         let (Markdown fn) = doc in fn 

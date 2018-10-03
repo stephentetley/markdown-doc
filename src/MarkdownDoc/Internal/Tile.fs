@@ -16,7 +16,9 @@ module Tile =
         | Tile of string list
         static member (+) (a:Tile, b:Tile) = 
             match a,b with
-            | Tile(xs), Tile(ys) -> Tile (xs @ ys)
+            | Tile(xs), Tile(ys) -> 
+                // Separate with an empty line
+                let ys1 = "" :: ys in Tile (xs @ ys1)
 
     let internal getLines (tile:Tile) : string list = 
         match tile with | Tile(xs) -> xs
