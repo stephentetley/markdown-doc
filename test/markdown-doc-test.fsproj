@@ -43,8 +43,8 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <None Include="Test01.fsx" />
-    <None Include="TestOld.fsx" />
-    <None Include="Coversheet.fsx" />
+    <None Include="PBCoversheet.fsx" />
+    <None Include="EDMCoversheet.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

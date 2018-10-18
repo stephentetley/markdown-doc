@@ -55,11 +55,11 @@ let title1 (phase:PhaseType) : Markdown =
     h1 (rawtext caption)
 
 let title2 (sai:string) (name:string) : Markdown = 
-    h2 (rawtext sai <+> rawtext name)
+    h2 (rawtext sai ^+^ rawtext name)
 
 let partners : Markdown = 
     let partnerLine name desc : Markdown = 
-        let body : Text = (doubleAsterisks <| rawtext name) <+> rawtext desc 
+        let body : Text = (doubleAsterisks <| rawtext name) ^+^ rawtext desc 
         tile body
     concat [ h2 (rawtext "Asset Replacement Project Partners")
            ; partnerLine "Metasphere" "Project Delivery"
@@ -163,3 +163,42 @@ let outputItem (item:Item) : unit =
 let main () =
     items () |> List.iter outputItem
 
+
+// ****************************************************************************
+// Generate output from a work list
+
+type MissedTable = 
+    CsvProvider<Sample = @"G:\work\Projects\events2\point-blue\missing.csv",
+                 HasHeaders = true >
+
+type MissedRow = MissedTable.Row
+
+
+
+let missedRows () : MissedRow list  = (new MissedTable()).Rows |> Seq.toList
+
+
+
+let missedRowToItem (row:MissedRow) : option<Item> = 
+    let work = 
+        match row.Work with
+        | "commissioning" -> Some Commission
+        | "revisit" -> Some Revisit
+        | _ -> None
+    let phase = 
+        match row.Scheme with
+        | "T0877" -> Some Phase1
+        | "T0942" -> Some Phase2
+        | _ -> None
+    Option.map2 (fun a b -> { Uid = row.``SAI number``
+                            ; Name = row.``New AI2 Name``
+                            ; Work = a
+                            ; Phase = b }) work phase
+
+
+
+let missedItems () : Item list = 
+    List.choose id << List.map missedRowToItem <| missedRows ()
+
+let main2 () =
+    missedItems () |> List.iter outputItem

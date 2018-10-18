@@ -14,11 +14,11 @@ open MarkdownDoc
 
 
 let test01 () = 
-    rawtext "Hello" <+> rawtext "world!"
+    rawtext "Hello" ^+^ rawtext "world!"
         |> testRenderText
 
 let test02 () = 
-    let m1 : Markdown = tile (rawtext "Hello" <+> rawtext "world!")
+    let m1 : Markdown = tile (rawtext "Hello" ^+^ rawtext "world!")
     testRender m1
 
 let test03 () = 

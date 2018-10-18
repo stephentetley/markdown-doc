@@ -31,8 +31,8 @@ module Markdown =
         SimpleText.renderText1 source |> printfn  "----------\n%s\n----------\n"
 
     /// Horizontal concat with a separating space 
-    let (<+>) (d1:Text) (d2:Text) : Text = 
-       d1 + character ' ' + d2
+    let (^+^) (d1:Text) (d2:Text) : Text = 
+       d1 ^^ character ' ' ^^ d2
 
     let bang : Text = character '!'
     let colon : Text = character ':'
@@ -41,7 +41,7 @@ module Markdown =
     let nbsp : Text = rawtext "&nbsp;"
 
     let enclose (left:Text) (right:Text) (d1:Text) : Text = 
-        left + d1 + right
+        left ^^ d1 ^^ right
 
 
     let parens (source:Text) : Text = 
@@ -91,23 +91,23 @@ module Markdown =
         let title1  = 
             match title with
             | None -> empty
-            | Some ss -> space + doubleQuotes (rawtext ss)
-        (squareBrackets altText) + parens (rawtext path + title1)
+            | Some ss -> space ^^ doubleQuotes (rawtext ss)
+        (squareBrackets altText) ^^ parens (rawtext path ^^ title1)
 
 
     let inlineImage (altText:Text) (path:string) (title:option<string>) : Text = 
         let title1  = 
             match title with
             | None -> empty
-            | Some ss -> space + doubleQuotes (rawtext ss)
-        bang + (squareBrackets altText) + parens (rawtext path + title1)
+            | Some ss -> space ^^ doubleQuotes (rawtext ss)
+        bang ^^ (squareBrackets altText) ^^ parens (rawtext path ^^ title1)
 
 
     let useLinkReference (altText:Text) (identifier:string) : Text = 
-        squareBrackets altText + squareBrackets (rawtext identifier)
+        squareBrackets altText ^^ squareBrackets (rawtext identifier)
 
     let useImageReference (altText:Text) (identifier:string) : Text = 
-        bang + (squareBrackets altText) + (squareBrackets <| rawtext identifier)
+        bang ^^ (squareBrackets altText) ^^ (squareBrackets <| rawtext identifier)
 
 
     /// Tiled markdown i.e. large sections paragraphs, list elements, table cell text...
@@ -162,12 +162,12 @@ module Markdown =
         Markdown <| fun ctx -> fn (mf ctx)
 
 
-    let h1 (text:Text) : Markdown = tile (rawtext "#" <+> text)
-    let h2 (text:Text) : Markdown = tile (rawtext "##" <+> text)
-    let h3 (text:Text) : Markdown = tile (rawtext "###" <+> text)
-    let h4 (text:Text) : Markdown = tile (rawtext "####" <+> text)
-    let h5 (text:Text) : Markdown = tile (rawtext "#####" <+> text)
-    let h6 (text:Text) : Markdown = tile (rawtext "######" <+> text)
+    let h1 (text:Text) : Markdown = tile (rawtext "#" ^+^ text)
+    let h2 (text:Text) : Markdown = tile (rawtext "##" ^+^ text)
+    let h3 (text:Text) : Markdown = tile (rawtext "###" ^+^ text)
+    let h4 (text:Text) : Markdown = tile (rawtext "####" ^+^ text)
+    let h5 (text:Text) : Markdown = tile (rawtext "#####" ^+^ text)
+    let h6 (text:Text) : Markdown = tile (rawtext "######" ^+^ text)
 
     
 
@@ -193,8 +193,8 @@ module Markdown =
         let title1  = 
             match title with
             | None -> empty
-            | Some ss -> space + doubleQuotes (rawtext ss)
-        let text = squareBrackets (rawtext identifier) + colon <+> angleBrackets (rawtext path) + title1
+            | Some ss -> space ^^ doubleQuotes (rawtext ss)
+        let text = squareBrackets (rawtext identifier) ^^ colon ^+^ angleBrackets (rawtext path) ^^ title1
         // Potentially we need a non-breaking version of tile.
         localLineWidth 300 (tile <| text)
 
@@ -203,8 +203,8 @@ module Markdown =
         let title1  = 
             match title with
             | None -> empty
-            | Some str -> space + doubleQuotes (rawtext str)
-        let text = squareBrackets (rawtext identifier) + colon <+> rawtext path + title1
+            | Some str -> space ^^ doubleQuotes (rawtext str)
+        let text = squareBrackets (rawtext identifier) ^^ colon ^+^ rawtext path ^^ title1
         localLineWidth 300 (tile <| text)
 
 

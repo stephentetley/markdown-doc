@@ -12,7 +12,7 @@ module SimpleText =
         | Empty
         | Raw of string
         | Horizontal of Text * Text
-        static member (+) (a:Text, b:Text) = Horizontal(a,b)
+        static member (^^) (a:Text, b:Text) = Horizontal(a,b)
 
     let renderText1 (doc:Text) : string = 
         let sb = new StringBuilder ()
