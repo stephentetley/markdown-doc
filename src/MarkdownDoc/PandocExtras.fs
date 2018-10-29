@@ -3,19 +3,22 @@
 
 namespace MarkdownDoc.Pandoc
 
-open MarkdownDoc
 
 [<AutoOpen>]
 module PandocExtras = 
 
+    open MarkdownDoc
 
-    let rawblock (formatName:string) (textlines:string list) : Markdown = 
-        let line1 = sprintf"```{=%s}" formatName
+    let inlineRaw (format:string) (content:Text) = 
+        enclose (text "`") (text "`") content ^^ text (sprintf "={%s}" format)
+
+    let rawCode (format:string) (textlines:string list) : Markdown = 
+        let line1 = sprintf"```{=%s}" format
         let line2 = "```"
         preformatted << List.map text <| (line1 :: (textlines @ [line2]))
 
-    let openXmlPagebreak : Markdown = 
-        rawblock "openxml" 
+    let openxmlPagebreak : Markdown = 
+        rawCode "openxml" 
             [ "<w:p>"
             ; "  <w:r>"
             ; "    <w:br w:type=\"page\"/>"

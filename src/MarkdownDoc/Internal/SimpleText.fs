@@ -10,7 +10,7 @@ module SimpleText =
 
     type Text = 
         | Empty
-        | Raw of string
+        | String of string
         | Horizontal of Text * Text
         static member (^^) (a:Text, b:Text) = Horizontal(a,b)
 
@@ -19,7 +19,7 @@ module SimpleText =
         let rec work (doc:Text) (cont : unit -> 'a) = 
             match doc with
             | Empty -> cont ()
-            | Raw str -> sb.Append(str) |> ignore; cont ()
+            | String str -> sb.Append(str) |> ignore; cont ()
             | Horizontal(d1,d2) -> 
                 work d1 (fun _ ->
                 work d2 (fun _ -> 

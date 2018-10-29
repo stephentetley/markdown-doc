@@ -72,7 +72,7 @@ let workDoc (work:WorkType) : Text =
     | Revisit -> text "Point Blue Revisit Form"
 
 let contents (work:WorkType) : Markdown = 
-    h3 (text "Contents") + unordList [ tile (workDoc work)]
+    h3 (text "Contents") ^@^ unordList [ tile (workDoc work)]
 
 let makeDoc (item:Item) : Markdown = 
     concat [ logo

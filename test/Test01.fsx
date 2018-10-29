@@ -50,22 +50,20 @@ let test05 () =
 
 let test06 () = 
     let m1 : Markdown = 
-        tile (text "hello") + openXmlPagebreak + tile (text "world")
+        tile (text "hello") ^@^ openxmlPagebreak ^@^ tile (text "world")
     testRender m1
     
 
-//let test05 () = 
-//    breakline1 10 "ABCDEFGHIJKLM NOP RST UV WXYZ"
+let test07 () = 
+    let m1 : Markdown = 
+        tile <| (text "hello" ^^ text "<world>")
+    testRender m1
 
 //let test06 () = 
 //    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
 
 //let test07 () = 
 //    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
-
-
-
-
 
 
 

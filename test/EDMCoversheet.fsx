@@ -52,7 +52,7 @@ let title2 (sai:string) (name:string) : Markdown =
 
 
 let contents (workItems:string list) : Markdown = 
-    h3 (text "Contents") + unordList (List.map (tile << text) workItems)
+    h3 (text "Contents") ^@^ unordList (List.map (tile << text) workItems)
 
 let documentControl : Markdown = 
     h3 (text "Document Control")

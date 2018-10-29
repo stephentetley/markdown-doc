@@ -21,14 +21,19 @@ module Markdown =
 
     let empty : Text = SimpleText.Empty
 
-    let character (ch:char) : Text = SimpleText.Raw <| ch.ToString()
+    /// Build a Text item from a single char. 
+    /// '&' and '<' will be escaped.
+    let character (ch:char) : Text = 
+        match ch with
+        | '<' -> SimpleText.String "&lt;"
+        | '&' -> SimpleText.String "&amp;"
+        | _ -> SimpleText.String <| ch.ToString()
 
-    /// TODO - should probably also have a version that does escaping...
-    /// This is the wrong name, raw implies 
-    /// ``` {=openxml}
-    /// some-raw-text
-    /// ```
-    let text (content:string) : Text = SimpleText.Raw content    
+    /// Build a Text item from a single char. 
+    /// '&' and '<' will be escaped.
+    let text (content:string) : Text = 
+        let s1 = content.Replace("<", "&lt;").Replace("&", "&amp;")
+        SimpleText.String s1    
 
     /// Print the Text to the console.
     let testRenderText (source:Text) : unit = 
@@ -126,11 +131,7 @@ module Markdown =
     
     type Markdown = 
         | Markdown of (RenderContext -> Tile.Tile)
-        static member (+) (a:Markdown, b:Markdown) = 
-            Markdown <| fun ctx -> 
-                let (Markdown f1) = a 
-                let (Markdown f2) = b
-                f1 ctx + f2 ctx
+
 
 
     let inline private getMarkdown (doc:Markdown) : RenderContext -> Tile.Tile = 
@@ -183,6 +184,13 @@ module Markdown =
 
     let codeBlock (tile:Markdown) : Markdown = 
         tileMap (Tile.prefixAll "    ") tile
+
+    /// Concatenate two Markdown pieces.
+    let (^@^) (a:Markdown) (b:Markdown) : Markdown = 
+        Markdown <| fun ctx -> 
+            let (Markdown f1) = a 
+            let (Markdown f2) = b
+            f1 ctx + f2 ctx
 
     let concat (elements:Markdown list) : Markdown = 
         Markdown <| fun ctx ->
