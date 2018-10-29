@@ -14,6 +14,9 @@ module Tile =
 
     type Tile = 
         | Tile of string list
+
+        /// Tile can use (+) as it is internal, it's only in the public API 
+        /// where we wait to avoid (+).
         static member (+) (a:Tile, b:Tile) = 
             match a,b with
             | Tile(xs), Tile(ys) -> 

@@ -9,7 +9,7 @@ namespace MarkdownDoc
 /// Do we help the user (making the implementation complicated) or keep 
 /// the implementation simple relying on the user to do the right thin?
 
-
+open System.IO
 
 open MarkdownDoc.Internal
 
@@ -138,7 +138,15 @@ module Markdown =
     type Markdown = 
         | Markdown of (RenderContext -> Tile.Tile)
 
+        member x.Render(lineWidth:int) : string = 
+            let fn = match x with | Markdown(fx) -> fx 
+            let tile = fn {LineWidth = lineWidth}
+            Tile.render tile
 
+        member x.Render() : string = x.Render(lineWidth = 80)
+
+        member x.Save(sw:StreamWriter) : unit = 
+            sw.Write(x.Render())
 
     let inline private getMarkdown (doc:Markdown) : RenderContext -> Tile.Tile = 
         let (Markdown fn) = doc in fn 
@@ -150,11 +158,12 @@ module Markdown =
         Tile.render tile
 
     let renderFile (lineWidth:int) (outputPath:string) (doc:Markdown) : unit = 
-        System.IO.File.WriteAllText(path = outputPath, contents = render lineWidth doc)
+        let md = doc.Render(lineWidth=lineWidth)
+        System.IO.File.WriteAllText(path = outputPath, contents = md)
         
 
     let testRender (source:Markdown) : unit = 
-        render 80 source |> printfn  "----------\n%s\n----------\n"
+        source.Render(lineWidth = 80) |> printfn  "----------\n%s\n----------\n"
 
     let localLineWidth (lineWidth:int) (doc:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
