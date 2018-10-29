@@ -29,11 +29,17 @@ module Markdown =
         | '&' -> SimpleText.String "&amp;"
         | _ -> SimpleText.String <| ch.ToString()
 
-    /// Build a Text item from a single char. 
+    /// Build a Text item from a string. 
     /// '&' and '<' will be escaped.
     let text (content:string) : Text = 
-        let s1 = content.Replace("<", "&lt;").Replace("&", "&amp;")
-        SimpleText.String s1    
+        /// Ampersand must be replaced first, otherwise we get double escaping.
+        let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
+        SimpleText.String s1  
+        
+    /// Build a Text item from a string. 
+    /// No escaping is performed, use this function with care.
+    let rawtext (content:string) : Text = 
+        SimpleText.String content  
 
     /// Print the Text to the console.
     let testRenderText (source:Text) : unit = 

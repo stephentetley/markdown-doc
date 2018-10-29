@@ -15,7 +15,7 @@ module PandocExtras =
     let rawCode (format:string) (textlines:string list) : Markdown = 
         let line1 = sprintf"```{=%s}" format
         let line2 = "```"
-        preformatted << List.map text <| (line1 :: (textlines @ [line2]))
+        preformatted << List.map rawtext <| (line1 :: (textlines @ [line2]))
 
     let openxmlPagebreak : Markdown = 
         rawCode "openxml" 
