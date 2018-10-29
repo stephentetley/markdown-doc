@@ -40,22 +40,22 @@ let nbsp2 : Markdown =
     preformatted [nbsp; nbsp]
 
 let logo : Markdown = 
-    tile (inlineImage (rawtext " ") @"include/YW-logo.jpg" None)
+    tile (inlineImage (text " ") @"include/YW-logo.jpg" None)
 
 let title1 : Markdown = 
-    h1 (rawtext "T0975 - Event Duration Monitoring Phase 2 (EDM2)")
+    h1 (text "T0975 - Event Duration Monitoring Phase 2 (EDM2)")
     
 
 let title2 (sai:string) (name:string) : Markdown = 
-    h2 (rawtext sai ^+^ rawtext name)
+    h2 (text sai ^+^ text name)
 
 
 
 let contents (workItems:string list) : Markdown = 
-    h3 (rawtext "Contents") + unordList (List.map (tile << rawtext) workItems)
+    h3 (text "Contents") + unordList (List.map (tile << text) workItems)
 
 let documentControl : Markdown = 
-    h3 (rawtext "Document Control")
+    h3 (text "Document Control")
 
 let makeDoc (item:Item) : Markdown = 
     concat [ logo

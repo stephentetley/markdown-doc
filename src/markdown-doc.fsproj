@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>16f5b0c5-c247-42de-9772-a40e31b42d8f</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>markdown_doc</RootNamespace>
-    <AssemblyName>markdown_doc</AssemblyName>
+    <RootNamespace>MarkdownDoc</RootNamespace>
+    <AssemblyName>MarkdownDoc</AssemblyName>
     <UseStandardResourceNames>true</UseStandardResourceNames>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.3.0</TargetFSharpCoreVersion>
@@ -57,6 +57,7 @@
     <Compile Include="MarkdownDoc\Internal\SimpleText.fs" />
     <Compile Include="MarkdownDoc\Internal\Tile.fs" />
     <Compile Include="MarkdownDoc\Markdown.fs" />
+    <Compile Include="MarkdownDoc\PandocExtras.fs" />
     <Compile Include="MarkdownDoc\PandocInvoke.fs" />
     <Content Include="packages.config" />
   </ItemGroup>

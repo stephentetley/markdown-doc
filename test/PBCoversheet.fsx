@@ -45,34 +45,34 @@ let nbsp2 : Markdown =
     preformatted [nbsp; nbsp]
 
 let logo : Markdown = 
-    tile (inlineImage (rawtext " ") @"include/YW-logo.jpg" None)
+    tile (inlineImage (text " ") @"include/YW-logo.jpg" None)
 
 let title1 (phase:PhaseType) : Markdown = 
     let caption = 
         match phase with
         | Phase1 -> "T0877 Hawkeye 2 to Point Blue Asset Replacement (Phase 1)"
         | Phase2 -> "T0942 Hawkeye 2 to Point Blue Asset Replacement (Phase 2)"
-    h1 (rawtext caption)
+    h1 (text caption)
 
 let title2 (sai:string) (name:string) : Markdown = 
-    h2 (rawtext sai ^+^ rawtext name)
+    h2 (text sai ^+^ text name)
 
 let partners : Markdown = 
     let partnerLine name desc : Markdown = 
-        let body : Text = (doubleAsterisks <| rawtext name) ^+^ rawtext desc 
+        let body : Text = (doubleAsterisks <| text name) ^+^ text desc 
         tile body
-    concat [ h2 (rawtext "Asset Replacement Project Partners")
+    concat [ h2 (text "Asset Replacement Project Partners")
            ; partnerLine "Metasphere" "Project Delivery"
            ; partnerLine "OnSite" "Installation and Commmissioning"
            ]
 
 let workDoc (work:WorkType) : Text = 
     match work with
-    | Commission -> rawtext "Point Blue Installation / Commissioning Form"
-    | Revisit -> rawtext "Point Blue Revisit Form"
+    | Commission -> text "Point Blue Installation / Commissioning Form"
+    | Revisit -> text "Point Blue Revisit Form"
 
 let contents (work:WorkType) : Markdown = 
-    h3 (rawtext "Contents") + unordList [ tile (workDoc work)]
+    h3 (text "Contents") + unordList [ tile (workDoc work)]
 
 let makeDoc (item:Item) : Markdown = 
     concat [ logo

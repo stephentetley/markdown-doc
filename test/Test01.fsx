@@ -5,30 +5,31 @@
 #load "..\src\MarkdownDoc\Internal\SimpleText.fs"
 #load "..\src\MarkdownDoc\Internal\Tile.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
-
+#load "..\src\MarkdownDoc\PandocExtras.fs"
 
 
 open System.IO
 open System.Text
 open MarkdownDoc
+open MarkdownDoc.Pandoc
 
 
 let test01 () = 
-    rawtext "Hello" ^+^ rawtext "world!"
+    text "Hello" ^+^ text "world!"
         |> testRenderText
 
 let test02 () = 
-    let m1 : Markdown = tile (rawtext "Hello" ^+^ rawtext "world!")
+    let m1 : Markdown = tile (text "Hello" ^+^ text "world!")
     testRender m1
 
 let test03 () = 
     let m1 : Markdown = 
-        unordList [ tile <| rawtext "Hello"; tile <| rawtext "world!" ]
+        unordList [ tile <| text "Hello"; tile <| text "world!" ]
     testRender m1
 
 let test04 () = 
     let m1 : Markdown = 
-        ordList [ tile <| rawtext "Hello"; tile <| rawtext "world!" ]
+        ordList [ tile <| text "Hello"; tile <| text "world!" ]
     testRender m1
 
 let fruitColSpecs : ColumnSpec list = 
@@ -39,7 +40,7 @@ let fruitColSpecs : ColumnSpec list =
 
 let test05 () = 
     let cells = 
-        let plain = tile << rawtext
+        let plain = tile << text
         [ [ plain "Fruit"; plain "Price"; plain "Advantages" ]
         ; [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
         ; [ plain "Oranges"; plain "$2.10"; unordList [plain "cures scurvy"; plain "tasty"] ] 
@@ -47,9 +48,11 @@ let test05 () =
     gridTable fruitColSpecs cells true |> testRender
 
 
-//let test04 () = 
-//    breakline1 20 "The quick brown fox jumped over the lazy dog." 
-//    // "hello world".Split(' ')
+let test06 () = 
+    let m1 : Markdown = 
+        tile (text "hello") + openXmlPagebreak + tile (text "world")
+    testRender m1
+    
 
 //let test05 () = 
 //    breakline1 10 "ABCDEFGHIJKLM NOP RST UV WXYZ"

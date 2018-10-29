@@ -5,7 +5,7 @@ namespace MarkdownDoc.Pandoc
 
 
 [<AutoOpen>]
-module Pandoc = 
+module PandocInvoke = 
 
     let private concatOptions (strs:string list) = 
         String.concat " " <| List.filter (fun ss -> ss<>"") strs
