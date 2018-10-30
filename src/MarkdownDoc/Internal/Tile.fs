@@ -8,6 +8,7 @@ open System.Text
 
 [<RequireQualifiedAccess>]
 module Tile = 
+    open System.IO
 
     /// Maybe a Markdown document is a list of Tiles and tiles don't 
     /// themselves naturally concatenate.
@@ -15,21 +16,30 @@ module Tile =
     type Tile = 
         | Tile of string list
 
+        member internal x.TextLines 
+            with get() = match x with | Tile(xs) -> xs
+
         /// Tile can use (+) as it is internal, it's only in the public API 
-        /// where we wait to avoid (+).
+        /// where we want to avoid (+) and using (+) avoids taking another 
+        /// operator name.
         static member (+) (a:Tile, b:Tile) = 
             match a,b with
             | Tile(xs), Tile(ys) -> 
                 // Separate with an empty line
                 let ys1 = "" :: ys in Tile (xs @ ys1)
+        
+        member x.SaveToString() = 
+            let sb = new StringBuilder()
+            List.iter (fun line -> sb.AppendLine(line) |> ignore) <| x.TextLines
+            sb.ToString()
 
-    let internal getLines (tile:Tile) : string list = 
-        match tile with | Tile(xs) -> xs
+        member x.Save (sw:StreamWriter) = 
+            List.iter (fun (line:string) -> sw.WriteLine(line)) x.TextLines
 
-    let render (tile:Tile) : string = 
-        let sb = new StringBuilder()
-        List.iter (fun line -> sb.AppendLine(line) |> ignore) <| getLines tile
-        sb.ToString()
+    //let render (tile:Tile) : string = 
+    //    let sb = new StringBuilder()
+    //    List.iter (fun line -> sb.AppendLine(line) |> ignore) <| tile.TextLines
+    //    sb.ToString()
 
     let tile (width:int) (text:SimpleText.Text) : Tile = 
         Tile <| SimpleText.renderText width text
@@ -39,13 +49,12 @@ module Tile =
 
 
     let prefixAll (prefix:string) (tile:Tile) : Tile = 
-        let lines = getLines tile
-        Tile <| List.map (fun line -> prefix + line) lines
+        Tile <| List.map (fun line -> prefix + line) tile.TextLines
 
 
     let prefixFirstRest (prefix1:string) (prefix2:string) (tile:Tile) : Tile = 
         let body = 
-            match getLines tile with
+            match tile.TextLines with
             | [] -> []
             | line1 :: rest -> (prefix1 + line1) :: List.map (fun line -> prefix2 + line) rest 
         Tile <| body

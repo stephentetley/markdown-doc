@@ -51,3 +51,4 @@ module PandocInvoke =
     let runPandocDocx (workingDirectory:string) (mdInputPath:string) (opts:DocxOptions) (outputDocxName:string) : unit =
         let command = docxCommand mdInputPath outputDocxName opts
         MarkdownDoc.Internal.Common.shellRun workingDirectory "pandoc" command
+

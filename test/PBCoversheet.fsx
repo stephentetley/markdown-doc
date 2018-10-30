@@ -155,7 +155,7 @@ let outputItem (item:Item) : unit =
     let mdPath = System.IO.Path.Combine("output", phase, makeFileName item "md")
     let docxPath = System.IO.Path.Combine("output", phase, makeFileName item "docx")
     let mdOutPath = System.IO.Path.Combine(cwd, mdPath)
-    renderFile 80 mdOutPath (makeDoc item)
+    ((makeDoc item):Markdown).Save(columnWidth = 80, outputPath = mdOutPath)
     generateDocx cwd mdPath docxPath
 
 

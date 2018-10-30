@@ -129,50 +129,52 @@ module Markdown =
 
     /// Tiled markdown i.e. large sections paragraphs, list elements, table cell text...
 
-    /// Probably just line width, but opaque anyway...
+    /// Probably just formatting width, but opaque anyway...
     type RenderContext = 
-        private { LineWidth: int }
+        private { ColumnWidth: int }
 
 
     
     type Markdown = 
         | Markdown of (RenderContext -> Tile.Tile)
 
-        member x.Render(lineWidth:int) : string = 
-            let fn = match x with | Markdown(fx) -> fx 
-            let tile = fn {LineWidth = lineWidth}
-            Tile.render tile
+        member internal x.GetMarkdown 
+            with get() = match x with | Markdown(fn) -> fn
 
-        member x.Render() : string = x.Render(lineWidth = 80)
+        member x.SaveToString(columnWidth:int) : string = 
+            let tile = x.GetMarkdown {ColumnWidth = columnWidth}
+            tile.SaveToString()
+
+        member x.SaveToString() : string = 
+            x.SaveToString(columnWidth = 80)
 
         member x.Save(sw:StreamWriter) : unit = 
-            sw.Write(x.Render())
+            let tile = x.GetMarkdown {ColumnWidth = 80}
+            tile.Save(sw)
 
-    let inline private getMarkdown (doc:Markdown) : RenderContext -> Tile.Tile = 
-        let (Markdown fn) = doc in fn 
+        member x.Save(columnWidth:int, sw:StreamWriter) : unit = 
+            let tile = x.GetMarkdown {ColumnWidth = columnWidth}
+            tile.Save(sw)
 
+        member x.Save (columnWidth:int, outputPath:string) : unit = 
+            use sw = new System.IO.StreamWriter(outputPath)
+            x.Save(columnWidth, sw)
 
-    let render (lineWidth:int) (doc:Markdown) : string = 
-        let fn = getMarkdown doc 
-        let tile = fn {LineWidth = lineWidth}
-        Tile.render tile
-
-    let renderFile (lineWidth:int) (outputPath:string) (doc:Markdown) : unit = 
-        let md = doc.Render(lineWidth=lineWidth)
-        System.IO.File.WriteAllText(path = outputPath, contents = md)
+        member x.Save (outputPath:string) : unit = 
+            use sw = new System.IO.StreamWriter(outputPath)
+            x.Save(sw)
         
 
     let testRender (source:Markdown) : unit = 
-        source.Render(lineWidth = 80) |> printfn  "----------\n%s\n----------\n"
+        source.SaveToString() |> printfn  "----------\n%s\n----------\n"
 
-    let localLineWidth (lineWidth:int) (doc:Markdown) : Markdown = 
+    let localColumnWidth (columnWidth:int) (doc:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
-            let fn = getMarkdown doc 
-            fn { ctx with LineWidth = lineWidth }
+            doc.GetMarkdown { ctx with ColumnWidth = columnWidth }
 
     let tile (text:Text) : Markdown = 
         Markdown <| fun ctx -> 
-            Tile.tile ctx.LineWidth text
+            Tile.tile ctx.ColumnWidth text
 
 
 
@@ -183,7 +185,7 @@ module Markdown =
 
 
     let private tileMap (fn:Tile.Tile -> Tile.Tile) (doc:Markdown) : Markdown = 
-        let mf = getMarkdown doc
+        let mf = doc.GetMarkdown
         Markdown <| fun ctx -> fn (mf ctx)
 
 
@@ -209,7 +211,7 @@ module Markdown =
 
     let concat (elements:Markdown list) : Markdown = 
         Markdown <| fun ctx ->
-            let tiles = List.map (fun (e:Markdown) -> let mf = getMarkdown e in mf ctx) elements
+            let tiles = List.map (fun (doc:Markdown) -> doc.GetMarkdown ctx) elements
             Tile.concat tiles
 
     let tiles (paragraphs:Text list) : Markdown = 
@@ -232,7 +234,7 @@ module Markdown =
             | Some ss -> space ^^ doubleQuotes (text ss)
         let text = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
         // Potentially we need a non-breaking version of tile.
-        localLineWidth 300 (tile <| text)
+        localColumnWidth 300 (tile <| text)
 
 
     let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
@@ -241,7 +243,7 @@ module Markdown =
             | None -> empty
             | Some str -> space ^^ doubleQuotes (text str)
         let text = squareBrackets (text identifier) ^^ colon ^+^ text path ^^ title1
-        localLineWidth 300 (tile <| text)
+        localColumnWidth 300 (tile <| text)
 
 
     type Alignment = MarkdownDoc.Internal.Common.Alignment
@@ -251,9 +253,8 @@ module Markdown =
                         (hasHeaders:bool) : Markdown = 
         Markdown <| fun ctx ->
             let renderCell (spec:ColumnSpec) (doc:Markdown) : Tile.CellText = 
-                let mf = getMarkdown doc
-                let tile = mf { ctx with LineWidth = spec.Width }
-                Tile.getLines tile
+                let tile = doc.GetMarkdown { ctx with ColumnWidth = spec.Width }
+                tile.TextLines
             let renderRow (row: Markdown list) : Tile.CellText list = 
                 List.map2 renderCell columnSpecs row
             let contents1 = List.map renderRow contents 
