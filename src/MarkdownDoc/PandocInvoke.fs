@@ -7,48 +7,94 @@ namespace MarkdownDoc.Pandoc
 [<AutoOpen>]
 module PandocInvoke = 
 
+    let private doubleQuote (s:string) : string = "\"" + s + "\""
+
     let private concatOptions (strs:string list) = 
         String.concat " " <| List.filter (fun ss -> ss<>"") strs
 
-    type Extensions = 
-        { EnabledExtensions: string list 
-          DisabledExtensions: string list }
+    type Extension =
+        | Enable of string
+        | Disable of string
+        override x.ToString() = 
+            match x with
+            | Enable s -> "+" + s
+            | Disable s -> "-" + s
 
-    let private renderExtensions (exts:Extensions) : string = 
-        let positives = List.map (fun s -> "+" + s) exts.EnabledExtensions
-        let negatives = List.map (fun s -> "-" + s) exts.DisabledExtensions
-        String.concat "" <| positives @ negatives
+    type Format = 
+        { FormatName: string 
+          Extensions: Extension list }
 
-    let extensions (exts:string list) : Extensions = 
-        { EnabledExtensions = exts 
-          DisabledExtensions = [] }
+        override x.ToString() = 
+            let exts = List.map (fun (x:Extension) -> x.ToString()) x.Extensions
+            String.concat "" (x.FormatName :: exts)
 
-    let enableExtension (ext1:string) (exts:Extensions) = 
-        { exts with EnabledExtensions = ext1 :: exts.EnabledExtensions }
+    /// KeyValue options are also printed as verbose                
+    type Option = 
+        | Short of char * string option
+        | Verbose of string * string option 
+        | KeyValue of string * (string * string) 
+        override x.ToString() = 
+            let printBody (body:option<string>) =
+                match body with
+                | None | Some null | Some "" -> ""
+                | Some s -> "=" + s
+            let printArgs (k:string,v:string) : string = 
+                match v with
+                | null | "" -> k
+                | _ -> k + ":" + v                
+            match x with
+            | Short(ch,body) -> "-" + ch.ToString() + printBody body
+            | Verbose(str,body) -> "--" + str + printBody body
+            | KeyValue(str,body) -> sprintf "--%s=%s" str (printArgs body)
 
-    let disableExtension (ext1:string) (exts:Extensions) = 
-        { exts with DisabledExtensions = ext1 :: exts.DisabledExtensions }
 
-    type DocxOptions = 
-        { ReferenceDoc: option<string>
-          DocxExtensions: Extensions }
+    let commandBody (fromFormat:Format) (toFormat:Format) 
+                        (inputPath:string) (options:Option list) : string = 
+        sprintf "--from=%s --to=%s %s %s" 
+                (fromFormat.ToString())
+                (toFormat.ToString())
+                inputPath
+                (String.concat " " <| List.map (fun (o:Option) -> o.ToString()) options)
 
-    let private docxCommand (mdInputPath:string) (outputDocxName:string) (options:DocxOptions) = 
-        let referenceDoc = 
-            match options.ReferenceDoc with
-            | None -> ""
-            | Some doc -> sprintf "--reference-doc=%s" doc
-        let parts = 
-            [ referenceDoc
-            ; sprintf "\"%s\"" mdInputPath
-            ; "-f markdown"
-            ; sprintf "-t docx%s" (renderExtensions options.DocxExtensions) 
-            ; "-s"
-            ; sprintf "-o \"%s\"" outputDocxName
-            ]
-        concatOptions parts
 
-    let runPandocDocx (workingDirectory:string) (mdInputPath:string) (opts:DocxOptions) (outputDocxName:string) : unit =
-        let command = docxCommand mdInputPath outputDocxName opts
-        MarkdownDoc.Internal.Common.shellRun workingDirectory "pandoc" command
+    type PandocArgs = 
+        { FromFormat: Format
+          InputPath: string 
+          ToFormat: Format
+          OutputPath: string 
+          Options: Option list }
 
+
+    let runPandoc (shellWorkingDirectory:string) (args:PandocArgs) : unit =
+        let output = Verbose("output", Some <| doubleQuote args.OutputPath)
+        let options = args.Options @ [output]
+        let command = commandBody args.FromFormat args.ToFormat (doubleQuote args.InputPath) options
+        MarkdownDoc.Internal.Common.shellRun shellWorkingDirectory "pandoc" command
+
+
+    /// --reference-doc
+    /// For docx / odt output
+    let referenceDoc (path:string) : Option = 
+        Verbose("reference-doc", Some path)
+
+    let standalone : Option = Verbose("standalone", None)
+
+    let metadata (key:string) (value:string) : Option = KeyValue("metadata", (key,value))
+
+    let enableTableCaptions : Extension = Enable("table_captions")
+
+    let runPandocDocx (shellWorkingDirectory:string) 
+                        (inputPath:string) 
+                        (outputPath:string) 
+                        (stylesDoc:string) 
+                        (otherOptions: Option list) : unit =
+        let args = 
+            { FromFormat = { FormatName = "markdown"; Extensions = [] }
+            ; InputPath = inputPath 
+            ; ToFormat = { FormatName = "docx"; Extensions = [enableTableCaptions] }
+            ; OutputPath = outputPath
+            ; Options = 
+                match stylesDoc with
+                | null | "" -> (standalone :: otherOptions)
+                | _ -> (referenceDoc stylesDoc :: standalone :: otherOptions) }
+        runPandoc shellWorkingDirectory args

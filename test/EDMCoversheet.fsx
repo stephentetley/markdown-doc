@@ -65,14 +65,11 @@ let makeDoc (item:Item) : Markdown =
            ; title2 item.Uid item.Name
            ; nbsp2
            ; contents item.Worklist
-
            ]
 
 
 
-let generateDocx (workingDirectory:string) (mdInputPath:string) (outputDocxName:string)  =
-    let opts = 
-        { ReferenceDoc = Some @"include/custom-reference1.docx" 
-          DocxExtensions = extensions ["table_captions"] }
-    runPandocDocx workingDirectory mdInputPath opts outputDocxName 
+let generateDocx (workingDirectory:string) (mdInputPath:string) (outputDocxName:string) : unit  =
+    let stylesDoc = @"include/custom-reference1.docx" 
+    runPandocDocx workingDirectory mdInputPath outputDocxName stylesDoc []
 

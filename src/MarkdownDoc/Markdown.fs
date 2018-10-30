@@ -53,7 +53,7 @@ module Markdown =
     let colon : Text = character ':'
     let space : Text = character ' '
 
-    let nbsp : Text = text "&nbsp;"
+    let nbsp : Text = rawtext "&nbsp;"
 
     let enclose (left:Text) (right:Text) (d1:Text) : Text = 
         left ^^ d1 ^^ right

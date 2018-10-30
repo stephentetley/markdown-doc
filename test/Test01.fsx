@@ -6,7 +6,7 @@
 #load "..\src\MarkdownDoc\Internal\Tile.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
 #load "..\src\MarkdownDoc\PandocExtras.fs"
-
+#load "..\src\MarkdownDoc\PandocInvoke.fs"
 
 open System.IO
 open System.Text
