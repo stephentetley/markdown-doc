@@ -3,6 +3,7 @@
 
 namespace MarkdownDoc.Pandoc
 
+open MarkdownDoc.Markdown
 
 [<AutoOpen>]
 module PandocInvoke = 
@@ -82,7 +83,7 @@ module PandocInvoke =
     let metadata (key:string) (value:string) : Option = KeyValue("metadata", (key,value))
 
     let enableTableCaptions : Extension = Enable("table_captions")
-
+    /// Generate Docx
     let runPandocDocx (shellWorkingDirectory:string) 
                         (inputPath:string) 
                         (outputPath:string) 
@@ -98,7 +99,19 @@ module PandocInvoke =
                 | null | "" -> (standalone :: otherOptions)
                 | _ -> (referenceDoc stylesDoc :: standalone :: otherOptions) }
         runPandoc shellWorkingDirectory args
+    
+    /// Generate Docx
+    let pandocGenerateDocx (shellWorkingDirectory:string) 
+                            (doc:Markdown) 
+                            (outputPath:string) 
+                            (stylesDoc:string) 
+                            (otherOptions:Option list) : unit =
+        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
+        doc.Save(mdpath)
+        runPandocDocx shellWorkingDirectory mdpath outputPath stylesDoc otherOptions
 
+
+    /// Generate HTML
     let runPandocHtml (shellWorkingDirectory:string) 
                             (inputPath:string) 
                             (outputPath:string) 
@@ -116,3 +129,35 @@ module PandocInvoke =
                 | null | "" -> (standalone :: otherOptions)
                 | _ -> (makePageTile pageTitle :: standalone :: otherOptions) }
         runPandoc shellWorkingDirectory args
+
+    /// Generate HTML
+    let pandocGenerateHtml (shellWorkingDirectory:string) 
+                            (doc:Markdown) 
+                            (outputPath:string) 
+                            (pageTitle:string)
+                            (otherOptions:Option list) : unit =
+        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
+        doc.Save(mdpath)
+        runPandocHtml shellWorkingDirectory mdpath outputPath pageTitle otherOptions
+
+    /// Generate Plain text
+    let runPandocPlain (shellWorkingDirectory:string) 
+                            (inputPath:string) 
+                            (outputPath:string) 
+                            (otherOptions:Option list) : unit =
+        let args = 
+            { FromFormat = { FormatName = "markdown"; Extensions = [] }
+            ; InputPath = inputPath 
+            ; ToFormat = { FormatName = "plain"; Extensions = [] }
+            ; OutputPath = outputPath
+            ; Options = (standalone :: otherOptions) }
+        runPandoc shellWorkingDirectory args
+
+    /// Generate Plain text
+    let pandocGeneratePlain (shellWorkingDirectory:string) 
+                            (doc:Markdown) 
+                            (outputPath:string) 
+                            (otherOptions:Option list) : unit =
+        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
+        doc.Save(mdpath)
+        runPandocPlain shellWorkingDirectory mdpath outputPath otherOptions

@@ -87,15 +87,6 @@ let makeDoc (item:Item) : Markdown =
            ]
 
 
-
-let generateDocx (workingDirectory:string) (mdInputPath:string) (outputDocxName:string) :unit  =
-    let stylesDoc = @"include/custom-reference1.docx" 
-    runPandocDocx workingDirectory mdInputPath outputDocxName stylesDoc []
-
-let generateHtml(workingDirectory:string) (mdInputPath:string) (outputHtmlName:string) (itemName:string) :unit  =
-    let pageTitle = sprintf "%s Cover Sheet" itemName
-    runPandocHtml workingDirectory mdInputPath outputHtmlName pageTitle []
-
 // ****************************************************************************
 // Generate output from a work list
 
@@ -153,13 +144,17 @@ let outputItem (item:Item) : unit =
         match item.Phase with
         | Phase1 -> "phase1"
         | Phase2 -> "phase2"
-    let mdPath = System.IO.Path.Combine("output", phase, makeFileName item "md")
-    let docxPath = System.IO.Path.Combine("output", phase, makeFileName item "docx")
-    let htmlPath = System.IO.Path.Combine("output", phase, makeFileName item "html")
-    let mdOutPath = System.IO.Path.Combine(cwd, mdPath)
-    ((makeDoc item):Markdown).Save(columnWidth = 80, outputPath = mdOutPath)
-    generateDocx cwd mdPath docxPath
-    generateHtml cwd mdPath htmlPath item.Name
+    
+    let docxPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "docx")
+    let htmlPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "html")
+    let txtPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "txt")    
+    let stylesDoc = System.IO.Path.Combine(cwd, @"include/custom-reference1.docx")
+    let doc:Markdown = makeDoc item
+    pandocGenerateDocx cwd doc docxPath stylesDoc []
+    pandocGenerateHtml cwd doc htmlPath item.Name []
+    pandocGeneratePlain cwd doc txtPath []
+
+
 
 
 let main () =
