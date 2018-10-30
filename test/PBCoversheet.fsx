@@ -92,6 +92,9 @@ let generateDocx (workingDirectory:string) (mdInputPath:string) (outputDocxName:
     let stylesDoc = @"include/custom-reference1.docx" 
     runPandocDocx workingDirectory mdInputPath outputDocxName stylesDoc []
 
+let generateHtml(workingDirectory:string) (mdInputPath:string) (outputHtmlName:string) (itemName:string) :unit  =
+    let pageTitle = sprintf "%s Cover Sheet" itemName
+    runPandocHtml workingDirectory mdInputPath outputHtmlName pageTitle []
 
 // ****************************************************************************
 // Generate output from a work list
@@ -152,10 +155,11 @@ let outputItem (item:Item) : unit =
         | Phase2 -> "phase2"
     let mdPath = System.IO.Path.Combine("output", phase, makeFileName item "md")
     let docxPath = System.IO.Path.Combine("output", phase, makeFileName item "docx")
+    let htmlPath = System.IO.Path.Combine("output", phase, makeFileName item "html")
     let mdOutPath = System.IO.Path.Combine(cwd, mdPath)
     ((makeDoc item):Markdown).Save(columnWidth = 80, outputPath = mdOutPath)
     generateDocx cwd mdPath docxPath
-
+    generateHtml cwd mdPath htmlPath item.Name
 
 
 let main () =

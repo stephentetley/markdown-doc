@@ -98,3 +98,21 @@ module PandocInvoke =
                 | null | "" -> (standalone :: otherOptions)
                 | _ -> (referenceDoc stylesDoc :: standalone :: otherOptions) }
         runPandoc shellWorkingDirectory args
+
+    let runPandocHtml (shellWorkingDirectory:string) 
+                            (inputPath:string) 
+                            (outputPath:string) 
+                            (pageTitle:string)
+                            (otherOptions:Option list) : unit =
+        let makePageTile (s:string) = 
+            metadata "pagetitle" (doubleQuote s)
+        let args = 
+            { FromFormat = { FormatName = "markdown"; Extensions = [] }
+            ; InputPath = inputPath 
+            ; ToFormat = { FormatName = "html"; Extensions = [enableTableCaptions] }
+            ; OutputPath = outputPath
+            ; Options = 
+                match pageTitle with
+                | null | "" -> (standalone :: otherOptions)
+                | _ -> (makePageTile pageTitle :: standalone :: otherOptions) }
+        runPandoc shellWorkingDirectory args
