@@ -13,7 +13,7 @@ module PandocInvoke =
     let private concatOptions (strs:string list) = 
         String.concat " " <| List.filter (fun ss -> ss<>"") strs
 
-    type Extension =
+    type PandocExtension =
         | Enable of string
         | Disable of string
         override x.ToString() = 
@@ -21,16 +21,17 @@ module PandocInvoke =
             | Enable s -> "+" + s
             | Disable s -> "-" + s
 
-    type Format = 
+    type PandocFormat = 
         { FormatName: string 
-          Extensions: Extension list }
+          Extensions: PandocExtension list }
 
         override x.ToString() = 
-            let exts = List.map (fun (x:Extension) -> x.ToString()) x.Extensions
+            let exts = 
+                List.map (fun (x:PandocExtension) -> x.ToString()) x.Extensions
             String.concat "" (x.FormatName :: exts)
 
     /// KeyValue options are also printed as verbose                
-    type Option = 
+    type PandocOption = 
         | Short of char * string option
         | Verbose of string * string option 
         | KeyValue of string * (string * string) 
@@ -49,21 +50,21 @@ module PandocInvoke =
             | KeyValue(str,body) -> sprintf "--%s=%s" str (printArgs body)
 
 
-    let commandBody (fromFormat:Format) (toFormat:Format) 
-                        (inputPath:string) (options:Option list) : string = 
+    let commandBody (fromFormat:PandocFormat) (toFormat:PandocFormat) 
+                        (inputPath:string) (options:PandocOption list) : string = 
         sprintf "--from=%s --to=%s %s %s" 
                 (fromFormat.ToString())
                 (toFormat.ToString())
                 inputPath
-                (String.concat " " <| List.map (fun (o:Option) -> o.ToString()) options)
+                (String.concat " " <| List.map (fun (o:PandocOption) -> o.ToString()) options)
 
 
     type PandocArgs = 
-        { FromFormat: Format
+        { FromFormat: PandocFormat
           InputPath: string 
-          ToFormat: Format
+          ToFormat: PandocFormat
           OutputPath: string 
-          Options: Option list }
+          Options: PandocOption list }
 
 
     let runPandoc (shellWorkingDirectory:string) (args:PandocArgs) : unit =
@@ -75,20 +76,25 @@ module PandocInvoke =
 
     /// --reference-doc
     /// For docx / odt output
-    let referenceDoc (path:string) : Option = 
+    let referenceDoc (path:string) : PandocOption = 
         Verbose("reference-doc", Some path)
 
-    let standalone : Option = Verbose("standalone", None)
+    let standalone : PandocOption = 
+        Verbose("standalone", None)
 
-    let metadata (key:string) (value:string) : Option = KeyValue("metadata", (key,value))
+    let metadata (key:string) (value:string) : PandocOption = 
+        KeyValue("metadata", (key,value))
 
-    let enableTableCaptions : Extension = Enable("table_captions")
+    let enableTableCaptions : PandocExtension = 
+        Enable("table_captions")
+
+
     /// Generate Docx
     let runPandocDocx (shellWorkingDirectory:string) 
                         (inputPath:string) 
                         (outputPath:string) 
                         (stylesDoc:string) 
-                        (otherOptions: Option list) : unit =
+                        (otherOptions: PandocOption list) : unit =
         let args = 
             { FromFormat = { FormatName = "markdown"; Extensions = [] }
             ; InputPath = inputPath 
@@ -105,7 +111,7 @@ module PandocInvoke =
                             (doc:Markdown) 
                             (outputPath:string) 
                             (stylesDoc:string) 
-                            (otherOptions:Option list) : unit =
+                            (otherOptions:PandocOption list) : unit =
         let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
         doc.Save(mdpath)
         runPandocDocx shellWorkingDirectory mdpath outputPath stylesDoc otherOptions
@@ -116,7 +122,7 @@ module PandocInvoke =
                             (inputPath:string) 
                             (outputPath:string) 
                             (pageTitle:string)
-                            (otherOptions:Option list) : unit =
+                            (otherOptions:PandocOption list) : unit =
         let makePageTile (s:string) = 
             metadata "pagetitle" (doubleQuote s)
         let args = 
@@ -135,7 +141,7 @@ module PandocInvoke =
                             (doc:Markdown) 
                             (outputPath:string) 
                             (pageTitle:string)
-                            (otherOptions:Option list) : unit =
+                            (otherOptions:PandocOption list) : unit =
         let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
         doc.Save(mdpath)
         runPandocHtml shellWorkingDirectory mdpath outputPath pageTitle otherOptions
@@ -144,7 +150,7 @@ module PandocInvoke =
     let runPandocPlain (shellWorkingDirectory:string) 
                             (inputPath:string) 
                             (outputPath:string) 
-                            (otherOptions:Option list) : unit =
+                            (otherOptions:PandocOption list) : unit =
         let args = 
             { FromFormat = { FormatName = "markdown"; Extensions = [] }
             ; InputPath = inputPath 
@@ -157,7 +163,7 @@ module PandocInvoke =
     let pandocGeneratePlain (shellWorkingDirectory:string) 
                             (doc:Markdown) 
                             (outputPath:string) 
-                            (otherOptions:Option list) : unit =
+                            (otherOptions:PandocOption list) : unit =
         let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
         doc.Save(mdpath)
         runPandocPlain shellWorkingDirectory mdpath outputPath otherOptions

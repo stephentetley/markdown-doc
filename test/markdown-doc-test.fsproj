@@ -8,7 +8,7 @@
     <ProjectGuid>4d529f40-8e6c-4c95-82b5-5a9196a85fbf</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>markdown_doc_test</RootNamespace>
-    <AssemblyName>markdown_doc_test</AssemblyName>
+    <AssemblyName>MarkdownDocTest</AssemblyName>
     <UseStandardResourceNames>true</UseStandardResourceNames>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
