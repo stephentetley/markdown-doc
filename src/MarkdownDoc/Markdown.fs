@@ -17,8 +17,11 @@ open MarkdownDoc.Internal
 [<AutoOpen>]
 module Markdown = 
 
+    /// Text is the type for 'body text'. 
+    /// Sentences and markup smaller than a paragraph.
     type Text = SimpleText.Text
 
+    /// The empty Text document.
     let empty : Text = SimpleText.Empty
 
     /// Build a Text item from a single char. 
@@ -134,7 +137,7 @@ module Markdown =
         private { ColumnWidth: int }
 
 
-    
+    /// Markdown is the type for document fragments - paragraph or larger.
     type Markdown = 
         | Markdown of (RenderContext -> Tile.Tile)
 
@@ -202,7 +205,7 @@ module Markdown =
     let codeBlock (tile:Markdown) : Markdown = 
         tileMap (Tile.prefixAll "    ") tile
 
-    /// Concatenate two Markdown pieces.
+    /// Concatenate two Markdown fragments.
     let (^@^) (a:Markdown) (b:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
             let (Markdown f1) = a 
