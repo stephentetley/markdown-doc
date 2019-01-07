@@ -9,14 +9,18 @@ namespace MarkdownDoc
 /// Do we help the user (making the implementation complicated) or keep 
 /// the implementation simple relying on the user to do the right thin?
 
-open System.IO
 
-open MarkdownDoc.Internal
 
 
 [<AutoOpen>]
 module Markdown = 
 
+    open System.IO
+
+    open MarkdownDoc.Internal
+    open MarkdownDoc.Internal.SimpleText
+    open MarkdownDoc.Internal.Tile
+    
     /// Text is the type for 'body text'. 
     /// Sentences and markup smaller than a paragraph.
     type Text = SimpleText.Text
@@ -249,8 +253,8 @@ module Markdown =
         localColumnWidth 300 (tile <| text)
 
 
-    type Alignment = MarkdownDoc.Internal.Common.Alignment
-    type ColumnSpec = MarkdownDoc.Internal.Common.ColumnSpec
+    type Alignment = Common.Common.Alignment
+    type ColumnSpec = Common.Common.ColumnSpec
 
     let gridTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) 
                         (hasHeaders:bool) : Markdown = 

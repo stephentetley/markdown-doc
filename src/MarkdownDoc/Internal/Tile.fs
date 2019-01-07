@@ -1,14 +1,18 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Internal
+namespace MarkdownDoc.Internal.Tile
 
-open System.Text
+
 
 
 [<RequireQualifiedAccess>]
 module Tile = 
     open System.IO
+    open System.Text
+
+    open MarkdownDoc.Internal.SimpleText
+    open MarkdownDoc.Internal.Common
 
     /// Maybe a Markdown document is a list of Tiles and tiles don't 
     /// themselves naturally concatenate.

@@ -1,14 +1,19 @@
-﻿// Copyright (c) Stephen Tetley 2018
+﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Internal
-
-open System.Text
-open System.Threading
+namespace MarkdownDoc.Internal.Common
 
 
 [<AutoOpen>]
 module Common = 
+    
+    open System.Text
+
+    let lines (source:string) : string list = 
+        source.Split('\n') |> Array.toList
+
+    let unlines (source:string list) : string = 
+        String.concat "\n" source
 
     
     let encloseConcat (separator:string) (items:string list) : string = 

@@ -8,6 +8,7 @@ namespace MarkdownDoc.Pandoc.Invoke
 [<AutoOpen>]
 module Invoke = 
     
+    open MarkdownDoc.Internal.Common
     open MarkdownDoc.Markdown
 
     let private doubleQuote (s:string) : string = "\"" + s + "\""
@@ -73,7 +74,7 @@ module Invoke =
         let output = Verbose("output", Some <| doubleQuote args.OutputPath)
         let options = args.Options @ [output]
         let command = commandBody args.FromFormat args.ToFormat (doubleQuote args.InputPath) options
-        MarkdownDoc.Internal.Common.shellRun shellWorkingDirectory "pandoc" command
+        shellRun shellWorkingDirectory "pandoc" command
 
 
     /// --reference-doc

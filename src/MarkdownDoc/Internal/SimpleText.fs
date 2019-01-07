@@ -1,12 +1,15 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Internal
+namespace MarkdownDoc.Internal.SimpleText
 
-open System.Text
+
 
 [<RequireQualifiedAccess>]
 module SimpleText = 
+
+    open System.Text
+    open MarkdownDoc.Internal.Common
 
     type Text = 
         | Empty

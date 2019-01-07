@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="MarkdownDoc\Internal\Common.fs" />
-    <Compile Include="MarkdownDoc\Internal\FormatCombinators.fs" />
     <Compile Include="MarkdownDoc\Internal\SimpleText.fs" />
     <Compile Include="MarkdownDoc\Internal\Tile.fs" />
     <Compile Include="MarkdownDoc\Markdown.fs" />
