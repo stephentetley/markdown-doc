@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Pandoc
+namespace MarkdownDoc.Pandoc.Invoke
 
-open MarkdownDoc.Markdown
+
 
 [<AutoOpen>]
-module PandocInvoke = 
+module Invoke = 
+    
+    open MarkdownDoc.Markdown
 
     let private doubleQuote (s:string) : string = "\"" + s + "\""
 

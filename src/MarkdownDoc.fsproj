@@ -11,8 +11,8 @@
     <Compile Include="MarkdownDoc\Internal\SimpleText.fs" />
     <Compile Include="MarkdownDoc\Internal\Tile.fs" />
     <Compile Include="MarkdownDoc\Markdown.fs" />
-    <Compile Include="MarkdownDoc\PandocExtras.fs" />
-    <Compile Include="MarkdownDoc\PandocInvoke.fs" />
+    <Compile Include="MarkdownDoc\Pandoc\Extra.fs" />
+    <Compile Include="MarkdownDoc\Pandoc\Invoke.fs" />
   </ItemGroup>
 
 </Project>

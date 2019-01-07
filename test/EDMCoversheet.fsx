@@ -12,10 +12,10 @@ open FSharp.Data
 #load "..\src\MarkdownDoc\Internal\SimpleText.fs"
 #load "..\src\MarkdownDoc\Internal\Tile.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
-#load "..\src\MarkdownDoc\PandocInvoke.fs"
+#load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc
-open MarkdownDoc.Pandoc
+open MarkdownDoc.Pandoc.Invoke
 
 let safeName (input:string) : string = 
     let parens = ['('; ')'; '['; ']'; '{'; '}']

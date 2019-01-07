@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Pandoc
+namespace MarkdownDoc.Pandoc.Extra
 
 
 [<AutoOpen>]
-module PandocExtras = 
+module Extra = 
 
     open MarkdownDoc
 

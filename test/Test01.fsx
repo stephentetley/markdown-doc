@@ -5,13 +5,13 @@
 #load "..\src\MarkdownDoc\Internal\SimpleText.fs"
 #load "..\src\MarkdownDoc\Internal\Tile.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
-#load "..\src\MarkdownDoc\PandocExtras.fs"
-#load "..\src\MarkdownDoc\PandocInvoke.fs"
+#load "..\src\MarkdownDoc\Pandoc\Extra.fs"
+#load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open System.IO
 open System.Text
 open MarkdownDoc
-open MarkdownDoc.Pandoc
+open MarkdownDoc.Pandoc.Extra
 
 
 let test01 () = 
