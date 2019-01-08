@@ -8,9 +8,8 @@
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
-open System.IO
-open System.Text
 open MarkdownDoc
+open MarkdownDoc.Internal
 open MarkdownDoc.Pandoc.Extra
 
 
@@ -59,15 +58,31 @@ let test07 () =
         tile <| (text "hello" ^^ text "<world>")
     testRender m1
 
+
+let test08 () = 
+    let m1 : Markdown = 
+        tile <| textlines [text "hello"; text "world"]
+    testRender m1
+
+let test08a () = 
+    SimpleText.renderText 50 <| textlines [text "hello"; text "world"]
+
+let test08b () = 
+    SimpleText.renderText1 <| textlines [text "hello"; text "world"]
+
+let test08c () = 
+    Common.Common.breaklines 50 "hello\r\nworld" ;;
+
 //let test06 () = 
 //    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
 
 //let test07 () = 
 //    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
+/// Windows only...
+let test09 () =   "hello\r\nworld".Split(separator=[| System.Environment.NewLine |], options= System.StringSplitOptions.None)
 
+let test10 () = 
+    SimpleText.renderText 50 << SimpleText.stringText <| Common.Common.unlines ["hello";"world"]
 
-//let test10 () = 
-//    blockquote (plaintext "Hollow" @@@ plaintext "world!") 
-//        |> testRender
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Stephen Tetley 2018
+﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
 namespace MarkdownDoc
@@ -7,7 +7,7 @@ namespace MarkdownDoc
 /// Whitespace matters in Pandoc.
 /// How explicitly should we treat it in this library?
 /// Do we help the user (making the implementation complicated) or keep 
-/// the implementation simple relying on the user to do the right thin?
+/// the implementation simple relying on the user to do the right thing?
 
 
 
@@ -18,7 +18,6 @@ module Markdown =
     open System.IO
 
     open MarkdownDoc.Internal
-    open MarkdownDoc.Internal.SimpleText
     open MarkdownDoc.Internal.Tile
     
     /// Text is the type for 'body text'. 
@@ -52,9 +51,17 @@ module Markdown =
     let testRenderText (source:Text) : unit = 
         SimpleText.renderText1 source |> printfn  "----------\n%s\n----------\n"
 
+    /// Horizontal concat directly (no separating space)
+    let (^^) (d1:Text) (d2:Text) : Text = 
+       SimpleText.beside d1 d2
+
     /// Horizontal concat with a separating space 
     let (^+^) (d1:Text) (d2:Text) : Text = 
-       d1 ^^ character ' ' ^^ d2
+       SimpleText.besideSpace d1 d2
+
+    let textlines (lines:Text list) : Text = 
+        SimpleText.textlines lines
+
 
     let bang : Text = character '!'
     let colon : Text = character ':'

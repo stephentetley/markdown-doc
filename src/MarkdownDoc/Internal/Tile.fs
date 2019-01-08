@@ -11,7 +11,7 @@ module Tile =
     open System.IO
     open System.Text
 
-    open MarkdownDoc.Internal.SimpleText
+    open MarkdownDoc.Internal
     open MarkdownDoc.Internal.Common
 
     /// Maybe a Markdown document is a list of Tiles and tiles don't 

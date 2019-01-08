@@ -7,13 +7,17 @@ namespace MarkdownDoc.Internal.Common
 [<AutoOpen>]
 module Common = 
     
+    open System
     open System.Text
 
-    let lines (source:string) : string list = 
-        source.Split('\n') |> Array.toList
 
+    /// Splits on Environment.NewLine
+    let lines (source:string) : string list = 
+        source.Split(separator=[| Environment.NewLine |], options=StringSplitOptions.None) |> Array.toList
+
+    /// Joins with Environment.NewLine
     let unlines (source:string list) : string = 
-        String.concat "\n" source
+        String.concat Environment.NewLine source
 
     
     let encloseConcat (separator:string) (items:string list) : string = 
@@ -119,9 +123,11 @@ module Common =
                     work acc (w::a1) (pos + 1 + w.Length) ws
         work [] [] 0 words
 
+    /// The input string can be multiline - each component line is then broken 
+    /// to the supplied width.
     let breaklines (width:int) (source:string) : string list = 
-        let lines = source.Split([| '\n' |]) 
-        Array.map (breakline1 width) lines |> List.concat 
+        let xs = lines source
+        List.map (breakline1 width) xs |> List.concat 
 
     // ************************************************************************
     // Invoking markdown
