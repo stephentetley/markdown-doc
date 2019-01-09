@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Internal.Common
+namespace MarkdownDoc.Internal
 
 
 [<AutoOpen>]
@@ -12,11 +12,11 @@ module Common =
 
 
     /// Splits on Environment.NewLine
-    let lines (source:string) : string list = 
+    let toLines (source:string) : string list = 
         source.Split(separator=[| Environment.NewLine |], options=StringSplitOptions.None) |> Array.toList
 
     /// Joins with Environment.NewLine
-    let unlines (source:string list) : string = 
+    let fromLines (source:string list) : string = 
         String.concat Environment.NewLine source
 
     
@@ -126,7 +126,7 @@ module Common =
     /// The input string can be multiline - each component line is then broken 
     /// to the supplied width.
     let breaklines (width:int) (source:string) : string list = 
-        let xs = lines source
+        let xs = toLines source
         List.map (breakline1 width) xs |> List.concat 
 
     // ************************************************************************

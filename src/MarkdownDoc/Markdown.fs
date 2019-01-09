@@ -18,7 +18,6 @@ module Markdown =
     open System.IO
 
     open MarkdownDoc.Internal
-    open MarkdownDoc.Internal.Tile
     
     /// Text is the type for 'body text'. 
     /// Sentences and markup smaller than a paragraph.
@@ -260,8 +259,8 @@ module Markdown =
         localColumnWidth 300 (tile <| text)
 
 
-    type Alignment = Common.Common.Alignment
-    type ColumnSpec = Common.Common.ColumnSpec
+    type Alignment = Common.Alignment
+    type ColumnSpec = Common.ColumnSpec
 
     let gridTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) 
                         (hasHeaders:bool) : Markdown = 

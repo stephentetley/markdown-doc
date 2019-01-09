@@ -71,7 +71,7 @@ let test08b () =
     SimpleText.renderText1 <| textlines [text "hello"; text "world"]
 
 let test08c () = 
-    Common.Common.breaklines 50 "hello\r\nworld" ;;
+    Common.breaklines 50 "hello\r\nworld" ;;
 
 //let test06 () = 
 //    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
@@ -83,6 +83,6 @@ let test08c () =
 let test09 () =   "hello\r\nworld".Split(separator=[| System.Environment.NewLine |], options= System.StringSplitOptions.None)
 
 let test10 () = 
-    SimpleText.renderText 50 << SimpleText.stringText <| Common.Common.unlines ["hello";"world"]
+    SimpleText.renderText 50 << SimpleText.stringText <| Common.fromLines ["hello";"world"]
 
 

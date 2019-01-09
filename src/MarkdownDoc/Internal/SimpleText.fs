@@ -9,7 +9,7 @@ namespace MarkdownDoc.Internal
 module SimpleText = 
 
     open System.Text
-    open MarkdownDoc.Internal.Common
+    open MarkdownDoc.Internal
 
     type Text = 
         | Empty
@@ -73,4 +73,4 @@ module SimpleText =
     let stringText (source:string) : Text = 
         match source with
         | "" -> Empty
-        | _ -> lines source |> List.map (fun x -> String(x)) |> textlines
+        | _ -> toLines source |> List.map (fun x -> String(x)) |> textlines

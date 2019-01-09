@@ -8,15 +8,16 @@ namespace MarkdownDoc.Pandoc.Extra
 module Extra = 
 
     open MarkdownDoc
-    open MarkdownDoc.Internal.Common
+    open MarkdownDoc.Internal
 
     let inlineRaw (format:string) (content:Text) = 
         enclose (text "`") (text "`") content ^^ text (sprintf "={%s}" format)
 
+    /// TODO - this can be made to use Text combinators
     let rawCode (format:string) (codeSource:string) : Markdown = 
-        let line1 = sprintf"```{=%s}" format
+        let line1 = sprintf "```{=%s}" format
         let line2 = "```"
-        let textlines = lines codeSource
+        let textlines = toLines codeSource
         preformatted << List.map rawtext <| (line1 :: (textlines @ [line2]))
 
     let openxmlPagebreak : Markdown = 
@@ -27,4 +28,4 @@ module Extra =
             ; "  </w:r>"
             ; "</w:p>"
             ]
-        rawCode "openxml" <| unlines block
+        rawCode "openxml" <| fromLines block

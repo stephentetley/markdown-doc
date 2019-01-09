@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Internal.Tile
+namespace MarkdownDoc.Internal
 
 
 
@@ -12,7 +12,6 @@ module Tile =
     open System.Text
 
     open MarkdownDoc.Internal
-    open MarkdownDoc.Internal.Common
 
     /// Maybe a Markdown document is a list of Tiles and tiles don't 
     /// themselves naturally concatenate.

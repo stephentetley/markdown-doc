@@ -8,7 +8,7 @@ namespace MarkdownDoc.Pandoc.Invoke
 [<AutoOpen>]
 module Invoke = 
     
-    open MarkdownDoc.Internal.Common
+    open MarkdownDoc.Internal
     open MarkdownDoc.Markdown
 
     let private doubleQuote (s:string) : string = "\"" + s + "\""
