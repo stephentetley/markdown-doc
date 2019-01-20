@@ -3,9 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1-alpha-20190114</Version>
-    <Authors>Stephen Tetley</Authors>
-    <Copyright>Stephen Tetley 2018, 2019</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

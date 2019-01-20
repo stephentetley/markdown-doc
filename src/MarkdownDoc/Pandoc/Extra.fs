@@ -15,10 +15,9 @@ module Extra =
 
     /// TODO - this can be made to use Text combinators
     let rawCode (format:string) (codeSource:string) : Markdown = 
-        let line1 = sprintf "```{=%s}" format
-        let line2 = "```"
-        let textlines = toLines codeSource
-        preformatted << List.map rawtext <| (line1 :: (textlines @ [line2]))
+        let line1 = backticks3 ^^ braces (rawtext <| sprintf "=%s" format)
+        let textlines = rawlines <| toLines codeSource
+        preformatted <| line1 ^&^ textlines ^&^ backticks3
 
     let openxmlPagebreak : Markdown = 
         let block = 

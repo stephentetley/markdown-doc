@@ -55,7 +55,7 @@ module SimpleText =
 
     let besideSpace (x:Text) (y:Text) : Text = beside x (beside space y)
 
-    let private below (x:Text) (y:Text) : Text = 
+    let below (x:Text) (y:Text) : Text = 
         match x,y with
         | Empty, d -> d
         | d, Empty -> d

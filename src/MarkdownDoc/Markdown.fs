@@ -46,17 +46,24 @@ module Markdown =
     let rawtext (content:string) : Text = 
         SimpleText.String content  
 
+    let rawlines (contents:string list) : Text = 
+        SimpleText.textlines <| List.map rawtext contents
+
     /// Print the Text to the console.
     let testRenderText (source:Text) : unit = 
         SimpleText.renderText1 source |> printfn  "----------\n%s\n----------\n"
 
     /// Horizontal concat directly (no separating space)
-    let (^^) (d1:Text) (d2:Text) : Text = 
+    let ( ^^ ) (d1:Text) (d2:Text) : Text = 
        SimpleText.beside d1 d2
 
     /// Horizontal concat with a separating space 
-    let (^+^) (d1:Text) (d2:Text) : Text = 
+    let ( ^+^ ) (d1:Text) (d2:Text) : Text = 
        SimpleText.besideSpace d1 d2
+
+    /// Vertical concat.
+    let ( ^&^ ) (d1:Text) (d2:Text) : Text = 
+       SimpleText.below d1 d2
 
     let textlines (lines:Text list) : Text = 
         SimpleText.textlines lines
@@ -67,6 +74,10 @@ module Markdown =
     let space : Text = character ' '
 
     let nbsp : Text = rawtext "&nbsp;"
+
+    /// Print 3 backticks.
+    let backticks3 : Text = rawtext "```"
+
 
     let enclose (left:Text) (right:Text) (d1:Text) : Text = 
         left ^^ d1 ^^ right
@@ -81,6 +92,11 @@ module Markdown =
     /// Can be used for inlining links.
     let angleBrackets (source:Text) : Text = 
         enclose (character '<') (character '>') source
+
+    /// Curly braces
+    let braces (source:Text) : Text = 
+        enclose (character '{') (character '}') source
+
 
     let singleQuotes (source:Text) : Text = 
         enclose (character '\'') (character '\'') source
@@ -111,6 +127,8 @@ module Markdown =
     /// Backticks for inline code.
     let doubleBackticks (source:Text) : Text = 
         enclose (text "``") (text "``") source
+
+    
 
     /// [A link](/path/to)
     ///
@@ -185,16 +203,20 @@ module Markdown =
         Markdown <| fun ctx -> 
             doc.GetMarkdown { ctx with ColumnWidth = columnWidth }
 
+    /// Line breaks according to the current ColumnWidth.
     let tile (text:Text) : Markdown = 
         Markdown <| fun ctx -> 
             Tile.tile ctx.ColumnWidth text
 
-
-
-
-    let preformatted (lines:Text list) : Markdown = 
+    /// Does not line break.
+    let preformatted (text:Text) : Markdown = 
         Markdown <| fun _ -> 
-            Tile.preformatted lines
+            Tile.preformatted text
+
+    /// Does not line break.
+    let preformattedLines (lines:Text list) : Markdown = 
+        Markdown <| fun _ -> 
+            Tile.preformattedLines lines
 
 
     let private tileMap (fn:Tile.Tile -> Tile.Tile) (doc:Markdown) : Markdown = 
@@ -216,7 +238,7 @@ module Markdown =
         tileMap (Tile.prefixAll "    ") tile
 
     /// Concatenate two Markdown fragments.
-    let (^@^) (a:Markdown) (b:Markdown) : Markdown = 
+    let ( ^@^ ) (a:Markdown) (b:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
             let (Markdown f1) = a 
             let (Markdown f2) = b

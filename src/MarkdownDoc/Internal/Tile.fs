@@ -25,7 +25,7 @@ module Tile =
         /// Tile can use (+) as it is internal, it's only in the public API 
         /// where we want to avoid (+) and using (+) avoids taking another 
         /// operator name.
-        static member (+) (a:Tile, b:Tile) = 
+        static member ( + ) (a:Tile, b:Tile) = 
             match a,b with
             | Tile(xs), Tile(ys) -> 
                 // Separate with an empty line
@@ -47,7 +47,10 @@ module Tile =
     let tile (width:int) (text:SimpleText.Text) : Tile = 
         Tile <| SimpleText.renderText width text
 
-    let preformatted (lines:SimpleText.Text list) : Tile = 
+    let preformatted (text:SimpleText.Text) : Tile = 
+        Tile [SimpleText.renderText1 text]
+
+    let preformattedLines (lines:SimpleText.Text list) : Tile = 
         Tile <| List.map SimpleText.renderText1  lines
 
 
