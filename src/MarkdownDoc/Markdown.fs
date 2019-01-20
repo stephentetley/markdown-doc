@@ -74,11 +74,22 @@ module Markdown =
     let space : Text = character ' '
     let equals : Text = character '='
 
-    let nbsp : Text = rawtext "&nbsp;"
+    let entity (name:string) : Text = rawtext <| sprintf "&%s;" name
 
-    let copyright : Text = rawtext "&copy;"
-    let registered : Text = rawtext "&reg;"
-    let trademark : Text = rawtext "&trade;"
+    let nbsp : Text = entity "nbsp"
+
+    let copyright : Text = entity "copy"
+    let registered : Text = entity "reg"
+    let trademark : Text = entity "trade"
+
+    let lessthan : Text = entity "lt"
+    let greaterthan : Text = entity "gt"
+    let ampersand : Text = entity "amp"
+
+    let cent : Text = entity "cent"
+    let pound : Text = entity "pound"
+    let yen : Text = entity "yen"
+    let euro : Text = entity "euro"
 
     /// Print 3 backticks.
     let backticks3 : Text = rawtext "```"
