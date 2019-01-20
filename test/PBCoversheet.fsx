@@ -15,7 +15,7 @@ open FSharp.Data
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc
-open MarkdownDoc.Pandoc.Invoke
+open MarkdownDoc.Pandoc
 
 let safeName (input:string) : string = 
     let parens = ['('; ')'; '['; ']'; '{'; '}']
@@ -42,7 +42,7 @@ type Item =
       Phase: PhaseType }
 
 let nbsp2 : Markdown = 
-    preformatted [nbsp; nbsp]
+    preformatted <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
     tile (inlineImage (text " ") @"include/YW-logo.jpg" None)

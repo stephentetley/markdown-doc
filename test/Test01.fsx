@@ -10,7 +10,7 @@
 
 open MarkdownDoc
 open MarkdownDoc.Internal
-open MarkdownDoc.Pandoc.Extra
+open MarkdownDoc.Pandoc
 
 
 let test01 () = 

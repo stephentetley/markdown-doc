@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
-namespace MarkdownDoc.Pandoc.Invoke
-
+namespace MarkdownDoc.Pandoc
 
 
 [<AutoOpen>]
@@ -15,6 +14,7 @@ module Invoke =
 
     let private concatOptions (strs:string list) = 
         String.concat " " <| List.filter (fun ss -> ss<>"") strs
+
 
     type PandocExtension =
         | Enable of string

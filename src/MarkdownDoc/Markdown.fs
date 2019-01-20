@@ -72,8 +72,13 @@ module Markdown =
     let bang : Text = character '!'
     let colon : Text = character ':'
     let space : Text = character ' '
+    let equals : Text = character '='
 
     let nbsp : Text = rawtext "&nbsp;"
+
+    let copyright : Text = rawtext "&copy;"
+    let registered : Text = rawtext "&reg;"
+    let trademark : Text = rawtext "&trade;"
 
     /// Print 3 backticks.
     let backticks3 : Text = rawtext "```"

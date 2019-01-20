@@ -38,7 +38,7 @@ type Item =
       Worklist: string list }
 
 let nbsp2 : Markdown = 
-    preformatted [nbsp; nbsp]
+    preformatted <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
     tile (inlineImage (text " ") @"include/YW-logo.jpg" None)
