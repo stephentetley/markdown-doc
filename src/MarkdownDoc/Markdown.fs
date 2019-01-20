@@ -82,6 +82,9 @@ module Markdown =
     let registered : Text = entity "reg"
     let trademark : Text = entity "trade"
 
+    let apostrophe :Text = entity "apos"
+    let doublequote : Text = entity "quot"
+
     let lessthan : Text = entity "lt"
     let greaterthan : Text = entity "gt"
     let ampersand : Text = entity "amp"
