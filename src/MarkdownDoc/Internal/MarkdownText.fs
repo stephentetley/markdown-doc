@@ -11,6 +11,10 @@ module MarkdownText =
     open System.Text
     open MarkdownDoc.Internal
 
+    // Note - potentially we may want to apply a text transformer to MdText 
+    // e.g. to escape spaces for super- and subscripts.
+    
+
     type MdText = 
         | Empty
         | String of string

@@ -13,6 +13,9 @@ module MarkdownTile =
 
     open MarkdownDoc.Internal
 
+    // Open question / Design issue
+    // Should we introduce some idea of syntax / structure into the MdTile type?
+
     /// Maybe a Markdown document is a list of Tiles and tiles don't 
     /// themselves naturally concatenate.
 
