@@ -19,6 +19,6 @@ typographic:
 	pandoc --from=markdown --to=docx --reference-doc=include/custom-reference1.docx --standalone --output=output/typographic.docx typographic.md
 
 operationally:
-	pandoc --from=markdown --to=html --metadata pagetitle="Markdown Operationally" --standalone --output=output/markdown_operationally.html markdown_operationally.md
-	pandoc --from=markdown --to=latex --standalone --output=output/markdown_operationally.pdf markdown_operationally.md
-	pandoc --from=markdown --to=docx --reference-doc=include/custom-reference1.docx --standalone --output=output/markdown_operationally.docx markdown_operationally.md
+	pandoc --from=markdown+superscript+subscript --to=html --metadata pagetitle="Markdown, Operationally" --standalone --output=output/markdown_operationally.html markdown_operationally.md
+	pandoc --from=markdown+superscript+subscript --to=latex --standalone --output=output/markdown_operationally.pdf markdown_operationally.md
+	pandoc --from=markdown+superscript+subscript --to=docx --reference-doc=include/custom-reference1.docx --standalone --output=output/markdown_operationally.docx markdown_operationally.md
