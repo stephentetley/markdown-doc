@@ -19,54 +19,54 @@ module Markdown =
 
     open MarkdownDoc.Internal
     
-    /// Text is the type for 'body text'. 
+    /// ParaText is the type for 'body text'. 
     /// Sentences and markup smaller than a paragraph.
-    type Text = SimpleText.Text
+    type Text = ParaText.ParaText
 
     /// The empty Text document.
-    let empty : Text = SimpleText.Empty
+    let empty : Text = ParaText.Empty
 
     /// Build a Text item from a single char. 
     /// '&' and '<' will be escaped.
     let character (ch:char) : Text = 
         match ch with
-        | '<' -> SimpleText.String "&lt;"
-        | '&' -> SimpleText.String "&amp;"
-        | _ -> SimpleText.String <| ch.ToString()
+        | '<' -> ParaText.String "&lt;"
+        | '&' -> ParaText.String "&amp;"
+        | _ -> ParaText.String <| ch.ToString()
 
     /// Build a Text item from a string. 
     /// '&' and '<' will be escaped.
     let text (content:string) : Text = 
         /// Ampersand must be replaced first, otherwise we get double escaping.
         let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
-        SimpleText.String s1  
+        ParaText.String s1  
         
     /// Build a Text item from a string. 
     /// No escaping is performed, use this function with care.
     let rawtext (content:string) : Text = 
-        SimpleText.String content  
+        ParaText.String content  
 
     let rawlines (contents:string list) : Text = 
-        SimpleText.textlines <| List.map rawtext contents
+        ParaText.textlines <| List.map rawtext contents
 
     /// Print the Text to the console.
     let testRenderText (source:Text) : unit = 
-        SimpleText.renderText1 source |> printfn  "----------\n%s\n----------\n"
+        ParaText.renderUnbound source |> printfn  "----------\n%s\n----------\n"
 
     /// Horizontal concat directly (no separating space)
     let ( ^^ ) (d1:Text) (d2:Text) : Text = 
-       SimpleText.beside d1 d2
+       ParaText.beside d1 d2
 
     /// Horizontal concat with a separating space 
     let ( ^+^ ) (d1:Text) (d2:Text) : Text = 
-       SimpleText.besideSpace d1 d2
+       ParaText.besideSpace d1 d2
 
     /// Vertical concat.
     let ( ^&^ ) (d1:Text) (d2:Text) : Text = 
-       SimpleText.below d1 d2
+       ParaText.below d1 d2
 
     let textlines (lines:Text list) : Text = 
-        SimpleText.textlines lines
+        ParaText.textlines lines
 
 
     let bang : Text = character '!'

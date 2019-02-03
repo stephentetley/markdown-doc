@@ -6,20 +6,20 @@ namespace MarkdownDoc.Internal
 
 
 [<RequireQualifiedAccess>]
-module SimpleText = 
+module ParaText = 
 
     open System.Text
     open MarkdownDoc.Internal
 
-    type Text = 
+    type ParaText = 
         | Empty
         | String of string
-        | Horizontal of Text * Text
-        | Vertical of Text * Text
+        | Horizontal of ParaText * ParaText
+        | Vertical of ParaText * ParaText
 
-    let renderText1 (doc:Text) : string = 
+    let renderUnbound (doc:ParaText) : string = 
         let sb = new StringBuilder ()
-        let rec work (doc:Text) (cont : unit -> 'a) = 
+        let rec work (doc:ParaText) (cont : unit -> 'a) = 
             match doc with
             | Empty -> cont ()
             | String str -> 
@@ -37,31 +37,33 @@ module SimpleText =
         work doc (fun _ -> ()) 
         sb.ToString ()
 
+    /// This formats to the supplied line width.
+    /// Note the line width is respective to the generated markdown and 
+    /// not the final printed / published output.
+    let renderBounded (width:int) (doc:ParaText) : string list = 
+        renderUnbound doc |> breaklines width
 
-    let renderText (width:int) (doc:Text) : string list = 
-        renderText1 doc |> breaklines width
+    let empty : ParaText = Empty
 
-    let empty : Text = Empty
-
-    let space : Text = String " "
+    let space : ParaText = String " "
 
 
 
-    let beside (x:Text) (y:Text) : Text = 
+    let beside (x:ParaText) (y:ParaText) : ParaText = 
         match x,y with
         | Empty, d -> d
         | d, Empty -> d
         | d1,d2 -> Horizontal(d1,d2)
 
-    let besideSpace (x:Text) (y:Text) : Text = beside x (beside space y)
+    let besideSpace (x:ParaText) (y:ParaText) : ParaText = beside x (beside space y)
 
-    let below (x:Text) (y:Text) : Text = 
+    let below (x:ParaText) (y:ParaText) : ParaText = 
         match x,y with
         | Empty, d -> d
         | d, Empty -> d
         | d1,d2 -> Vertical(d1,d2)
 
-    let textlines (lines:Text list) : Text = 
+    let textlines (lines:ParaText list) : ParaText = 
         let rec work zs cont = 
             match zs with
             | [] -> cont empty
@@ -70,7 +72,7 @@ module SimpleText =
                 cont (below x v1))
         work lines id
 
-    let stringText (source:string) : Text = 
+    let stringText (source:string) : ParaText = 
         match source with
         | "" -> Empty
         | _ -> toLines source |> List.map (fun x -> String(x)) |> textlines

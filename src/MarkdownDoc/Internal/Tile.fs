@@ -44,14 +44,14 @@ module Tile =
     //    List.iter (fun line -> sb.AppendLine(line) |> ignore) <| tile.TextLines
     //    sb.ToString()
 
-    let tile (width:int) (text:SimpleText.Text) : Tile = 
-        Tile <| SimpleText.renderText width text
+    let tile (width:int) (paragraph:ParaText.ParaText) : Tile = 
+        Tile <| ParaText.renderBounded width paragraph
 
-    let preformatted (text:SimpleText.Text) : Tile = 
-        Tile [SimpleText.renderText1 text]
+    let preformatted (paragraph:ParaText.ParaText) : Tile = 
+        Tile [ParaText.renderUnbound paragraph]
 
-    let preformattedLines (lines:SimpleText.Text list) : Tile = 
-        Tile <| List.map SimpleText.renderText1  lines
+    let preformattedLines (lines:ParaText.ParaText list) : Tile = 
+        Tile <| List.map ParaText.renderUnbound lines
 
 
     let prefixAll (prefix:string) (tile:Tile) : Tile = 
