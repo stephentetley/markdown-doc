@@ -3,6 +3,8 @@
 
 namespace MarkdownDoc.Pandoc
 
+// Note the library sl-format has better tools for doing this.
+// Change to use it at some point.
 
 [<AutoOpen>]
 module Invoke = 

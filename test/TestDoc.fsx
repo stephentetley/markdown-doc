@@ -18,12 +18,13 @@ open MarkdownDoc.Pandoc
 
 let testDoc : Markdown = 
     h1 (text "Markdown Doc")
+    ^@^ tile (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
 
 
 let test01 () : unit  =
     let workingDirectory = Path.Combine(__SOURCE_DIRECTORY__, @"../output/")
     let outputDocxName = "TestDoc.docx"
     let mdFileName = "TestDoc.md"
-    let stylesDoc = @"../notes/custom-reference1.docx" 
+    let stylesDoc = @"../notes/include/custom-reference1.docx" 
     testDoc.Save(Path.Combine(workingDirectory, mdFileName))
     runPandocDocx workingDirectory mdFileName outputDocxName stylesDoc []

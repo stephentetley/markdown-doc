@@ -16,7 +16,7 @@ This line is ended with
 two spaces (hence it has a hard break)
 
 This line is ended with
-nothing (so the line length follows accoring to the output).
+nothing (so the line length follows according to the output).
 
 This line is ended with nothing
 
@@ -41,4 +41,3 @@ Because we will not support *introspection* there is no harm in Pandoc-output
 rendering to text (or probably better - *lines of text*) in a piecemeal way
 for tables and indented structure like list elements. However, it might be
 better to have a nicer notion of indenting than we currently have.
-
