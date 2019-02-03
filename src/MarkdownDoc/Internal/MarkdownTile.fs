@@ -7,7 +7,7 @@ namespace MarkdownDoc.Internal
 
 
 [<RequireQualifiedAccess>]
-module Tile = 
+module MarkdownTile = 
     open System.IO
     open System.Text
 
@@ -16,7 +16,7 @@ module Tile =
     /// Maybe a Markdown document is a list of Tiles and tiles don't 
     /// themselves naturally concatenate.
 
-    type Tile = 
+    type MdTile = 
         | Tile of string list
 
         member internal x.TextLines 
@@ -25,7 +25,7 @@ module Tile =
         /// Tile can use (+) as it is internal, it's only in the public API 
         /// where we want to avoid (+) and using (+) avoids taking another 
         /// operator name.
-        static member ( + ) (a:Tile, b:Tile) = 
+        static member ( + ) (a:MdTile, b:MdTile) = 
             match a,b with
             | Tile(xs), Tile(ys) -> 
                 // Separate with an empty line
@@ -44,21 +44,21 @@ module Tile =
     //    List.iter (fun line -> sb.AppendLine(line) |> ignore) <| tile.TextLines
     //    sb.ToString()
 
-    let tile (width:int) (paragraph:ParaText.ParaText) : Tile = 
-        Tile <| ParaText.renderBounded width paragraph
+    let tile (width:int) (paragraph:MarkdownText.MdText) : MdTile = 
+        Tile <| MarkdownText.renderBounded width paragraph
 
-    let preformatted (paragraph:ParaText.ParaText) : Tile = 
-        Tile [ParaText.renderUnbound paragraph]
+    let preformatted (paragraph:MarkdownText.MdText) : MdTile = 
+        Tile [MarkdownText.renderUnbound paragraph]
 
-    let preformattedLines (lines:ParaText.ParaText list) : Tile = 
-        Tile <| List.map ParaText.renderUnbound lines
+    let preformattedLines (lines:MarkdownText.MdText list) : MdTile = 
+        Tile <| List.map MarkdownText.renderUnbound lines
 
 
-    let prefixAll (prefix:string) (tile:Tile) : Tile = 
+    let prefixAll (prefix:string) (tile:MdTile) : MdTile = 
         Tile <| List.map (fun line -> prefix + line) tile.TextLines
 
 
-    let prefixFirstRest (prefix1:string) (prefix2:string) (tile:Tile) : Tile = 
+    let prefixFirstRest (prefix1:string) (prefix2:string) (tile:MdTile) : MdTile = 
         let body = 
             match tile.TextLines with
             | [] -> []
@@ -67,7 +67,7 @@ module Tile =
 
     /// A each tile is interspersed with a blank line.
     /// If the input list is empty, return an empty Tile.
-    let concat (tiles:Tile list) : Tile = 
+    let concat (tiles:MdTile list) : MdTile = 
         match tiles with 
         | [] -> Tile []
         | x :: xs -> List.fold (fun ac b -> ac + b) x xs
@@ -89,7 +89,7 @@ module Tile =
 
     /// The first row is optionallty printed as headers.
     let textGridTable (columnSpecs:ColumnSpec list) (contents: (CellText list) list) 
-                        (hasHeaders:bool): Tile = 
+                        (hasHeaders:bool): MdTile = 
 
         let contentRows = List.map (gridTableRow columnSpecs) contents
 

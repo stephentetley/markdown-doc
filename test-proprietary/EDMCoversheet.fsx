@@ -10,8 +10,8 @@ open FSharp.Data
 
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\SimpleText.fs"
-#load "..\src\MarkdownDoc\Internal\Tile.fs"
+#load "..\src\MarkdownDoc\Internal\MarkdownText.fs"
+#load "..\src\MarkdownDoc\Internal\MarkdownTile.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 

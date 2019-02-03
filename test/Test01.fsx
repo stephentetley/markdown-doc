@@ -2,8 +2,8 @@
 // License: BSD 3 Clause
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\ParaText.fs"
-#load "..\src\MarkdownDoc\Internal\Tile.fs"
+#load "..\src\MarkdownDoc\Internal\MarkdownText.fs"
+#load "..\src\MarkdownDoc\Internal\MarkdownTile.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
@@ -65,10 +65,10 @@ let test08 () =
     testRender m1
 
 let test08a () = 
-    ParaText.renderBounded 50 <| textlines [text "hello"; text "world"]
+    MarkdownText.renderBounded 50 <| textlines [text "hello"; text "world"]
 
 let test08b () = 
-    ParaText.renderUnbound <| textlines [text "hello"; text "world"]
+    MarkdownText.renderUnbound <| textlines [text "hello"; text "world"]
 
 let test08c () = 
     Common.breaklines 50 "hello\r\nworld" ;;
@@ -83,6 +83,6 @@ let test08c () =
 let test09 () =   "hello\r\nworld".Split(separator=[| System.Environment.NewLine |], options= System.StringSplitOptions.None)
 
 let test10 () = 
-    ParaText.renderBounded 50 << ParaText.stringText <| Common.fromLines ["hello";"world"]
+    MarkdownText.renderBounded 50 << MarkdownText.stringText <| Common.fromLines ["hello";"world"]
 
 
