@@ -23,7 +23,8 @@ module Syntax =
         | VCatText of MdText * MdText
 
     type MdPara = 
-        | Text of MdText 
+        | EmptyPara
+        | ParaText of MdText 
         | UnorderedList of MdPara list
         | OrderedList of MdPara list
         | VCatPara of MdPara * MdPara 
@@ -36,12 +37,64 @@ module Syntax =
     type TableRow = TableCell list
 
     type MdDoc = 
+        | EmptyDoc
         | Paragraph of MdPara
         | Table of TableRow option * TableRow list
         | CodeBlock of MdPara
         | VCatDoc of MdDoc * MdDoc
 
+    // ************************************************************************
+    // Markdown builders
 
+    let empty : MdText = NoText
+
+    let space : MdText = String " "
+
+    let beside (x:MdText) (y:MdText) : MdText = 
+        match x,y with
+        | NoText, d -> d
+        | d, NoText -> d
+        | d1,d2 -> HCatText(d1,d2)
+
+    let besideSpace (x:MdText) (y:MdText) : MdText = beside x (beside space y)
+
+    let below (x:MdText) (y:MdText) : MdText = 
+        match x,y with
+        | NoText, d -> d
+        | d, NoText -> d
+        | d1,d2 -> VCatText(d1,d2)
+
+    let textlines (lines:MdText list) : MdText = 
+        let rec work zs cont = 
+            match zs with
+            | [] -> cont empty
+            | x :: xs ->
+                work xs (fun v1 -> 
+                cont (below x v1))
+        work lines id
+
+    let stringText (source:string) : MdText = 
+        match source with
+        | "" -> NoText
+        | _ -> toLines source |> List.map (fun x -> String(x)) |> textlines
+
+
+    let concatMdParas (items:MdPara list) : MdPara = 
+        let concat2 a b = 
+            match a,b with
+            | EmptyPara, d2 -> d2
+            | d1, EmptyPara -> d1
+            | d1, d2 -> VCatPara(d1,d2)
+        List.fold concat2 EmptyPara items
+
+
+    let concatMdDocs (items:MdDoc list) : MdDoc = 
+        let concat2 a b = 
+            match a,b with
+            | EmptyDoc, d2 -> d2
+            | d1, EmptyDoc -> d1
+            | d1, d2 -> VCatDoc(d1,d2)
+        List.fold concat2 EmptyDoc items
 
     // ************************************************************************
     // Render
@@ -94,7 +147,7 @@ module Syntax =
     let renderMdPara (para:MdPara) : string =  
         let rec work (acc:StringBuilder) (doc:MdPara) (cont:StringBuilder -> string) = 
             match doc with
-            | Text txt -> 
+            | ParaText txt -> 
                 let str = renderMdText txt in cont (acc.Append(str)) 
             | UnorderedList xs ->
                 workList [] xs (fun str ->
@@ -124,10 +177,10 @@ module Syntax =
     let renderMdDoc (document:MdDoc) : string = 
         let rec work (acc:StringBuilder) (doc:MdDoc) (cont:StringBuilder -> string) = 
             match doc with
+            | EmptyDoc -> cont acc
             | Paragraph para -> 
                 let str = renderMdPara para
                 cont (acc.AppendLine(str))
-
             | CodeBlock para ->
                 let str = renderMdPara para |> codeBlock
                 cont (acc.AppendLine(str))

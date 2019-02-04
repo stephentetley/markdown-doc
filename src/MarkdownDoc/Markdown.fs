@@ -3,13 +3,11 @@
 
 namespace MarkdownDoc
 
-/// Design issue
-/// Whitespace matters in Pandoc.
-/// How explicitly should we treat it in this library?
-/// Do we help the user (making the implementation complicated) or keep 
-/// the implementation simple relying on the user to do the right thing?
-
-
+// Design issue
+// Whitespace matters in Pandoc.
+// How explicitly should we treat it in this library?
+// Do we help the user (making the implementation complicated) or keep 
+// the implementation simple relying on the user to do the right thing?
 
 
 [<AutoOpen>]
@@ -19,54 +17,54 @@ module Markdown =
 
     open MarkdownDoc.Internal
     
-    /// MdText is the type for 'body text'. 
+    /// Text is the type for 'body text'. 
     /// Sentences and markup smaller than a paragraph.
-    type Text = MarkdownText.MdText
+    type Text = Syntax.MdText
 
     /// The empty Text document.
-    let empty : Text = MarkdownText.NoText
+    let empty : Text = Syntax.NoText
 
     /// Build a Text item from a single char. 
     /// '&' and '<' will be escaped.
     let character (ch:char) : Text = 
         match ch with
-        | '<' -> MarkdownText.String "&lt;"
-        | '&' -> MarkdownText.String "&amp;"
-        | _ -> MarkdownText.String <| ch.ToString()
+        | '<' -> Syntax.String "&lt;"
+        | '&' -> Syntax.String "&amp;"
+        | _ -> Syntax.String <| ch.ToString()
 
     /// Build a Text item from a string. 
     /// '&' and '<' will be escaped.
     let text (content:string) : Text = 
         /// Ampersand must be replaced first, otherwise we get double escaping.
         let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
-        MarkdownText.String s1  
+        Syntax.String s1  
         
     /// Build a Text item from a string. 
     /// No escaping is performed, use this function with care.
     let rawtext (content:string) : Text = 
-        MarkdownText.String content  
+        Syntax.String content  
 
     let rawlines (contents:string list) : Text = 
-        MarkdownText.textlines <| List.map rawtext contents
+        Syntax.textlines <| List.map rawtext contents
 
     /// Print the Text to the console.
     let testRenderText (source:Text) : unit = 
-        MarkdownText.renderUnbound source |> printfn  "----------\n%s\n----------\n"
+        Syntax.renderMdText source |> printfn  "----------\n%s\n----------\n"
 
     /// Horizontal concat directly (no separating space)
     let ( ^^ ) (d1:Text) (d2:Text) : Text = 
-        MarkdownText.beside d1 d2
+        Syntax.beside d1 d2
 
     /// Horizontal concat with a separating space 
     let ( ^+^ ) (d1:Text) (d2:Text) : Text = 
-        MarkdownText.besideSpace d1 d2
+        Syntax.besideSpace d1 d2
 
     /// Vertical concat.
     let ( ^&^ ) (d1:Text) (d2:Text) : Text = 
-        MarkdownText.below d1 d2
+        Syntax.below d1 d2
 
     let textlines (lines:Text list) : Text = 
-        MarkdownText.textlines lines
+        Syntax.textlines lines
 
 
     let bang : Text = character '!'
@@ -174,8 +172,17 @@ module Markdown =
     let useImageReference (altText:Text) (identifier:string) : Text = 
         bang ^^ (squareBrackets altText) ^^ (squareBrackets <| text identifier)
 
+    /// Paragraph assembles Text
+    type Paragraph = Syntax.MdPara
 
+    let paraTile (text:Text) : Paragraph = 
+        Syntax.ParaText text
 
+    let unordList (elements:Paragraph list) : Paragraph = 
+        Syntax.UnorderedList elements
+
+    let ordList (elements:Paragraph list) : Paragraph = 
+        Syntax.OrderedList elements
 
     /// Tiled markdown i.e. large sections paragraphs, list elements, table cell text...
 
@@ -186,25 +193,25 @@ module Markdown =
 
     /// Markdown is the type for document fragments - paragraph or larger.
     type Markdown = 
-        | Markdown of (RenderContext -> MarkdownTile.MdTile)
+        | Markdown of (RenderContext -> Syntax.MdDoc)
 
         member internal x.GetMarkdown 
             with get() = match x with | Markdown(fn) -> fn
 
         member x.SaveToString(columnWidth:int) : string = 
-            let tile = x.GetMarkdown {ColumnWidth = columnWidth}
-            tile.SaveToString()
+            let doc = x.GetMarkdown {ColumnWidth = columnWidth}
+            Syntax.renderMdDoc doc
 
         member x.SaveToString() : string = 
             x.SaveToString(columnWidth = 80)
 
         member x.Save(sw:StreamWriter) : unit = 
-            let tile = x.GetMarkdown {ColumnWidth = 80}
-            tile.Save(sw)
+            let str = x.SaveToString(columnWidth = 80)
+            sw.Write(str)
 
         member x.Save(columnWidth:int, sw:StreamWriter) : unit = 
-            let tile = x.GetMarkdown {ColumnWidth = columnWidth}
-            tile.Save(sw)
+            let str = x.SaveToString(columnWidth = columnWidth)
+            sw.Write(str)
 
         member x.Save (columnWidth:int, outputPath:string) : unit = 
             use sw = new System.IO.StreamWriter(outputPath)
@@ -221,106 +228,102 @@ module Markdown =
     let localColumnWidth (columnWidth:int) (doc:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
             doc.GetMarkdown { ctx with ColumnWidth = columnWidth }
-
-    /// Line breaks according to the current ColumnWidth.
-    let tile (text:Text) : Markdown = 
+    
+    let markdown (para:Paragraph) : Markdown = 
         Markdown <| fun ctx -> 
-            MarkdownTile.tile ctx.ColumnWidth text
+            Syntax.Paragraph para
 
-    /// Does not line break.
-    let preformatted (text:Text) : Markdown = 
-        Markdown <| fun _ -> 
-            MarkdownTile.preformatted text
+    /// TODO line breaking?
+    let markdownTile (text:Text) : Markdown = 
+        Markdown <| fun ctx -> 
+            Syntax.Paragraph (Syntax.ParaText text)
 
-    /// Does not line break.
-    let preformattedLines (lines:Text list) : Markdown = 
-        Markdown <| fun _ -> 
-            MarkdownTile.preformattedLines lines
+    ///// Does not line break.
+    //let preformatted (text:Text) : Markdown = 
+    //    Markdown <| fun _ -> 
+    //        MarkdownTile.preformatted text
+
+    ///// Does not line break.
+    //let preformattedLines (lines:Text list) : Markdown = 
+    //    Markdown <| fun _ -> 
+    //        MarkdownTile.preformattedLines lines
 
 
-    let private tileMap (fn:MarkdownTile.MdTile -> MarkdownTile.MdTile) (doc:Markdown) : Markdown = 
-        let mf = doc.GetMarkdown
-        Markdown <| fun ctx -> fn (mf ctx)
+    //let private tileMap (fn:Syntax.MdDoc -> Syntax.MdDoc) (doc:Markdown) : Markdown = 
+    //    let mf = doc.GetMarkdown
+    //    Markdown <| fun ctx -> fn (mf ctx)
 
     /// Atx style header H1
-    let h1 (content:Text) : Markdown = tile (text "#" ^+^ content)
+    let h1 (content:Text) : Markdown = markdownTile (text "#" ^+^ content)
     
     /// Atx style header H2
-    let h2 (content:Text) : Markdown = tile (text "##" ^+^ content)
+    let h2 (content:Text) : Markdown = markdownTile (text "##" ^+^ content)
 
     /// Atx style header H3
-    let h3 (content:Text) : Markdown = tile (text "###" ^+^ content)
+    let h3 (content:Text) : Markdown = markdownTile (text "###" ^+^ content)
 
     /// Atx style header H4
-    let h4 (content:Text) : Markdown = tile (text "####" ^+^ content)
+    let h4 (content:Text) : Markdown = markdownTile (text "####" ^+^ content)
 
     /// Atx style header H5
-    let h5 (content:Text) : Markdown = tile (text "#####" ^+^ content)
+    let h5 (content:Text) : Markdown = markdownTile (text "#####" ^+^ content)
 
     /// Atx style header H6
-    let h6 (content:Text) : Markdown = tile (text "######" ^+^ content)
+    let h6 (content:Text) : Markdown = markdownTile (text "######" ^+^ content)
 
     
 
     /// Code block indents the paragraph with four spaces.
-    let codeBlock (tile:Markdown) : Markdown = 
-        tileMap (MarkdownTile.prefixAll "    ") tile
+    let codeBlock (para:Paragraph) : Markdown = 
+        Markdown <| fun ctx -> Syntax.CodeBlock(para)
 
     /// Concatenate two Markdown fragments.
     let ( ^@^ ) (a:Markdown) (b:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
             let (Markdown f1) = a 
             let (Markdown f2) = b
-            f1 ctx + f2 ctx
+            Syntax.VCatDoc(f1 ctx, f2 ctx)
 
-    let concat (elements:Markdown list) : Markdown = 
+    let concatMarkdown (elements:Markdown list) : Markdown = 
         Markdown <| fun ctx ->
             let tiles = List.map (fun (doc:Markdown) -> doc.GetMarkdown ctx) elements
-            MarkdownTile.concat tiles
+            Syntax.concatMdDocs tiles
 
-    let tiles (paragraphs:Text list) : Markdown = 
-        concat <| List.map tile paragraphs 
+    //let tiles (paragraphs:Text list) : Markdown = 
+    //    concat <| List.map tile paragraphs 
 
-
-    let unordList (elements:Markdown list) : Markdown = 
-        concat <| List.map (tileMap (MarkdownTile.prefixFirstRest "* " "  ")) elements
-
-    let ordList (elements:Markdown list) : Markdown = 
-        let listItem (ix:int) (doc:Markdown) = 
-            tileMap (MarkdownTile.prefixFirstRest (sprintf "%i. " (ix+1)) "  ") doc
-        concat <| List.mapi listItem elements 
         
 
-    let defLinkReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
-        let title1  = 
-            match title with
-            | None -> empty
-            | Some ss -> space ^^ doubleQuotes (text ss)
-        let text = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
-        // Potentially we need a non-breaking version of tile.
-        localColumnWidth 300 (tile <| text)
+    //let defLinkReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
+    //    let title1  = 
+    //        match title with
+    //        | None -> empty
+    //        | Some ss -> space ^^ doubleQuotes (text ss)
+    //    let text = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
+    //    // Potentially we need a non-breaking version of tile.
+    //    localColumnWidth 300 (tile <| text)
 
 
-    let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
-        let title1  = 
-            match title with
-            | None -> empty
-            | Some str -> space ^^ doubleQuotes (text str)
-        let text = squareBrackets (text identifier) ^^ colon ^+^ text path ^^ title1
-        localColumnWidth 300 (tile <| text)
+    //let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
+    //    let title1  = 
+    //        match title with
+    //        | None -> empty
+    //        | Some str -> space ^^ doubleQuotes (text str)
+    //    let text = squareBrackets (text identifier) ^^ colon ^+^ text path ^^ title1
+    //    localColumnWidth 300 (tile <| text)
 
 
-    type Alignment = Common.Alignment
-    type ColumnSpec = Common.ColumnSpec
+    //type Alignment = Common.Alignment
+    //type ColumnSpec = Common.ColumnSpec
 
-    let gridTable (columnSpecs:ColumnSpec list) 
-                  (contents: (Markdown list) list) 
-                  (hasHeaders:bool) : Markdown = 
-        Markdown <| fun ctx ->
-            let renderCell (spec:ColumnSpec) (doc:Markdown) : MarkdownTile.CellText = 
-                let tile = doc.GetMarkdown { ctx with ColumnWidth = spec.Width }
-                tile.TextLines
-            let renderRow (row: Markdown list) : MarkdownTile.CellText list = 
-                List.map2 renderCell columnSpecs row
-            let contents1 = List.map renderRow contents 
-            MarkdownTile.textGridTable columnSpecs contents1 hasHeaders
+    //let gridTable (columnSpecs:ColumnSpec list) 
+    //              (contents: (Markdown list) list) 
+    //              (hasHeaders:bool) : Markdown = 
+    //    Markdown <| fun ctx ->
+    //        let renderCell (spec:ColumnSpec) (doc:Markdown) : MarkdownTile.CellText = 
+    //            let tile = doc.GetMarkdown { ctx with ColumnWidth = spec.Width }
+    //            tile.TextLines
+    //        let renderRow (row: Markdown list) : MarkdownTile.CellText list = 
+    //            List.map2 renderCell columnSpecs row
+    //        let contents1 = List.map renderRow contents 
+    //        MarkdownTile.textGridTable columnSpecs contents1 hasHeaders
