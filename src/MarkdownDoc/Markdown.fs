@@ -24,7 +24,7 @@ module Markdown =
     type Text = MarkdownText.MdText
 
     /// The empty Text document.
-    let empty : Text = MarkdownText.Empty
+    let empty : Text = MarkdownText.NoText
 
     /// Build a Text item from a single char. 
     /// '&' and '<' will be escaped.
@@ -313,8 +313,9 @@ module Markdown =
     type Alignment = Common.Alignment
     type ColumnSpec = Common.ColumnSpec
 
-    let gridTable (columnSpecs:ColumnSpec list) (contents: (Markdown list) list) 
-                        (hasHeaders:bool) : Markdown = 
+    let gridTable (columnSpecs:ColumnSpec list) 
+                  (contents: (Markdown list) list) 
+                  (hasHeaders:bool) : Markdown = 
         Markdown <| fun ctx ->
             let renderCell (spec:ColumnSpec) (doc:Markdown) : MarkdownTile.CellText = 
                 let tile = doc.GetMarkdown { ctx with ColumnWidth = spec.Width }

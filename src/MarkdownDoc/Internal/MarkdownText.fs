@@ -3,20 +3,20 @@
 
 namespace MarkdownDoc.Internal
 
-
+// Soon to be obsolete, to be replaced with explicitly structured syntax
 
 [<RequireQualifiedAccess>]
 module MarkdownText = 
 
     open System.Text
-    open MarkdownDoc.Internal
+    open MarkdownDoc.Internal.Common
 
     // Note - potentially we may want to apply a text transformer to MdText 
     // e.g. to escape spaces for super- and subscripts.
     
 
     type MdText = 
-        | Empty
+        | NoText
         | String of string
         | Horizontal of MdText * MdText
         | Vertical of MdText * MdText
@@ -25,7 +25,7 @@ module MarkdownText =
         let sb = new StringBuilder ()
         let rec work (doc:MdText) (cont : unit -> 'a) = 
             match doc with
-            | Empty -> cont ()
+            | NoText -> cont ()
             | String str -> 
                 sb.Append(str) |> ignore
                 cont ()
@@ -47,7 +47,7 @@ module MarkdownText =
     let renderBounded (width:int) (doc:MdText) : string list = 
         renderUnbound doc |> breaklines width
 
-    let empty : MdText = Empty
+    let empty : MdText = NoText
 
     let space : MdText = String " "
 
@@ -55,16 +55,16 @@ module MarkdownText =
 
     let beside (x:MdText) (y:MdText) : MdText = 
         match x,y with
-        | Empty, d -> d
-        | d, Empty -> d
+        | NoText, d -> d
+        | d, NoText -> d
         | d1,d2 -> Horizontal(d1,d2)
 
     let besideSpace (x:MdText) (y:MdText) : MdText = beside x (beside space y)
 
     let below (x:MdText) (y:MdText) : MdText = 
         match x,y with
-        | Empty, d -> d
-        | d, Empty -> d
+        | NoText, d -> d
+        | d, NoText -> d
         | d1,d2 -> Vertical(d1,d2)
 
     let textlines (lines:MdText list) : MdText = 
@@ -78,5 +78,5 @@ module MarkdownText =
 
     let stringText (source:string) : MdText = 
         match source with
-        | "" -> Empty
+        | "" -> NoText
         | _ -> toLines source |> List.map (fun x -> String(x)) |> textlines

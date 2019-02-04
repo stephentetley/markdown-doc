@@ -3,8 +3,8 @@
 
 namespace MarkdownDoc.Internal
 
+// Explicitly open all Internal modules.
 
-[<AutoOpen>]
 module Common = 
     
     open System

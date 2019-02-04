@@ -8,7 +8,7 @@ namespace MarkdownDoc.Pandoc
 module Extra = 
 
     open MarkdownDoc
-    open MarkdownDoc.Internal
+    open MarkdownDoc.Internal.Common
 
     let inlineRaw (format:string) (content:Text) = 
         enclose (text "`") (text "`") content ^^ text (sprintf "={%s}" format)

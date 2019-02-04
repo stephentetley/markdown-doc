@@ -13,7 +13,6 @@ open System.IO
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc
-open MarkdownDoc.Internal
 open MarkdownDoc.Pandoc
 
 let testDoc : Markdown = 

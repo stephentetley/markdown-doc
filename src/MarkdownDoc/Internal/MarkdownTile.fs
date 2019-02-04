@@ -4,13 +4,14 @@
 namespace MarkdownDoc.Internal
 
 
-
+// Soon to be obsolete, to be replaced with explicitly structured syntax
 
 [<RequireQualifiedAccess>]
 module MarkdownTile = 
     open System.IO
     open System.Text
 
+    open MarkdownDoc.Internal.Common
     open MarkdownDoc.Internal
 
     // Open question / Design issue

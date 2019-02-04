@@ -89,12 +89,12 @@ the superscript and escapes space characters with backslash `\`.
   * Sub lists
   * Like this.
 
-Currently (3 Feb 2019), `Markdown-doc` has no special designation for lists,
-the implementation renders the item-body at _call time_ and stores it as a
-list of strings.
+When these notes were started (3 Febraury), `Markdown-doc` had no special
+designation for lists, the implementation rendered the item-body at
+_call time_ and stored it as a list of strings.
 
 Worth noting - in Markdown there isn't a concrete notion of _lists_ like there
-there is in HTML; there are just one-or-more list items in sequence.
+there is in HTML; there are just one-or-more _list items_ in sequence.
 
 
 ## Tables
@@ -102,6 +102,41 @@ there is in HTML; there are just one-or-more list items in sequence.
 Tables are complicated because unlike other objects built from tiles they have
 a horizontal as well vertical aspect.
 
-Like lists, currently (3 Feb 2019) `Markdown-doc` has no special designation
-for tables the implementation renders cells in rows, then rows into a table
-at _call time_, storing the output as a list of strings.
+Like lists, circa the start of February, `Markdown-doc` had no special
+designation for tables the implementation rendered the cells in a rows, then
+the rows into a table at _call time_, storing the output as a list of strings.
+
+## Digression #1
+
+At the start of February, this was the first attempt at a structured syntax:
+
+    type TextWidth = int
+
+    type MdTile =
+        | Empty
+        | Unbound of MarkdownText.MdText
+        | Bound of TextWidth * MarkdownText.MdText
+        | VCat of MdTile * MdTile
+        | CodeBlock of MdTile
+        | OrderedList of MdTile list
+        | UnorderedList of MdTile list
+        | Table of TableRow option * TableRow list
+    and TableCell =
+        | TableCell of TextWidth * MdTile
+    and TableRow =
+        | TableRow of TableCell list
+
+It has at least one _error_ - the renderer should be print a sequence of tiles
+with a separating blank line but in hand written markup it's common for a list
+to be appended to a paragraph. In syntax terms, ordered and unordered lists
+are a _smaller_ entity than say a table or a header.
+
+There are also problems that make the syntax unsatisfactory. There is too much
+recursion - tables can contain lists (good) but lists can contain tables (bad)
+and tables can contain tables (bad). There is no syntax for headers so anything
+could contain headers. Having a lot of recursion in the syntax makes the
+rendering code very tangled.
+
+These problems imply that there should be a _medium-size_ syntax element
+between tiles and text that can hold lists and paragraph text but not tables
+or headers.

@@ -10,6 +10,7 @@
 
 open MarkdownDoc
 open MarkdownDoc.Internal
+open MarkdownDoc.Internal.Common
 open MarkdownDoc.Pandoc
 
 
