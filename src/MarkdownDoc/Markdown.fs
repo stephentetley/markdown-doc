@@ -17,6 +17,9 @@ module Markdown =
 
     open MarkdownDoc.Internal
     
+    type ColumnSpec = Syntax.ColumnSpec
+    type Alignment = Syntax.Alignment
+
     /// Text is the type for 'body text'. 
     /// Sentences and markup smaller than a paragraph.
     type Text = Syntax.MdText
