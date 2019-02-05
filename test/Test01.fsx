@@ -38,13 +38,13 @@ let fruitColSpecs : ColumnSpec list =
     ]
 
 let test05 () = 
+    let plain = paraTile << text
+    let headers = [ plain "Fruit"; plain "Price"; plain "Advantages" ]
     let cells = 
-        let plain = paraTile << text
-        [ [ plain "Fruit"; plain "Price"; plain "Advantages" ]
-        ; [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
+        [ [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
         ; [ plain "Oranges"; plain "$2.10"; unordList [plain "cures scurvy"; plain "tasty"] ] 
         ]
-    gridTable fruitColSpecs cells true |> testRender
+    gridTable fruitColSpecs (Some headers) cells |> testRender
 
 
 let test06 () = 

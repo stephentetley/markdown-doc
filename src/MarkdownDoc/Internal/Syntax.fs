@@ -13,6 +13,34 @@ module Syntax =
     // ************************************************************************
     // Syntax
 
+
+    
+    type Alignment = 
+        | AlignDefault 
+        | AlignLeft 
+        | AlignCenter 
+        | AlignRight
+
+    type ColumnSpec = 
+        { Width: int
+          Alignment: Alignment }
+    
+        /// Cell is two characters wider than the specification to allow for left
+        /// and right spacing.
+        member x.LineSectionWithAlignment 
+            with get () : string = 
+                match x.Alignment with
+                | AlignDefault -> String.replicate (x.Width + 2) "="
+                | AlignLeft -> ":" + String.replicate (x.Width + 1) "="
+                | AlignCenter -> ":" + String.replicate x.Width "=" + ":"
+                | AlignRight -> String.replicate (x.Width + 1) "=" + ":"
+
+        /// Cell is two characters wider than the specification to allow for left
+        /// and right spacing.
+        member x.LineSection 
+            with get () : string = String.replicate (x.Width + 2) "-"
+
+
     /// Note - rendering VCatText writes an explicit Markdown 
     /// line break (two trailing spaces) to the output and 
     /// then a new line
@@ -29,11 +57,9 @@ module Syntax =
         | OrderedList of MdPara list
         | VCatPara of MdPara * MdPara 
 
-    type Alignment = AlignDefault | AlignLeft | AlignCenter | AlignRight
-
+    /// We cache width with cell contents so it can be easily accessed
     type TableCell = 
-        { Alignment: Alignment
-          Width: int
+        { Width: int
           Content: MdPara }
 
     type TableRow = TableCell list
@@ -42,7 +68,7 @@ module Syntax =
         | EmptyDoc
         | Paragraph of MdPara
         | BoundedParagraph of int * MdPara
-        | Table of bool * TableRow list // bool is has-titles?
+        | Table of ColumnSpec list * TableRow option * TableRow list // bool is has-titles?
         | CodeBlock of MdPara
         | VCatDoc of MdDoc * MdDoc
 
@@ -106,97 +132,62 @@ module Syntax =
     // Render Preliminary - render tables
 
 
-    type ColumnSpec = 
-        { Width: int
-          Alignment: Alignment }
+
     
-        /// Cell is two characters wider than the specification to allow for left
-        /// and right spacing.
-        member x.CellSpecifier (ch:char) : string = 
-            let chs = ch.ToString()
-            match x.Alignment with
-            | AlignDefault -> String.replicate (x.Width + 2) chs
-            | AlignLeft -> ":" + String.replicate (x.Width + 1) chs
-            | AlignCenter -> ":" + String.replicate x.Width chs + ":"
-            | AlignRight -> String.replicate (x.Width + 1) chs + ":"
-    
-    
-    // TODO - It will be simpler to render a row at a time
+    /// Pad one space left and one or more spaces right.
+    /// The length of the generated string is `2 + original length`.
+    /// The string should not be multiline at this point.
+    let private padString (width:int, text:string) = 
+        " " + text.PadRight(width + 1 , ' ')
 
-    // let renderRow (annotatedRows: (ColumnSpec * string) list) : string =
-
-
-    /// Note the printed column width is two characters wider than the 
-    /// width in the specification. This accounts for left and right spacing 
-    /// when cells are printed.
-    let private gridTableRowSep (specs:ColumnSpec list) : string = 
-        specs |> List.map (fun spec -> String.replicate (spec.Width + 2) "-") 
-              |> encloseConcat "+" 
-
-    let private gridTableRowSepWithFormatting (ch:char) (specs:ColumnSpec list) : string = 
-        specs |> List.map (fun spec -> spec.CellSpecifier(ch)) 
-              |> encloseConcat "+" 
+    /// Cells have already been rendered to multiline strings.
+    let renderRow (cells:(int * string) list) : string = 
+        let widths = List.map fst cells
+        let multiCells = List.map (snd >> toLines) cells
+        let linearRows = raggedTranspose "" multiCells
+        let annoLinearRows = linearRows |> List.map (fun row -> raggedMap2 (fun x y -> (x,y)) widths row)
+        let renderLine (cells:(int * string) list) : string = 
+            List.map padString cells |> encloseConcat "|" 
+        List.map renderLine annoLinearRows |> fromLines
             
+    let private gridTableDrawLine (specs:ColumnSpec list) : string = 
+        specs |> List.map (fun spec -> spec.LineSection) |> encloseConcat "+" 
 
-    let gridTableRowDashFormatting (specs:ColumnSpec list) : string = 
-        gridTableRowSepWithFormatting '-' specs
-
-    let gridTableRowEqualsFormatting (specs:ColumnSpec list) : string = 
-        gridTableRowSepWithFormatting '=' specs
-
-    type CellContent = string list
+    let private gridTableDrawLineWithAlignment (specs:ColumnSpec list) : string = 
+        specs |> List.map (fun spec -> spec.LineSectionWithAlignment) |> encloseConcat "+" 
 
 
-    let gridTableContentRow (specs:ColumnSpec list) (texts:string list) : string = 
-        // note the cell is 2+spec width to account for left and right spacing
-        let padCell (spec:ColumnSpec) (text:string) = 
-            " " + text.PadRight(spec.Width + 1 , ' ')
 
-        List.map2 padCell specs texts |> encloseConcat "|"
+    let textGridTable (columnSpecs:ColumnSpec list) 
+                      (headerRow : (string list) option)
+                      (contentRows: (string list) list) : string =
+        let sb = new StringBuilder ()
+        let draw (text:string) : unit = sb.AppendLine(text) |> ignore
+        let underline = gridTableDrawLine columnSpecs
+        let underlineWithAligments = gridTableDrawLineWithAlignment columnSpecs
+
+        let annotateRow (row:string list) : (int * string) list = 
+            raggedMap2 (fun (spec:ColumnSpec) (b:string) -> (spec.Width,b)) columnSpecs row
         
-    let gridTableRow (columnSpecs:ColumnSpec list) (cells:CellContent list) : string list = 
-        let listsOfLines = raggedTranspose "" cells
-        List.map (gridTableContentRow columnSpecs) listsOfLines
+        let drawRow (cells:string list) : unit = 
+            let text = annotateRow cells |> renderRow
+            draw text; draw underline
 
-    type Words = string list
-    
-    type TextCell = Words
-    type TextRow = TextCell list
+        /// Start with a line
+        draw underline
+        
+        /// Draw Header with underline if present
+        match headerRow with 
+        | None -> ()
+        | Some headerCells -> 
+            let headerText : string = annotateRow headerCells |> renderRow 
+            draw headerText
+            draw underlineWithAligments
+        
+        /// Draw rows and respective underlines
+        List.iter drawRow contentRows
+        sb.ToString()
 
-    type RowLine1 = string
-    type RowLines = RowLine1 list
-
-    let private gridTableSkeleton (sep1:string) (sep2:string) (sepBody:string) (rowTexts: RowLines list) : string =         
-        match rowTexts with
-        | [] -> ""
-        | headings :: body -> 
-            let sb = new StringBuilder ()
-            let appendLine (text:string) : unit = sb.AppendLine(text) |> ignore
-            appendLine sep1
-            List.iter appendLine headings
-            appendLine sep2
-            List.iter (fun lines -> List.iter appendLine lines; appendLine sepBody) body 
-            sb.ToString()
-
-
-
-    /// The first row is optionallty printed as headers.
-    let textGridTable (hasHeaders:bool)
-                      (columnSpecs:ColumnSpec list) 
-                      (contents: TextRow list) : string = 
-        let contentRows = List.map (gridTableRow columnSpecs) contents
-        if hasHeaders then 
-            let sep1 = gridTableRowSep columnSpecs
-            let sep2 = gridTableRowEqualsFormatting columnSpecs
-            gridTableSkeleton sep1 sep2 sep1 contentRows
-        else
-            let sep1 = gridTableRowSep columnSpecs
-            let sep2 = gridTableRowDashFormatting columnSpecs
-            gridTableSkeleton sep1 sep2 sep2 contentRows
-
-
-    let getColumnSpecs (row:TableRow) : ColumnSpec list = 
-        row |> List.map (fun cell -> { Width = cell.Width; Alignment = cell.Alignment})
 
     // ************************************************************************
     // Render
@@ -278,6 +269,17 @@ module Syntax =
     let codeBlock (body:string) : string = 
         toLines body |> List.map (prefixLine "    ") |> fromLines
 
+    /// This renders a row to it's component cell strings.
+    /// It is not the final output of a row which has to be transposed into lines.
+    let renderTableRow1 (row:TableRow) : string list = 
+        let rec workCells (acc:string list) (cells:TableCell list) (cont:string list -> string list) = 
+            match cells with
+            | [] -> cont (List.rev acc)
+            | c1 :: cs -> 
+                let str1 = renderBoundedMdPara c1.Width c1.Content
+                workCells (str1::acc) cells cont
+        workCells [] row id
+        
 
     let renderMdDoc (document:MdDoc) : string = 
         let rec work (acc:StringBuilder) (doc:MdDoc) (cont:StringBuilder -> string) = 
@@ -295,7 +297,20 @@ module Syntax =
             | VCatDoc(d1,d2) -> 
                 work acc d1 (fun acc1 -> 
                 work (acc1.AppendLine()) d2 cont)
-            | Table(hasTitles,rows) -> 
-                cont acc
+            | Table(columnSpecs,header,rows) -> 
+                let headerRow = Option.map renderTableRow1 header
+                workRows acc columnSpecs headerRow [] rows  (fun acc1 -> 
+                let tableText = acc1.ToString()
+                cont (acc.AppendLine(tableText)))
+        and workRows (sb:StringBuilder) (columnSpecs:ColumnSpec list) (header:(string list) option) 
+                     (acc:(string list) list) (rows:TableRow list)  (cont:StringBuilder -> string) = 
+            match rows with
+            | [] -> let tableText = textGridTable columnSpecs header (List.rev acc)
+                    failwith "here"
+                    cont (sb.AppendLine(tableText))
+            | x :: xs -> 
+                let rowCells = renderTableRow1 x 
+                workRows sb columnSpecs header (rowCells::acc) xs cont
+
         let sb = new StringBuilder () 
         work sb document (fun x -> x.ToString()) 

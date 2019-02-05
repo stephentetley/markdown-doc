@@ -312,12 +312,11 @@ module Markdown =
 
 
     let gridTable (columnSpecs:ColumnSpec list) 
-                  (contents: (Paragraph list) list) 
-                  (hasHeaders:bool) : Markdown = 
+                  (headers: (Paragraph list) option)
+                  (contents: (Paragraph list) list) : Markdown = 
 
         let makeCell (spec:ColumnSpec) (para:Paragraph) : Syntax.TableCell = 
-            { Alignment = spec.Alignment
-              Width = spec.Width
+            { Width = spec.Width
               Content = para }
 
         let makeRow (row:Paragraph list) : Syntax.TableRow = 
@@ -325,4 +324,4 @@ module Markdown =
 
         Markdown <| fun _ ->
             let rows = List.map makeRow contents
-            Syntax.Table(hasHeaders, rows)
+            Syntax.Table(columnSpecs, Option.map makeRow headers, rows)
