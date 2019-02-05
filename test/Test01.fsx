@@ -32,9 +32,9 @@ let test04 () =
     testRender m1
 
 let fruitColSpecs : ColumnSpec list = 
-    [ { Width = 30; Alignment = Alignment.AlignDefault } 
-    ; { Width = 40; Alignment = Alignment.AlignDefault } 
-    ; { Width = 40; Alignment = Alignment.AlignDefault } 
+    [ { Width = 30; Alignment = Alignment.AlignLeft } 
+    ; { Width = 40; Alignment = Alignment.AlignCenter } 
+    ; { Width = 40; Alignment = Alignment.AlignRight } 
     ]
 
 let test05 () = 

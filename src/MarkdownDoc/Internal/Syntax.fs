@@ -277,7 +277,7 @@ module Syntax =
             | [] -> cont (List.rev acc)
             | c1 :: cs -> 
                 let str1 = renderBoundedMdPara c1.Width c1.Content
-                workCells (str1::acc) cells cont
+                workCells (str1::acc) cs cont
         workCells [] row id
         
 
@@ -299,18 +299,17 @@ module Syntax =
                 work (acc1.AppendLine()) d2 cont)
             | Table(columnSpecs,header,rows) -> 
                 let headerRow = Option.map renderTableRow1 header
-                workRows acc columnSpecs headerRow [] rows  (fun acc1 -> 
+                workRows columnSpecs headerRow [] rows  (fun acc1 -> 
                 let tableText = acc1.ToString()
                 cont (acc.AppendLine(tableText)))
-        and workRows (sb:StringBuilder) (columnSpecs:ColumnSpec list) (header:(string list) option) 
+        and workRows (columnSpecs:ColumnSpec list) (header:(string list) option) 
                      (acc:(string list) list) (rows:TableRow list)  (cont:StringBuilder -> string) = 
             match rows with
             | [] -> let tableText = textGridTable columnSpecs header (List.rev acc)
-                    failwith "here"
-                    cont (sb.AppendLine(tableText))
+                    cont (new StringBuilder(value=tableText))
             | x :: xs -> 
                 let rowCells = renderTableRow1 x 
-                workRows sb columnSpecs header (rowCells::acc) xs cont
+                workRows columnSpecs header (rowCells::acc) xs cont
 
         let sb = new StringBuilder () 
         work sb document (fun x -> x.ToString()) 
