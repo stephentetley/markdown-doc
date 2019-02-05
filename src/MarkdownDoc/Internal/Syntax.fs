@@ -17,8 +17,8 @@ module Syntax =
     /// line break (two trailing spaces) to the output and 
     /// then a new line
     type MdText =
-        | NoText
-        | String of string
+        | EmptyText
+        | Text of string
         | HCatText of MdText * MdText
         | VCatText of MdText * MdText
 
@@ -51,22 +51,22 @@ module Syntax =
     // ************************************************************************
     // Markdown builders
 
-    let empty : MdText = NoText
+    let empty : MdText = EmptyText
 
-    let space : MdText = String " "
+    let space : MdText = Text " "
 
     let beside (x:MdText) (y:MdText) : MdText = 
         match x,y with
-        | NoText, d -> d
-        | d, NoText -> d
+        | EmptyText, d -> d
+        | d, EmptyText -> d
         | d1,d2 -> HCatText(d1,d2)
 
     let besideSpace (x:MdText) (y:MdText) : MdText = beside x (beside space y)
 
     let below (x:MdText) (y:MdText) : MdText = 
         match x,y with
-        | NoText, d -> d
-        | d, NoText -> d
+        | EmptyText, d -> d
+        | d, EmptyText -> d
         | d1,d2 -> VCatText(d1,d2)
 
     let textlines (lines:MdText list) : MdText = 
@@ -80,8 +80,8 @@ module Syntax =
 
     let stringText (source:string) : MdText = 
         match source with
-        | "" -> NoText
-        | _ -> toLines source |> List.map (fun x -> String(x)) |> textlines
+        | "" -> EmptyText
+        | _ -> toLines source |> List.map (fun x -> Text(x)) |> textlines
 
 
     let concatMdParas (items:MdPara list) : MdPara = 
@@ -120,6 +120,10 @@ module Syntax =
             | AlignRight -> String.replicate (x.Width + 1) chs + ":"
     
     
+    // TODO - It will be simpler to render a row at a time
+
+    // let renderRow (annotatedRows: (ColumnSpec * string) list) : string =
+
 
     /// Note the printed column width is two characters wider than the 
     /// width in the specification. This accounts for left and right spacing 
@@ -228,8 +232,8 @@ module Syntax =
     let renderMdText (text:MdText) : string = 
         let rec work (acc:StringBuilder) (doc:MdText) (cont : StringBuilder -> string) = 
             match doc with
-            | NoText -> cont acc
-            | String str -> 
+            | EmptyText -> cont acc
+            | Text str -> 
                 cont (acc.Append(str))
             | HCatText(d1,d2) -> 
                 work acc d1 (fun acc1 ->

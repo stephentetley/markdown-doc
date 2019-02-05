@@ -12,31 +12,22 @@ open MarkdownDoc.Internal.Common
 open MarkdownDoc.Internal.Syntax
 
 
-
-
 let demo01 () =
-    let text = HCatText (String "Hello", HCatText  (String " ", String "World!"))
+    let text = HCatText (Text "Hello", HCatText  (Text " ", Text "World!"))
     renderMdText text
 
-
-
-
-
 let demo02 () =
-    let text = HCatText (String "Hello", HCatText  (String " ", String "World!"))
-    let olist = OrderedList [Text text; Text text; Text text]
-    let ulist = UnorderedList [olist; Text text; Text text]
+    let text = HCatText (Text "Hello", HCatText  (Text " ", Text "World!"))
+    let olist = OrderedList [ParaText text; ParaText text; ParaText text]
+    let ulist = UnorderedList [olist; ParaText text; ParaText text]
     renderMdPara ulist |> printfn "%s"
 
 
-
-
-
 let demo03 () =
-    let text = HCatText (String "Hello", HCatText  (String " ", String "World!"))
-    let header = Paragraph (Text (String "# Title"))
-    let olist = OrderedList [Text text; Text text; Text text]
-    let ulist = UnorderedList [olist; Text text; Text text]
+    let text = HCatText (Text "Hello", HCatText  (Text " ", Text "World!"))
+    let header = Paragraph (ParaText (Text "# Title"))
+    let olist = OrderedList [ParaText text; ParaText text; ParaText text]
+    let ulist = UnorderedList [olist; ParaText text; ParaText text]
     let para1 = Paragraph ulist
     let document = VCatDoc(header, para1)
     renderMdDoc document |> printfn "%s"

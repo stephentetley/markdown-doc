@@ -25,27 +25,27 @@ module Markdown =
     type Text = Syntax.MdText
 
     /// The empty Text document.
-    let empty : Text = Syntax.NoText
+    let empty : Text = Syntax.EmptyText
 
     /// Build a Text item from a single char. 
     /// '&' and '<' will be escaped.
     let character (ch:char) : Text = 
         match ch with
-        | '<' -> Syntax.String "&lt;"
-        | '&' -> Syntax.String "&amp;"
-        | _ -> Syntax.String <| ch.ToString()
+        | '<' -> Syntax.Text "&lt;"
+        | '&' -> Syntax.Text "&amp;"
+        | _ -> Syntax.Text <| ch.ToString()
 
     /// Build a Text item from a string. 
     /// '&' and '<' will be escaped.
     let text (content:string) : Text = 
         /// Ampersand must be replaced first, otherwise we get double escaping.
         let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
-        Syntax.String s1  
+        Syntax.Text s1  
         
     /// Build a Text item from a string. 
     /// No escaping is performed, use this function with care.
     let rawtext (content:string) : Text = 
-        Syntax.String content  
+        Syntax.Text content  
 
     let rawlines (contents:string list) : Text = 
         Syntax.textlines <| List.map rawtext contents
