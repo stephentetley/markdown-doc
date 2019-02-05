@@ -17,7 +17,7 @@ module Extra =
     let rawCode (rawAttr:string) (codeSource:string) : Markdown = 
         let line1 = backticks3 ^^ braces (equals ^^ rawtext rawAttr)
         let textlines = rawlines <| toLines codeSource
-        preformatted <| line1 ^&^ textlines ^&^ backticks3
+        unboundedTile <| line1 ^&^ textlines ^&^ backticks3
 
 
     let openxmlPagebreak : Markdown = 

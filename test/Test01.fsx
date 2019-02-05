@@ -4,13 +4,13 @@
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
-//#load "..\src\MarkdownDoc\Pandoc\Extra.fs"
+#load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 //#load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc
 open MarkdownDoc.Internal
 open MarkdownDoc.Internal.Common
-// open MarkdownDoc.Pandoc
+open MarkdownDoc.Pandoc
 
 
 let test01 () = 
@@ -37,20 +37,20 @@ let fruitColSpecs : ColumnSpec list =
     ; { Width = 40; Alignment = Alignment.AlignDefault } 
     ]
 
-//let test05 () = 
-//    let cells = 
-//        let plain = tile << text
-//        [ [ plain "Fruit"; plain "Price"; plain "Advantages" ]
-//        ; [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
-//        ; [ plain "Oranges"; plain "$2.10"; unordList [plain "cures scurvy"; plain "tasty"] ] 
-//        ]
-//    gridTable fruitColSpecs cells true |> testRender
+let test05 () = 
+    let cells = 
+        let plain = paraTile << text
+        [ [ plain "Fruit"; plain "Price"; plain "Advantages" ]
+        ; [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
+        ; [ plain "Oranges"; plain "$2.10"; unordList [plain "cures scurvy"; plain "tasty"] ] 
+        ]
+    gridTable fruitColSpecs cells true |> testRender
 
 
-//let test06 () = 
-//    let m1 : Markdown = 
-//        tile (text "hello") ^@^ openxmlPagebreak ^@^ tile (text "world")
-//    testRender m1
+let test06 () = 
+    let m1 : Markdown = 
+        markdownTile (text "hello") ^@^ openxmlPagebreak ^@^ markdownTile (text "world")
+    testRender m1
     
 
 let test07 () = 
@@ -64,26 +64,20 @@ let test08 () =
         markdownTile <| textlines [text "hello"; text "world"]
     testRender m1
 
-//let test08a () = 
-//    MarkdownText.renderBounded 50 <| textlines [text "hello"; text "world"]
 
-//let test08b () = 
-//    MarkdownText.renderUnbound <| textlines [text "hello"; text "world"]
-
-let test08c () = 
+let test09a () = 
     Common.breaklines 50 "hello\r\nworld" ;;
 
-//let test06 () = 
-//    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
+let test09b () = 
+    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
 
-//let test07 () = 
-//    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
+let test09c () = 
+    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
 /// Windows only...
-let test09 () =   "hello\r\nworld".Split(separator=[| System.Environment.NewLine |], options= System.StringSplitOptions.None)
+let test09d () =   "hello\r\nworld".Split(separator=[| System.Environment.NewLine |], options= System.StringSplitOptions.None)
 
-//let test10 () = 
-//    MarkdownText.renderBounded 50 << MarkdownText.stringText <| Common.fromLines ["hello";"world"]
+
 
 
 

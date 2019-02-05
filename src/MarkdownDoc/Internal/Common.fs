@@ -27,6 +27,18 @@ module Common =
                         sb.Append(separator) |> ignore) items
         sb.ToString()
 
+
+    /// FSharp's builtin List.map2 (aka zipWith) throws an exception if one list is shorter than the other.
+    /// We prefer truncation instead.
+    let raggedMap2 (mapping:'a -> 'b -> 'c) (list1:'a list) (list2:'b list) : 'c list = 
+        let rec work acc ls1 ls2 cont = 
+            match ls1,ls2 with 
+            | [], _ -> cont acc
+            | _, [] -> cont acc
+            | x::xs, y::ys -> 
+                work ((mapping x y)::acc) xs ys cont
+        work [] list1 list2 (List.rev)
+
     /// F#'s built-in List.transpose needs perfect input. It cannot handle ragged tables.
     let raggedTranspose (emptyElement:'a) (table:('a list) list) : ('a list) list = 
         let headsOf (table:('a list) list) : 'a list = 

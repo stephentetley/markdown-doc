@@ -40,7 +40,8 @@ module Syntax =
     
     type MdDoc = 
         | EmptyDoc
-        | Paragraph of MdPara   // maybe this should have width again...
+        | Paragraph of MdPara
+        | BoundedParagraph of int * MdPara
         | Table of bool * TableRow list // bool is has-titles?
         | CodeBlock of MdPara
         | VCatDoc of MdDoc * MdDoc
@@ -270,7 +271,8 @@ module Syntax =
         let sb = new StringBuilder () 
         work sb para (fun x -> x.ToString()) 
 
-
+    let renderBoundedMdPara (lineWidth:int) (para:MdPara) : string =  
+        renderMdPara para |> breaklines lineWidth |> fromLines
 
     /// Note an item may be a multiline string
     let codeBlock (body:string) : string = 
@@ -283,6 +285,9 @@ module Syntax =
             | EmptyDoc -> cont acc
             | Paragraph para -> 
                 let str = renderMdPara para
+                cont (acc.AppendLine(str))
+            | BoundedParagraph (width,para) -> 
+                let str = renderBoundedMdPara width para
                 cont (acc.AppendLine(str))
             | CodeBlock para ->
                 let str = renderMdPara para |> codeBlock

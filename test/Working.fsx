@@ -31,3 +31,15 @@ let demo03 () =
     let para1 = Paragraph ulist
     let document = VCatDoc(header, para1)
     renderMdDoc document |> printfn "%s"
+
+let test01 () = 
+    let text = "one two  three   four"
+    let splits = text.Split(' ')
+    String.concat " " splits 
+
+let test02 () = 
+    raggedMap2 (sprintf "%c-%d") ['a';'b';'c';'d'] [1;2;3;4;5] 
+
+
+
+    

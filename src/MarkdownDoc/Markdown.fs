@@ -17,8 +17,9 @@ module Markdown =
 
     open MarkdownDoc.Internal
     
-    type ColumnSpec = Syntax.ColumnSpec
     type Alignment = Syntax.Alignment
+    type ColumnSpec = Syntax.ColumnSpec
+
 
     /// Text is the type for 'body text'. 
     /// Sentences and markup smaller than a paragraph.
@@ -234,45 +235,40 @@ module Markdown =
     
     let markdown (para:Paragraph) : Markdown = 
         Markdown <| fun ctx -> 
+            Syntax.BoundedParagraph(ctx.ColumnWidth, para)
+
+    let unbounded (para:Paragraph) : Markdown = 
+        Markdown <| fun _ -> 
             Syntax.Paragraph para
 
-    /// TODO line breaking?
+    /// Formatted according to columnWidth
     let markdownTile (text:Text) : Markdown = 
         Markdown <| fun ctx -> 
-            Syntax.Paragraph (Syntax.ParaText text)
+            Syntax.BoundedParagraph(ctx.ColumnWidth, Syntax.ParaText text)
 
-    ///// Does not line break.
-    //let preformatted (text:Text) : Markdown = 
-    //    Markdown <| fun _ -> 
-    //        MarkdownTile.preformatted text
+    /// Text is not split into bounded lines.
+    let unboundedTile (text:Text) : Markdown = 
+        Markdown <| fun _ -> 
+            Syntax.Paragraph(Syntax.ParaText text)
 
-    ///// Does not line break.
-    //let preformattedLines (lines:Text list) : Markdown = 
-    //    Markdown <| fun _ -> 
-    //        MarkdownTile.preformattedLines lines
-
-
-    //let private tileMap (fn:Syntax.MdDoc -> Syntax.MdDoc) (doc:Markdown) : Markdown = 
-    //    let mf = doc.GetMarkdown
-    //    Markdown <| fun ctx -> fn (mf ctx)
 
     /// Atx style header H1
-    let h1 (content:Text) : Markdown = markdownTile (text "#" ^+^ content)
+    let h1 (content:Text) : Markdown = unboundedTile (text "#" ^+^ content)
     
     /// Atx style header H2
-    let h2 (content:Text) : Markdown = markdownTile (text "##" ^+^ content)
+    let h2 (content:Text) : Markdown = unboundedTile (text "##" ^+^ content)
 
     /// Atx style header H3
-    let h3 (content:Text) : Markdown = markdownTile (text "###" ^+^ content)
+    let h3 (content:Text) : Markdown = unboundedTile (text "###" ^+^ content)
 
     /// Atx style header H4
-    let h4 (content:Text) : Markdown = markdownTile (text "####" ^+^ content)
+    let h4 (content:Text) : Markdown = unboundedTile (text "####" ^+^ content)
 
     /// Atx style header H5
-    let h5 (content:Text) : Markdown = markdownTile (text "#####" ^+^ content)
+    let h5 (content:Text) : Markdown = unboundedTile (text "#####" ^+^ content)
 
     /// Atx style header H6
-    let h6 (content:Text) : Markdown = markdownTile (text "######" ^+^ content)
+    let h6 (content:Text) : Markdown = unboundedTile (text "######" ^+^ content)
 
     
 
@@ -297,36 +293,36 @@ module Markdown =
 
         
 
-    //let defLinkReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
-    //    let title1  = 
-    //        match title with
-    //        | None -> empty
-    //        | Some ss -> space ^^ doubleQuotes (text ss)
-    //    let text = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
-    //    // Potentially we need a non-breaking version of tile.
-    //    localColumnWidth 300 (tile <| text)
+    let defLinkReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
+        let title1  = 
+            match title with
+            | None -> empty
+            | Some ss -> space ^^ doubleQuotes (text ss)
+        let text = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
+        unboundedTile text
 
 
-    //let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
-    //    let title1  = 
-    //        match title with
-    //        | None -> empty
-    //        | Some str -> space ^^ doubleQuotes (text str)
-    //    let text = squareBrackets (text identifier) ^^ colon ^+^ text path ^^ title1
-    //    localColumnWidth 300 (tile <| text)
+    let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
+        let title1  = 
+            match title with
+            | None -> empty
+            | Some str -> space ^^ doubleQuotes (text str)
+        let text = squareBrackets (text identifier) ^^ colon ^+^ text path ^^ title1
+        unboundedTile text
 
 
-    //type Alignment = Common.Alignment
-    //type ColumnSpec = Common.ColumnSpec
+    let gridTable (columnSpecs:ColumnSpec list) 
+                  (contents: (Paragraph list) list) 
+                  (hasHeaders:bool) : Markdown = 
 
-    //let gridTable (columnSpecs:ColumnSpec list) 
-    //              (contents: (Markdown list) list) 
-    //              (hasHeaders:bool) : Markdown = 
-    //    Markdown <| fun ctx ->
-    //        let renderCell (spec:ColumnSpec) (doc:Markdown) : MarkdownTile.CellText = 
-    //            let tile = doc.GetMarkdown { ctx with ColumnWidth = spec.Width }
-    //            tile.TextLines
-    //        let renderRow (row: Markdown list) : MarkdownTile.CellText list = 
-    //            List.map2 renderCell columnSpecs row
-    //        let contents1 = List.map renderRow contents 
-    //        MarkdownTile.textGridTable columnSpecs contents1 hasHeaders
+        let makeCell (spec:ColumnSpec) (para:Paragraph) : Syntax.TableCell = 
+            { Alignment = spec.Alignment
+              Width = spec.Width
+              Content = para }
+
+        let makeRow (row:Paragraph list) : Syntax.TableRow = 
+            Common.raggedMap2 makeCell columnSpecs row
+
+        Markdown <| fun _ ->
+            let rows = List.map makeRow contents
+            Syntax.Table(hasHeaders, rows)
