@@ -6,8 +6,7 @@
 open System.IO
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\MarkdownText.fs"
-#load "..\src\MarkdownDoc\Internal\MarkdownTile.fs"
+#load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
@@ -17,7 +16,7 @@ open MarkdownDoc.Pandoc
 
 let testDoc : Markdown = 
     h1 (text "Markdown Doc")
-    ^@^ tile (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
+    ^@^ markdownTile (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
 
 
 let test01 () : unit  =

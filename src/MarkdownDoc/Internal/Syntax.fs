@@ -298,18 +298,20 @@ module Syntax =
                 work acc d1 (fun acc1 -> 
                 work (acc1.AppendLine()) d2 cont)
             | Table(columnSpecs,header,rows) -> 
-                let headerRow = Option.map renderTableRow1 header
-                workRows columnSpecs headerRow [] rows  (fun acc1 -> 
+                let tableToString rows =
+                     textGridTable columnSpecs (Option.map renderTableRow1 header) rows
+                workRows tableToString [] rows (fun acc1 -> 
                 let tableText = acc1.ToString()
                 cont (acc.AppendLine(tableText)))
-        and workRows (columnSpecs:ColumnSpec list) (header:(string list) option) 
-                     (acc:(string list) list) (rows:TableRow list)  (cont:StringBuilder -> string) = 
+        and workRows (makeTableText:(string list) list -> string)
+                     (acc:(string list) list) (rows:TableRow list) 
+                       (cont:StringBuilder -> string) = 
             match rows with
-            | [] -> let tableText = textGridTable columnSpecs header (List.rev acc)
+            | [] -> let tableText = makeTableText (List.rev acc)
                     cont (new StringBuilder(value=tableText))
             | x :: xs -> 
                 let rowCells = renderTableRow1 x 
-                workRows columnSpecs header (rowCells::acc) xs cont
+                workRows makeTableText (rowCells::acc) xs cont
 
         let sb = new StringBuilder () 
         work sb document (fun x -> x.ToString()) 

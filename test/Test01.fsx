@@ -5,7 +5,7 @@
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
-//#load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
+#load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc
 open MarkdownDoc.Internal

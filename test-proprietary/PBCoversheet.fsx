@@ -9,8 +9,7 @@ open FSharp.Data
 
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\MarkdownText.fs"
-#load "..\src\MarkdownDoc\Internal\MarkdownTile.fs"
+#load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -42,10 +41,10 @@ type Item =
       Phase: PhaseType }
 
 let nbsp2 : Markdown = 
-    preformatted <| nbsp ^&^ nbsp
+    unboundedTile <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
-    tile (inlineImage (text " ") @"include/YW-logo.jpg" None)
+    unboundedTile (inlineImage (text " ") @"include/YW-logo.jpg" None)
 
 let title1 (phase:PhaseType) : Markdown = 
     let caption = 
@@ -60,8 +59,9 @@ let title2 (sai:string) (name:string) : Markdown =
 let partners : Markdown = 
     let partnerLine name desc : Markdown = 
         let body : Text = (doubleAsterisks <| text name) ^+^ text desc 
-        tile body
-    concat [ h2 (text "Asset Replacement Project Partners")
+        markdownTile body
+    concatMarkdown 
+        <| [ h2 (text "Asset Replacement Project Partners")
            ; partnerLine "Metasphere" "Project Delivery"
            ; partnerLine "OnSite" "Installation and Commmissioning"
            ]
@@ -72,10 +72,11 @@ let workDoc (work:WorkType) : Text =
     | Revisit -> text "Point Blue Revisit Form"
 
 let contents (work:WorkType) : Markdown = 
-    h3 (text "Contents") ^@^ unordList [ tile (workDoc work)]
+    h3 (text "Contents") ^@^ markdown (unordList [ paraTile (workDoc work)])
 
 let makeDoc (item:Item) : Markdown = 
-    concat [ logo
+    concatMarkdown  
+        <| [ logo
            ; nbsp2
            ; title1 item.Phase
            ; nbsp2

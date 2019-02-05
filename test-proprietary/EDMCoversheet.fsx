@@ -10,8 +10,7 @@ open FSharp.Data
 
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\MarkdownText.fs"
-#load "..\src\MarkdownDoc\Internal\MarkdownTile.fs"
+#load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -38,10 +37,10 @@ type Item =
       Worklist: string list }
 
 let nbsp2 : Markdown = 
-    preformatted <| nbsp ^&^ nbsp
+    unboundedTile <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
-    tile (inlineImage (text " ") @"include/YW-logo.jpg" None)
+    unboundedTile (inlineImage (text " ") @"include/YW-logo.jpg" None)
 
 let title1 : Markdown = 
     h1 (text "T0975 - Event Duration Monitoring Phase 2 (EDM2)")
@@ -53,13 +52,14 @@ let title2 (sai:string) (name:string) : Markdown =
 
 
 let contents (workItems:string list) : Markdown = 
-    h3 (text "Contents") ^@^ unordList (List.map (tile << text) workItems)
+    h3 (text "Contents") ^@^ markdown (unordList (List.map (paraTile << text) workItems))
 
 let documentControl : Markdown = 
     h3 (text "Document Control")
 
 let makeDoc (item:Item) : Markdown = 
-    concat [ logo
+    concatMarkdown 
+        <| [ logo
            ; nbsp2
            ; title1
            ; nbsp2
