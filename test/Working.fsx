@@ -5,9 +5,11 @@
 
 open System.Text
 
+#load "..\src\CmdOpts.fs"
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 
+open SLFormat.CommandOptions
 open MarkdownDoc.Internal.Common
 open MarkdownDoc.Internal.Syntax
 

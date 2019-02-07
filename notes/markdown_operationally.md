@@ -89,7 +89,7 @@ the superscript and escapes space characters with backslash `\`.
   * Sub lists
   * Like this.
 
-When these notes were started (3 Febraury), `Markdown-doc` had no special
+When these notes were started (3 February), `Markdown-doc` had no special
 designation for lists, the implementation rendered the item-body at
 _call time_ and stored it as a list of strings.
 

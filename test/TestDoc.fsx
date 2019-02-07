@@ -1,10 +1,11 @@
-﻿// Copyright (c) Stephen Tetley 2018
+﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
 #r "netstandard"
 
 open System.IO
 
+#load "..\src\CmdArgs.fs"       // temp - use SLFormat package dependency at some point
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"

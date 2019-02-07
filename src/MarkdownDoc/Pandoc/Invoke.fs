@@ -3,172 +3,134 @@
 
 namespace MarkdownDoc.Pandoc
 
-// Note the library sl-format has better tools for doing this.
-// Change to use it at some point.
+// Currently using a working copy of SLFormat.CommandOptions.
+// Change to a library reference to SL-Format at some point.
 
 [<AutoOpen>]
 module Invoke = 
     
+    open SLFormat.CommandOptions
+
     open MarkdownDoc.Internal.Common
     open MarkdownDoc.Markdown
 
-    let private doubleQuote (s:string) : string = "\"" + s + "\""
+    
 
-    let private concatOptions (strs:string list) = 
-        String.concat " " <| List.filter (fun ss -> ss<>"") strs
+    let internal runPandoc1 (shellWorkingDirectory:string) (args:CmdOpt list) : unit =
+        shellRun shellWorkingDirectory "pandoc" (arguments args)
 
-
-    type PandocExtension =
-        | Enable of string
-        | Disable of string
-        override x.ToString() = 
-            match x with
-            | Enable s -> "+" + s
-            | Disable s -> "-" + s
-
-    type PandocFormat = 
-        { FormatName: string 
-          Extensions: PandocExtension list }
-
-        override x.ToString() = 
-            let exts = 
-                List.map (fun (x:PandocExtension) -> x.ToString()) x.Extensions
-            String.concat "" (x.FormatName :: exts)
-
-    /// KeyValue options are also printed as verbose                
-    type PandocOption = 
-        | Short of char * string option
-        | Verbose of string * string option 
-        | KeyValue of string * (string * string) 
-        override x.ToString() = 
-            let printBody (body:option<string>) =
-                match body with
-                | None | Some null | Some "" -> ""
-                | Some s -> "=" + s
-            let printArgs (k:string,v:string) : string = 
-                match v with
-                | null | "" -> k
-                | _ -> k + ":" + v                
-            match x with
-            | Short(ch,body) -> "-" + ch.ToString() + printBody body
-            | Verbose(str,body) -> "--" + str + printBody body
-            | KeyValue(str,body) -> sprintf "--%s=%s" str (printArgs body)
+    let fromLong : CmdOpt       = argument "--from"
+    let toLong : CmdOpt         = argument "--to"
+    let metadata : CmdOpt       = argument "--metadata"
+    let standalone : CmdOpt     = argument "--standalone"
+    let output : CmdOpt         = argument "--output"
 
 
-    let commandBody (fromFormat:PandocFormat) (toFormat:PandocFormat) 
-                        (inputPath:string) (options:PandocOption list) : string = 
-        sprintf "--from=%s --to=%s %s %s" 
-                (fromFormat.ToString())
-                (toFormat.ToString())
-                inputPath
-                (String.concat " " <| List.map (fun (o:PandocOption) -> o.ToString()) options)
+    /// Option "--reference-doc=FILE"
+    /// Reference the supplied "*.docx" or "*.odt" file for custom styles
+    let referenceDoc (path:string) : CmdOpt = argument "--reference-doc" &= argValue path
+
+    /// Option "--metadata=pagetitle:"TITLE"
+    let metadataPagetitle (title:string) : CmdOpt = metadata &= "pagetitle" &% title
 
 
-    type PandocArgs = 
-        { FromFormat: PandocFormat
-          InputPath: string 
-          ToFormat: PandocFormat
-          OutputPath: string 
-          Options: PandocOption list }
+    type PandocOptions = 
+        { Standalone: bool 
+          InputExtensions: Extension list
+          OutputExtensions: Extension list
+          OtherOptions: CmdOpt list
+        }
 
+    let pandocDefaults :PandocOptions = 
+        { Standalone = true
+          InputExtensions = []
+          OutputExtensions = []
+          OtherOptions = []  }
+            
+    let runPandoc (shellWorkingDirectory:string)
+                  (fromFormat:string) 
+                  (toFormat:string) 
+                  (inputPath:string)
+                  (outputPath:string)
+                  (options:PandocOptions) : unit = 
+        let opts = 
+            [ fromLong      &= fromFormat &** options.InputExtensions
+            ; toLong        &= toFormat   &** options.OutputExtensions
+            ; (if options.Standalone then standalone else noArgument)
+            ; output        &= argValue outputPath
+            ; literal       <| argValue inputPath
+            ]
+        runPandoc1 shellWorkingDirectory opts
 
-    let runPandoc (shellWorkingDirectory:string) (args:PandocArgs) : unit =
-        let output = Verbose("output", Some <| doubleQuote args.OutputPath)
-        let options = args.Options @ [output]
-        let command = commandBody args.FromFormat args.ToFormat (doubleQuote args.InputPath) options
-        shellRun shellWorkingDirectory "pandoc" command
+    let execPandoc (shellWorkingDirectory:string) 
+                   (fromFormat:string) 
+                   (toFormat:string) 
+                   (outputPath:string) 
+                   (options:PandocOptions)
+                   (doc:Markdown) : unit =
+        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
+        doc.Save(mdpath)
+        runPandoc shellWorkingDirectory fromFormat toFormat mdpath outputPath options
 
+        
+     /// Generate plain text from a Markdown file
+    let runPandocPlain (shellWorkingDirectory:string) 
+                       (inputPath:string) 
+                       (outputPath:string) 
+                       (options:PandocOptions) : unit =
+        runPandoc shellWorkingDirectory "markdown" "plain" inputPath outputPath options
 
-    /// --reference-doc
-    /// For docx / odt output
-    let referenceDoc (path:string) : PandocOption = 
-        Verbose("reference-doc", Some path)
-
-    let standalone : PandocOption = 
-        Verbose("standalone", None)
-
-    let metadata (key:string) (value:string) : PandocOption = 
-        KeyValue("metadata", (key,value))
-
-    let enableTableCaptions : PandocExtension = 
-        Enable("table_captions")
-
+     /// Generate plain text from a Markdown Doc.
+    let execPandocPlain (shellWorkingDirectory:string) 
+                        (outputPath:string) 
+                        (options:PandocOptions) 
+                        (doc:Markdown): unit =
+        execPandoc shellWorkingDirectory "markdown" "plain" outputPath options doc
+        
 
     /// Generate Docx
     let runPandocDocx (shellWorkingDirectory:string) 
-                        (inputPath:string) 
-                        (outputPath:string) 
-                        (stylesDoc:string) 
-                        (otherOptions: PandocOption list) : unit =
-        let args = 
-            { FromFormat = { FormatName = "markdown"; Extensions = [] }
-            ; InputPath = inputPath 
-            ; ToFormat = { FormatName = "docx"; Extensions = [enableTableCaptions] }
-            ; OutputPath = outputPath
-            ; Options = 
-                match stylesDoc with
-                | null | "" -> (standalone :: otherOptions)
-                | _ -> (referenceDoc stylesDoc :: standalone :: otherOptions) }
-        runPandoc shellWorkingDirectory args
+                      (inputPath:string) 
+                      (outputPath:string) 
+                      (stylesDoc:string option)  
+                      (options:PandocOptions) : unit =
+        let options1 = 
+            match stylesDoc with
+            | None -> options
+            | Some path-> 
+                let extras = referenceDoc (argValue path) :: options.OtherOptions 
+                { options with OtherOptions = extras }
+        runPandoc shellWorkingDirectory "markdown" "docx" inputPath outputPath options1
     
-    /// Generate Docx
-    let pandocGenerateDocx (shellWorkingDirectory:string) 
-                            (doc:Markdown) 
-                            (outputPath:string) 
-                            (stylesDoc:string) 
-                            (otherOptions:PandocOption list) : unit =
+    let execPandocDocx (shellWorkingDirectory:string) 
+                       (outputPath:string) 
+                       (stylesDoc:string option) 
+                       (options:PandocOptions) 
+                       (doc:Markdown): unit =
         let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
         doc.Save(mdpath)
-        runPandocDocx shellWorkingDirectory mdpath outputPath stylesDoc otherOptions
+        runPandocDocx shellWorkingDirectory mdpath outputPath stylesDoc options
 
-
-    /// Generate HTML
     let runPandocHtml (shellWorkingDirectory:string) 
-                            (inputPath:string) 
-                            (outputPath:string) 
-                            (pageTitle:string)
-                            (otherOptions:PandocOption list) : unit =
-        let makePageTile (s:string) = 
-            metadata "pagetitle" (doubleQuote s)
-        let args = 
-            { FromFormat = { FormatName = "markdown"; Extensions = [] }
-            ; InputPath = inputPath 
-            ; ToFormat = { FormatName = "html"; Extensions = [enableTableCaptions] }
-            ; OutputPath = outputPath
-            ; Options = 
-                match pageTitle with
-                | null | "" -> (standalone :: otherOptions)
-                | _ -> (makePageTile pageTitle :: standalone :: otherOptions) }
-        runPandoc shellWorkingDirectory args
+                      (inputPath:string) 
+                      (outputPath:string) 
+                      (pageTitle:string option)
+                      (options:PandocOptions) : unit =
+        let options1 = 
+            match pageTitle with
+            | None -> options
+            | Some title -> 
+                let extras = metadataPagetitle title :: options.OtherOptions 
+                { options with OtherOptions = extras }
+        runPandoc shellWorkingDirectory "markdown" "html" inputPath outputPath options1
 
-    /// Generate HTML
-    let pandocGenerateHtml (shellWorkingDirectory:string) 
-                            (doc:Markdown) 
-                            (outputPath:string) 
-                            (pageTitle:string)
-                            (otherOptions:PandocOption list) : unit =
+    let execPandocHtml (shellWorkingDirectory:string) 
+                       (outputPath:string) 
+                       (pageTitle:string option)
+                       (options:PandocOptions) 
+                       (doc:Markdown): unit =
         let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
         doc.Save(mdpath)
-        runPandocHtml shellWorkingDirectory mdpath outputPath pageTitle otherOptions
+        runPandocHtml shellWorkingDirectory mdpath outputPath pageTitle options
 
-    /// Generate Plain text
-    let runPandocPlain (shellWorkingDirectory:string) 
-                            (inputPath:string) 
-                            (outputPath:string) 
-                            (otherOptions:PandocOption list) : unit =
-        let args = 
-            { FromFormat = { FormatName = "markdown"; Extensions = [] }
-            ; InputPath = inputPath 
-            ; ToFormat = { FormatName = "plain"; Extensions = [] }
-            ; OutputPath = outputPath
-            ; Options = (standalone :: otherOptions) }
-        runPandoc shellWorkingDirectory args
-
-    /// Generate Plain text
-    let pandocGeneratePlain (shellWorkingDirectory:string) 
-                            (doc:Markdown) 
-                            (outputPath:string) 
-                            (otherOptions:PandocOption list) : unit =
-        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
-        doc.Save(mdpath)
-        runPandocPlain shellWorkingDirectory mdpath outputPath otherOptions
+ 

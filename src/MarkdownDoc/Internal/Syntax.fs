@@ -298,6 +298,7 @@ module Syntax =
                 work acc d1 (fun acc1 -> 
                 work (acc1.AppendLine()) d2 cont)
             | Table(columnSpecs,header,rows) -> 
+                /// Send a partially instantiated table-text building function to `WorkRows`
                 let tableToString rows =
                      textGridTable columnSpecs (Option.map renderTableRow1 header) rows
                 workRows tableToString [] rows (fun acc1 -> 
