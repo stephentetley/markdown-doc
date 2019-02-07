@@ -1,13 +1,15 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-
+#r "netstandard"
 
 // Use FSharp.Data for CSV reading
 #I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.0.0\lib\netstandard2.0"
 #r @"FSharp.Data.dll"
 open FSharp.Data
 
+#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190207\lib\netstandard2.0"
+#r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
@@ -72,5 +74,5 @@ let makeDoc (item:Item) : Markdown =
 
 let generateDocx (workingDirectory:string) (mdInputPath:string) (outputDocxName:string) : unit  =
     let stylesDoc = @"include/custom-reference1.docx" 
-    runPandocDocx workingDirectory mdInputPath outputDocxName stylesDoc []
+    runPandocDocx workingDirectory mdInputPath outputDocxName (Some stylesDoc) pandocDefaults
 

@@ -1,6 +1,11 @@
 ﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
+#r "netstandard"
+
+#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190207\lib\netstandard2.0"
+#r "SLFormat.dll"
+
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown.fs"

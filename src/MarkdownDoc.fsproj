@@ -5,16 +5,20 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1-alpha-20190205</Version>
+    <Version>1.0.1-alpha-20190207</Version>
+    <Description>Combinator library for generating Markdown output. Pandoc biased.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="CmdArgs.fs" />  
     <Compile Include="MarkdownDoc\Internal\Common.fs" />
     <Compile Include="MarkdownDoc\Internal\Syntax.fs" />
     <Compile Include="MarkdownDoc\Markdown.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Extra.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Invoke.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SLFormat" Version="1.0.2-alpha-20190207" />
   </ItemGroup>
 
 </Project>
