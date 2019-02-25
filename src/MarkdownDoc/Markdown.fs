@@ -45,11 +45,11 @@ module Markdown =
         
     /// Build a Text item from a string. 
     /// No escaping is performed, use this function with care.
-    let rawtext (content:string) : Text = 
+    let plaintext (content:string) : Text = 
         Syntax.Text content  
 
-    let rawlines (contents:string list) : Text = 
-        Syntax.textlines <| List.map rawtext contents
+    let plainlines (contents:string list) : Text = 
+        Syntax.textlines <| List.map plaintext contents
 
     /// Print the Text to the console.
     let testRenderText (source:Text) : unit = 
@@ -76,7 +76,7 @@ module Markdown =
     let space : Text = character ' '
     let equals : Text = character '='
 
-    let entity (name:string) : Text = rawtext <| sprintf "&%s;" name
+    let entity (name:string) : Text = plaintext <| sprintf "&%s;" name
 
     let nbsp : Text = entity "nbsp"
 
@@ -97,7 +97,7 @@ module Markdown =
     let euro : Text = entity "euro"
 
     /// Print 3 backticks.
-    let backticks3 : Text = rawtext "```"
+    let backticks3 : Text = plaintext "```"
 
 
     let enclose (left:Text) (right:Text) (d1:Text) : Text = 
@@ -149,25 +149,7 @@ module Markdown =
     let doubleBackticks (source:Text) : Text = 
         enclose (text "``") (text "``") source
 
-    
 
-    /// [A link](/path/to)
-    ///
-    /// [A link](/path/to "Title") 
-    let inlineLink (altText:Text) (path:string) (title:option<string>) : Text = 
-        let title1  = 
-            match title with
-            | None -> empty
-            | Some ss -> space ^^ doubleQuotes (text ss)
-        (squareBrackets altText) ^^ parens (text path ^^ title1)
-
-
-    let inlineImage (altText:Text) (path:string) (title:option<string>) : Text = 
-        let title1  = 
-            match title with
-            | None -> empty
-            | Some ss -> space ^^ doubleQuotes (text ss)
-        bang ^^ (squareBrackets altText) ^^ parens (text path ^^ title1)
 
 
     let useLinkReference (altText:Text) (identifier:string) : Text = 
@@ -181,6 +163,23 @@ module Markdown =
 
     let paraTile (text:Text) : Paragraph = 
         Syntax.ParaText text
+
+    let rawText (source:string) : Paragraph = 
+        Syntax.RawText source
+
+
+    /// [A link](/path/to)
+    ///
+    /// [A link](/path/to "Title") 
+    let inlineLink (altText:string) (path:string) (title:option<string>) : Paragraph = 
+        match title with
+        | None -> sprintf "[%s] (%s)" altText path |> rawText
+        | Some ss -> sprintf "[%s] (%s \"%s\")" altText path ss |> rawText
+
+
+
+    let inlineImage (altText:string) (path:string) (title:option<string>) : Paragraph = 
+        inlineLink altText path title
 
     let unordList (elements:Paragraph list) : Paragraph = 
         Syntax.UnorderedList elements

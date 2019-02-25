@@ -53,6 +53,7 @@ module Syntax =
     type MdPara = 
         | EmptyPara
         | ParaText of MdText 
+        | RawText of string
         | UnorderedList of MdPara list
         | OrderedList of MdPara list
         | VCatPara of MdPara * MdPara 
@@ -241,14 +242,16 @@ module Syntax =
         let rec work (acc:StringBuilder) (doc:MdPara) (cont:StringBuilder -> string) = 
             match doc with
             | EmptyPara -> cont acc
+            | RawText str -> 
+                cont (acc.Append(str))
             | ParaText txt -> 
                 let str = renderMdText txt in cont (acc.Append(str)) 
             | UnorderedList xs ->
-                workList [] xs (fun str ->
-                cont (acc.Append(unordered str)))
+                workList [] xs (fun strs ->
+                cont (acc.Append(unordered strs)))
             | OrderedList xs ->
-                workList [] xs (fun str ->
-                cont (acc.Append(ordered str)))
+                workList [] xs (fun strs ->
+                cont (acc.Append(ordered strs)))
             | VCatPara(d1,d2) -> 
                 work acc d1 (fun acc1 ->
                 work (acc1.AppendLine()) d2 cont)

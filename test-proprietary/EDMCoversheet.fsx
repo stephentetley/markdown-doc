@@ -1,4 +1,4 @@
-﻿// Copyright (c) Stephen Tetley 2018
+﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
 #r "netstandard"
@@ -42,7 +42,7 @@ let nbsp2 : Markdown =
     unboundedTile <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
-    unboundedTile (inlineImage (text " ") @"include/YW-logo.jpg" None)
+    unbounded (inlineImage " " @"include/YW-logo.jpg" None)
 
 let title1 : Markdown = 
     h1 (text "T0975 - Event Duration Monitoring Phase 2 (EDM2)")

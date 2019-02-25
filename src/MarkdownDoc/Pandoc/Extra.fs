@@ -15,8 +15,8 @@ module Extra =
 
     /// TODO - should the equals sign be implicit?
     let rawCode (rawAttr:string) (codeSource:string) : Markdown = 
-        let line1 = backticks3 ^^ braces (equals ^^ rawtext rawAttr)
-        let textlines = rawlines <| toLines codeSource
+        let line1 = backticks3 ^^ braces (equals ^^ plaintext rawAttr)
+        let textlines = plainlines <| toLines codeSource
         unboundedTile <| line1 ^&^ textlines ^&^ backticks3
 
 

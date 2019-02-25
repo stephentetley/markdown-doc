@@ -1,4 +1,4 @@
-﻿// Copyright (c) Stephen Tetley 2018
+﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
 #r "netstandard"
@@ -43,8 +43,3 @@ let test01 () =
 let test02 () = 
     raggedMap2 (sprintf "%c-%d") ['a';'b';'c';'d'] [1;2;3;4;5] 
 
-
-
-
-
-    
