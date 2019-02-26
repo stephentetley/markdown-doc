@@ -48,7 +48,7 @@ let nbsp2 : Markdown =
     markdownTile <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
-    markdown (inlineImage " " @"include/YW-logo.jpg" None)
+    markdown (inlineImage empty @"include/YW-logo.jpg" None)
 
 let title1 (phase:PhaseType) : Markdown = 
     let caption = 

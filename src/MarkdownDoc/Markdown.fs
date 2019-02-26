@@ -154,12 +154,11 @@ module Markdown =
 
 
 
-
     let useLinkReference (altText:Text) (identifier:string) : Text = 
         squareBrackets altText ^^ squareBrackets (text identifier)
 
     let useImageReference (altText:Text) (identifier:string) : Text = 
-        bang ^^ (squareBrackets altText) ^^ (squareBrackets <| text identifier)
+        bang ^^ (squareBrackets altText) ^^ squareBrackets (text identifier)
 
     /// Paragraph assembles Text
     type Paragraph = Syntax.MdPara
@@ -173,17 +172,29 @@ module Markdown =
     /// [A link](/path/to "Title") 
     /// Note - if path uses backslash as a separator (Windows style) 
     /// it is rewritten to use forward slash (Unix style and Pandoc style).
-    let inlineLink (altText:string) (path:string) (title:option<string>) : Paragraph = 
+    let inlineLink (altText:Text) (path:string) (title:option<string>) : Paragraph = 
         let path1 = path.Replace('\\', '/')
-        let body = 
+        let body : Text = 
             match title with
             | None -> rawText path1
-            | Some ss -> rawText path1 ^^ rawText ss
-        squareBrackets (rawText altText) ^+^ parens body |> paraTile
+            | Some ss -> rawText path1 ^+^ text ss
+        squareBrackets altText ^+^ parens body |> paraTile
 
 
+    //let inlineLink (altText:string) (path:string) (title:option<string>) : Paragraph = 
+    //    let path1 = path.Replace('\\', '/')
+    //    let alt1 = 
+    //        match altText with
+    //        | null | "" -> " "
+    //        | _ -> altText
 
-    let inlineImage (altText:string) (path:string) (title:option<string>) : Paragraph = 
+    //    let body = 
+    //        match title with
+    //        | None -> path1
+    //        | Some ss -> sprintf "%s %s" path1 ss
+    //    sprintf "[%s] (%s)" alt1 body|> rawText |> paraTile
+
+    let inlineImage (altText:Text) (path:string) (title:option<string>) : Paragraph = 
         inlineLink altText path title
 
     let unordList (elements:Paragraph list) : Paragraph = 

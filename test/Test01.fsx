@@ -70,6 +70,18 @@ let test08 () =
     testRender m1
 
 
+let test09 () = 
+    let m1 : Markdown = 
+        markdown <| inlineLink empty "d:\coding\fsharp\mardown-doc\README.md" None
+    testRender m1
+
+
+let test10 () = 
+    let m1 : Markdown = 
+        markdownTile <| useImageReference empty "myImage1"
+    testRender m1
+
+
 //let test09a () = 
 //    Common.breakText 50 (Common.TextualString "hello\r\nworld");;
 

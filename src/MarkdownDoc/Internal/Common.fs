@@ -11,6 +11,18 @@ module Common =
     open System.Text
 
 
+    let internal intersperse (sep:'T) (source:'T list) : 'T list = 
+        let rec work (acc:'T list) (xs:'T list) (cont:'T list -> 'T list) = 
+            match xs with
+            | [] -> cont acc
+            | x :: xs -> work (x::sep::acc) xs cont
+        match source with
+        | [] -> []
+        | x :: xs -> work [x] xs (List.rev)
+
+
+
+
     /// Splits on Environment.NewLine
     let toLines (source:string) : string list = 
         source.Split(separator=[| Environment.NewLine |], options=StringSplitOptions.None) |> Array.toList
@@ -65,12 +77,13 @@ module Common =
     type internal TextualData1 = 
         | TextualString of string
         | TextualImage of string        // i.e. an unbreakable string
+        | TextualSpace 
         member v.Content
             with get() : string = 
                 match v with
                 | TextualString s -> s
                 | TextualImage s -> s
-
+                | TextualSpace -> " "
         member v.Length 
             with get() : int = v.Content.Length
 
@@ -81,18 +94,20 @@ module Common =
     let private textualToWords (source:TextualData) : Word list = 
         let split1 (text:TextualData1) = 
             match text with
+                | TextualSpace -> [TextualSpace]
                 | TextualImage(_) -> [text]
                 | TextualString s -> 
                     s.Split(separator= [|' '|]) 
                         |> Array.toList 
                         |> List.map TextualString 
+                        |> intersperse TextualSpace
         source |> List.map split1 |> List.concat
 
 
     /// Assumption - textual data was split with on space, thus we can 
     /// use space to join it together
     let private wordsToString (source:Word list) : string = 
-        source |> List.map (fun x -> x.Content) |> String.concat " "
+        source |> List.map (fun x -> x.Content) |> String.concat ""
 
 
     /// Precondition: source is a single input line with only 

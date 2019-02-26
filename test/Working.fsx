@@ -115,3 +115,6 @@ let demo04 () =
 let demo05 () = 
     breakText 12 sample1
 
+
+let demo06 () = 
+    breakText 20 sample1
