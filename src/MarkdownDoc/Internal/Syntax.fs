@@ -46,12 +46,15 @@ module Syntax =
     /// then a new line
     /// RawText is text that will not be browen over consecutive
     /// lines when rendered (e.g. paths in links).
+    /// Group changes the render context to render on a single 
+    /// unbroken line.
     type MdText =
         | EmptyText
         | Text of string
         | RawText of string
         | HCatText of MdText * MdText
         | VCatText of MdText * MdText
+        | Group of MdText
 
     type MdPara = 
         | EmptyPara
@@ -97,6 +100,8 @@ module Syntax =
         | EmptyText, d -> d
         | d, EmptyText -> d
         | d1,d2 -> VCatText(d1,d2)
+
+
 
     let textlines (lines:MdText list) : MdText = 
         let rec work zs cont = 
@@ -201,6 +206,13 @@ module Syntax =
         let consWords (words:SimpleDoc list) 
                       (lines:SimpleLine list) : SimpleLine list = 
             (List.rev words) :: lines
+        let groupWords (words:SimpleDoc list) 
+                       (lines:SimpleLine list) : SimpleDoc = 
+             consWords words lines
+                |> List.rev
+                |> List.map wordsToString
+                |> String.concat " "
+                |> TextualImage 
         let rec work (accLines:SimpleLine list) 
                      (accWords:SimpleDoc list)
                      (input:MdText) 
@@ -216,7 +228,13 @@ module Syntax =
                 work ls1 ws1 d2 cont)
             | VCatText(d1,d2) -> 
                 work accLines accWords d1 (fun ls1 ws1 ->
-                work (consWords ws1 ls1) [] d2 cont)                
+                work (consWords ws1 ls1) [] d2 cont)  
+            | Group (d1) -> 
+                /// Empty the accumulators
+                work [] [] d1 (fun ls ws -> 
+                let word1 = groupWords ws ls
+                cont accLines (word1::accWords))
+                    
         work [] [] text (fun lines words -> consWords words lines |> List.rev) 
 
     let renderSimpleLines (width:int) (lines: SimpleLine list) : string = 

@@ -106,7 +106,7 @@ module Common =
 
     /// Assumption - textual data was split with on space, thus we can 
     /// use space to join it together
-    let private wordsToString (source:Word list) : string = 
+    let internal wordsToString (source:Word list) : string = 
         source |> List.map (fun x -> x.Content) |> String.concat ""
 
 

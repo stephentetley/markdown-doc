@@ -28,6 +28,10 @@ module Markdown =
     /// The empty Text document.
     let empty : Text = Syntax.EmptyText
 
+    /// Bind the text into a unbreakable group
+    let hgroup (text:Text) : Text = 
+        Syntax.Group text
+
     /// Build a Text item from a single char. 
     /// '&' and '<' will be escaped.
     let character (ch:char) : Text = 
@@ -155,10 +159,13 @@ module Markdown =
 
 
     let useLinkReference (altText:Text) (identifier:string) : Text = 
-        squareBrackets altText ^^ squareBrackets (text identifier)
+        hgroup 
+            <| squareBrackets altText ^^ squareBrackets (text identifier)
 
     let useImageReference (altText:Text) (identifier:string) : Text = 
-        bang ^^ (squareBrackets altText) ^^ squareBrackets (text identifier)
+        hgroup            
+            <| bang ^^ (squareBrackets altText) ^^ squareBrackets (text identifier)
+        
 
     /// Paragraph assembles Text
     type Paragraph = Syntax.MdPara
@@ -178,7 +185,7 @@ module Markdown =
             match title with
             | None -> rawText path1
             | Some ss -> rawText path1 ^+^ text ss
-        squareBrackets altText ^+^ parens body |> paraTile
+        hgroup (squareBrackets altText ^+^ parens body) |> paraTile
 
 
     //let inlineLink (altText:string) (path:string) (title:option<string>) : Paragraph = 
@@ -306,8 +313,8 @@ module Markdown =
             match title with
             | None -> empty
             | Some ss -> space ^^ doubleQuotes (text ss)
-        let text = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
-        markdownTile text
+        let body = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
+        markdownTile (hgroup body)
 
 
     let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
