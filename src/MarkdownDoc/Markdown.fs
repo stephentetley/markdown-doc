@@ -185,7 +185,7 @@ module Markdown =
             match title with
             | None -> rawText path1
             | Some ss -> rawText path1 ^+^ text ss
-        hgroup (squareBrackets altText ^+^ parens body) |> paraTile
+        hgroup (bang ^^ squareBrackets altText ^^ parens body) |> paraTile
 
 
     //let inlineLink (altText:string) (path:string) (title:option<string>) : Paragraph = 
