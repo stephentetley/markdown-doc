@@ -51,9 +51,12 @@ module Markdown =
     let plainlines (contents:string list) : Text = 
         Syntax.textlines <| List.map plaintext contents
 
+    let rawText (source:string) : Text = 
+        Syntax.RawText source
+
     /// Print the Text to the console.
     let testRenderText (source:Text) : unit = 
-        Syntax.renderMdText source |> printfn  "----------\n%s\n----------\n"
+        Syntax.renderMdText 80 source |> printfn  "----------\n%s\n----------\n"
 
     /// Horizontal concat directly (no separating space)
     let ( ^^ ) (d1:Text) (d2:Text) : Text = 
@@ -164,17 +167,19 @@ module Markdown =
     let paraTile (text:Text) : Paragraph = 
         Syntax.ParaText text
 
-    let rawText (source:string) : Paragraph = 
-        Syntax.RawText source
-
-
+    
     /// [A link](/path/to)
     ///
     /// [A link](/path/to "Title") 
+    /// Note - if path uses backslash as a separator (Windows style) 
+    /// it is rewritten to use forward slash (Unix style and Pandoc style).
     let inlineLink (altText:string) (path:string) (title:option<string>) : Paragraph = 
-        match title with
-        | None -> sprintf "[%s] (%s)" altText path |> rawText
-        | Some ss -> sprintf "[%s] (%s \"%s\")" altText path ss |> rawText
+        let path1 = path.Replace('\\', '/')
+        let body = 
+            match title with
+            | None -> rawText path1
+            | Some ss -> rawText path1 ^^ rawText ss
+        squareBrackets (rawText altText) ^+^ parens body |> paraTile
 
 
 
@@ -234,40 +239,33 @@ module Markdown =
     
     let markdown (para:Paragraph) : Markdown = 
         Markdown <| fun ctx -> 
-            Syntax.BoundedParagraph(ctx.ColumnWidth, para)
+            Syntax.Paragraph(ctx.ColumnWidth, para)
 
-    let unbounded (para:Paragraph) : Markdown = 
-        Markdown <| fun _ -> 
-            Syntax.Paragraph para
 
     /// Formatted according to columnWidth
     let markdownTile (text:Text) : Markdown = 
         Markdown <| fun ctx -> 
-            Syntax.BoundedParagraph(ctx.ColumnWidth, Syntax.ParaText text)
+            Syntax.Paragraph(ctx.ColumnWidth, Syntax.ParaText text)
 
-    /// Text is not split into bounded lines.
-    let unboundedTile (text:Text) : Markdown = 
-        Markdown <| fun _ -> 
-            Syntax.Paragraph(Syntax.ParaText text)
 
 
     /// Atx style header H1
-    let h1 (content:Text) : Markdown = unboundedTile (text "#" ^+^ content)
+    let h1 (content:Text) : Markdown = markdownTile (text "#" ^+^ content)
     
     /// Atx style header H2
-    let h2 (content:Text) : Markdown = unboundedTile (text "##" ^+^ content)
+    let h2 (content:Text) : Markdown = markdownTile (text "##" ^+^ content)
 
     /// Atx style header H3
-    let h3 (content:Text) : Markdown = unboundedTile (text "###" ^+^ content)
+    let h3 (content:Text) : Markdown = markdownTile (text "###" ^+^ content)
 
     /// Atx style header H4
-    let h4 (content:Text) : Markdown = unboundedTile (text "####" ^+^ content)
+    let h4 (content:Text) : Markdown = markdownTile (text "####" ^+^ content)
 
     /// Atx style header H5
-    let h5 (content:Text) : Markdown = unboundedTile (text "#####" ^+^ content)
+    let h5 (content:Text) : Markdown = markdownTile (text "#####" ^+^ content)
 
     /// Atx style header H6
-    let h6 (content:Text) : Markdown = unboundedTile (text "######" ^+^ content)
+    let h6 (content:Text) : Markdown = markdownTile (text "######" ^+^ content)
 
     
 
@@ -298,7 +296,7 @@ module Markdown =
             | None -> empty
             | Some ss -> space ^^ doubleQuotes (text ss)
         let text = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
-        unboundedTile text
+        markdownTile text
 
 
     let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
@@ -307,7 +305,7 @@ module Markdown =
             | None -> empty
             | Some str -> space ^^ doubleQuotes (text str)
         let text = squareBrackets (text identifier) ^^ colon ^+^ text path ^^ title1
-        unboundedTile text
+        markdownTile text
 
 
     let gridTable (columnSpecs:ColumnSpec list) 

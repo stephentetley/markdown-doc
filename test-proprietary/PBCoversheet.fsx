@@ -45,10 +45,10 @@ type Item =
       Phase: PhaseType }
 
 let nbsp2 : Markdown = 
-    unboundedTile <| nbsp ^&^ nbsp
+    markdownTile <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
-    unbounded (inlineImage " " @"include/YW-logo.jpg" None)
+    markdown (inlineImage " " @"include/YW-logo.jpg" None)
 
 let title1 (phase:PhaseType) : Markdown = 
     let caption = 

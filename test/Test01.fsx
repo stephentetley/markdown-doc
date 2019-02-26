@@ -70,17 +70,17 @@ let test08 () =
     testRender m1
 
 
-let test09a () = 
-    Common.breaklines 50 "hello\r\nworld" ;;
+//let test09a () = 
+//    Common.breakText 50 (Common.TextualString "hello\r\nworld");;
 
-let test09b () = 
-    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
+//let test09b () = 
+//    breakline1 10 "ABC DEFGHIJKLMNOP RST UV WXYZ"
 
-let test09c () = 
-    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
+//let test09c () = 
+//    breaklines 10 "ABC DEFGHIJKLMNOP RST UV WXYZ\n\nABCDEFGHIJKLM NOP RST UV WXYZ"
 
-/// Windows only...
-let test09d () =   "hello\r\nworld".Split(separator=[| System.Environment.NewLine |], options= System.StringSplitOptions.None)
+///// Windows only...
+//let test09d () =   "hello\r\nworld".Split(separator=[| System.Environment.NewLine |], options= System.StringSplitOptions.None)
 
 
 

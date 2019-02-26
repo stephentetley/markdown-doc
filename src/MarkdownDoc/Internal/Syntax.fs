@@ -44,16 +44,18 @@ module Syntax =
     /// Note - rendering VCatText writes an explicit Markdown 
     /// line break (two trailing spaces) to the output and 
     /// then a new line
+    /// RawText is text that will not be browen over consecutive
+    /// lines when rendered (e.g. paths in links).
     type MdText =
         | EmptyText
         | Text of string
+        | RawText of string
         | HCatText of MdText * MdText
         | VCatText of MdText * MdText
 
     type MdPara = 
         | EmptyPara
         | ParaText of MdText 
-        | RawText of string
         | UnorderedList of MdPara list
         | OrderedList of MdPara list
         | VCatPara of MdPara * MdPara 
@@ -67,8 +69,7 @@ module Syntax =
     
     type MdDoc = 
         | EmptyDoc
-        | Paragraph of MdPara
-        | BoundedParagraph of int * MdPara
+        | Paragraph of int * MdPara
         | Table of ColumnSpec list * TableRow option * TableRow list // bool is has-titles?
         | CodeBlock of MdPara
         | VCatDoc of MdDoc * MdDoc
@@ -193,6 +194,43 @@ module Syntax =
     // ************************************************************************
     // Render
 
+    type internal SimpleDoc = TextualData1
+    type internal SimpleLine = SimpleDoc list
+
+    let textToSimpleLines (text:MdText) : SimpleLine list = 
+        let consWords (words:SimpleDoc list) 
+                      (lines:SimpleLine list) : SimpleLine list = 
+            (List.rev words) :: lines
+        let rec work (accLines:SimpleLine list) 
+                     (accWords:SimpleDoc list)
+                     (input:MdText) 
+                     (cont : SimpleLine list -> SimpleDoc list -> SimpleLine list) = 
+            match input with
+            | EmptyText -> cont accLines accWords
+            | Text str -> 
+                cont accLines (TextualString str :: accWords)
+            | RawText str -> 
+                cont accLines (TextualImage str :: accWords)
+            | HCatText(d1,d2) -> 
+                work accLines accWords d1 (fun ls1 ws1 ->
+                work ls1 ws1 d2 cont)
+            | VCatText(d1,d2) -> 
+                work accLines accWords d1 (fun ls1 ws1 ->
+                work (consWords ws1 ls1) [] d2 cont)                
+        work [] [] text (fun lines words -> consWords words lines |> List.rev) 
+
+    let renderSimpleLines (width:int) (lines: SimpleLine list) : string = 
+        lines |> List.map (breakText width)
+              |> List.map fromLines
+              |> fromLines
+
+
+    let renderMdText (width:int) (text:MdText) : string = 
+        text |> textToSimpleLines
+             |> renderSimpleLines width 
+
+
+
     let inline prefixLine (prefix:string) (lineText:string) : string = 
         prefix + lineText
 
@@ -222,30 +260,14 @@ module Syntax =
         let (xs,_) = List.mapFold (fun n item -> (orderedListItem n item, n+1)) 1 items
         xs |> fromLines
 
-    let renderMdText (text:MdText) : string = 
-        let rec work (acc:StringBuilder) (doc:MdText) (cont : StringBuilder -> string) = 
-            match doc with
-            | EmptyText -> cont acc
-            | Text str -> 
-                cont (acc.Append(str))
-            | HCatText(d1,d2) -> 
-                work acc d1 (fun acc1 ->
-                work acc1 d2 cont)
-            | VCatText(d1,d2) -> 
-                work acc d1 (fun acc1 ->
-                work (acc1.AppendLine("  ")) d2 cont)
-        let sb = new StringBuilder ()
-        work sb text (fun x -> x.ToString()) 
-
-
-    let renderMdPara (para:MdPara) : string =  
+    /// TODO - This needs a close read over and testing.
+    let renderMdPara (lineWidth:int) (para:MdPara) : string =  
         let rec work (acc:StringBuilder) (doc:MdPara) (cont:StringBuilder -> string) = 
             match doc with
             | EmptyPara -> cont acc
-            | RawText str -> 
-                cont (acc.Append(str))
             | ParaText txt -> 
-                let str = renderMdText txt in cont (acc.Append(str)) 
+                let str = renderMdText lineWidth txt
+                cont (acc.Append(str)) 
             | UnorderedList xs ->
                 workList [] xs (fun strs ->
                 cont (acc.Append(unordered strs)))
@@ -266,7 +288,7 @@ module Syntax =
         work sb para (fun x -> x.ToString()) 
 
     let renderBoundedMdPara (lineWidth:int) (para:MdPara) : string =  
-        renderMdPara para |> breaklines lineWidth |> fromLines
+        renderMdPara lineWidth para 
 
     /// Note an item may be a multiline string
     let codeBlock (body:string) : string = 
@@ -288,14 +310,11 @@ module Syntax =
         let rec work (acc:StringBuilder) (doc:MdDoc) (cont:StringBuilder -> string) = 
             match doc with
             | EmptyDoc -> cont acc
-            | Paragraph para -> 
-                let str = renderMdPara para
-                cont (acc.AppendLine(str))
-            | BoundedParagraph (width,para) -> 
-                let str = renderBoundedMdPara width para
+            | Paragraph (width,para) -> 
+                let str = renderMdPara width para
                 cont (acc.AppendLine(str))
             | CodeBlock para ->
-                let str = renderMdPara para |> codeBlock
+                let str = renderMdPara 800 para |> codeBlock
                 cont (acc.AppendLine(str))
             | VCatDoc(d1,d2) -> 
                 work acc d1 (fun acc1 -> 

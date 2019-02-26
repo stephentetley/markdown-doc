@@ -54,38 +54,74 @@ module Common =
                 work (line1::ac) rest
         work [] table
 
+    
+    // ************************************************************************
+    // Breaking lines when rendering.
+    // We want output to be generally nice looking. i.e
+    // paragraphs formatted to lines 80 chars or so except 
+    // where the line has unbreakable text like image URLs.
 
-    type private Lines = string list
-    type private Words = string list
 
-    /// Precondition: source is a single line with only spaces (no tabs/newlines)
-    let breakline1 (width:int) (source:string) : string list = 
-        let words = source.Split(' ') |> Array.toList
-        let makeLine (words:Words) : string = String.concat " " (List.rev words)
-        let consWords (words:Words) (lines:Lines) : Lines = 
+    type internal TextualData1 = 
+        | TextualString of string
+        | TextualImage of string        // i.e. an unbreakable string
+        member v.Content
+            with get() : string = 
+                match v with
+                | TextualString s -> s
+                | TextualImage s -> s
+
+        member v.Length 
+            with get() : int = v.Content.Length
+
+    type internal TextualData = TextualData1 list
+
+    type internal Word = TextualData1
+
+    let private textualToWords (source:TextualData) : Word list = 
+        let split1 (text:TextualData1) = 
+            match text with
+                | TextualImage(_) -> [text]
+                | TextualString s -> 
+                    s.Split(separator= [|' '|]) 
+                        |> Array.toList 
+                        |> List.map TextualString 
+        source |> List.map split1 |> List.concat
+
+
+    /// Assumption - textual data was split with on space, thus we can 
+    /// use space to join it together
+    let private wordsToString (source:Word list) : string = 
+        source |> List.map (fun x -> x.Content) |> String.concat " "
+
+
+    /// Precondition: source is a single input line with only 
+    /// spaces (no tabs/newlines).
+    let breakText (width:int) (source:TextualData) : string list = 
+        let makeLine (xs:Word list) : string = List.rev xs |> wordsToString
+    
+        let consWords (words:TextualData1 list) (lines:string list) : string list = 
             match words with 
             | [] -> lines
             | _ -> makeLine words :: lines
 
-        let rec work (accLines:Lines) (accWords:Words) (pos:int) (ss:Words) =  
-            match ss with 
+        let rec work (accLines:string list) 
+                     (accWords:Word list) (pos:int) (inputs:Word list) 
+                     (cont:string list -> string list) =  
+            match inputs with 
             | [] -> 
-                List.rev <| consWords accWords accLines
+                cont (consWords accWords accLines)
             | (w::ws) -> 
                 if pos + 1 + w.Length > width then
                     // The first word encountered might be too long..
                     match accWords with
-                    | [] -> work (w::accLines) [] 1 ws
-                    | _ -> work ((makeLine accWords)::accLines) [w] w.Length ws
+                    | [] -> 
+                        let s1 = makeLine [w] 
+                        work (s1 ::accLines) [] 1 ws cont
+                    | _ -> work ((makeLine accWords)::accLines) [w] w.Length ws cont
                 else 
-                    work accLines (w::accWords) (pos + 1 + w.Length) ws
-        work [] [] 0 words
-
-    /// The input string can be multiline - each component line is then broken 
-    /// to the supplied width.
-    let breaklines (width:int) (source:string) : string list = 
-        let xs = toLines source
-        List.map (breakline1 width) xs |> List.concat 
+                    work accLines (w::accWords) (pos + 1 + w.Length) ws cont
+        work [] [] 0 (textualToWords source) (fun xs -> List.rev xs)
 
 
 
