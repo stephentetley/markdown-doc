@@ -34,10 +34,9 @@ module Extra =
         enclose (text "`") (text "`") content ^^ text (sprintf "={%s}" format)
 
     /// TODO - should the equals sign be implicit?
-    let rawCode (rawAttr:string) (codeSource:string) : Markdown = 
-        let line1 = backticks3 ^^ braces (equals ^^ plaintext rawAttr)
-        let textlines = plainlines <| Common.toLines codeSource
-        markdownText <| line1 ^&^ textlines ^&^ backticks3
+    let rawCode (rawAttr:string) (codeSource:Text) : PElement = 
+        let line1 = hgroup (backticks3 ^^ braces (equals ^^ plaintext rawAttr))
+        paraText line1 ^/^ paraText codeSource ^/^ paraText backticks3
 
 
     let openxmlPagebreak : Markdown = 
@@ -48,4 +47,4 @@ module Extra =
             ; "  </w:r>"
             ; "</w:p>"
             ]
-        rawCode "openxml" <| Common.fromLines block
+        markdown (rawCode "openxml" <| plainlines block)

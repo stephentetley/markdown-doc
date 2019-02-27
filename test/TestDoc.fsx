@@ -18,7 +18,7 @@ open MarkdownDoc.Pandoc
 
 let testDoc : Markdown = 
     h1 (text "Markdown Doc")
-    ^@^ markdownTile (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
+    ^@^ markdownText (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
 
 
 let test01 () : unit  =

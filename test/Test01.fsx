@@ -23,7 +23,7 @@ let test01 () =
         |> testRenderText
 
 let test02 () = 
-    let m1 : Markdown = markdownTile (text "Hello" ^+^ text "world!")
+    let m1 : Markdown = markdownText (text "Hello" ^+^ text "world!")
     testRender m1
 
 let test03 () = 
@@ -54,31 +54,31 @@ let test05 () =
 
 let test06 () = 
     let m1 : Markdown = 
-        markdownTile (text "hello") ^@^ openxmlPagebreak ^@^ markdownTile (text "world")
+        markdownText (text "hello") ^@^ openxmlPagebreak ^@^ markdownText (text "world")
     testRender m1
     
 
 let test07 () = 
     let m1 : Markdown = 
-        markdownTile <| (text "hello" ^^ text "<world>")
+        markdownText <| (text "hello" ^^ text "<world>")
     testRender m1
 
 
 let test08 () = 
     let m1 : Markdown = 
-        markdownTile <| textlines [text "hello"; text "world"]
+        markdownText <| textlines [text "hello"; text "world"]
     testRender m1
 
 
 let test09 () = 
     let m1 : Markdown = 
-        markdownTile <| inlineLink "" @"d:\This is a very\long\path\that\should prove\rendering\with group\goes on\a single line\README.md" None
+        markdownText <| inlineLink "" @"d:\This is a very\long\path\that\should prove\rendering\with group\goes on\a single line\README.md" None
     testRender m1
 
 
 let test10 () = 
     let m1 : Markdown = 
-        markdownTile <| useImageReference "" "myImage1"
+        markdownText <| useImageReference "" "myImage1"
     testRender m1
 
 

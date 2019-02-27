@@ -56,25 +56,25 @@ module Syntax =
         | VCatText of MdText * MdText
         | Group of MdText
 
-    type MdPara = 
-        | EmptyPara
+    type MdPElement = 
+        | EmptyPE
         | ParaText of MdText 
-        | UnorderedList of MdPara list
-        | OrderedList of MdPara list
-        | VCatPara of MdPara * MdPara 
+        | UnorderedList of MdPElement list
+        | OrderedList of MdPElement list
+        | VCatPara of MdPElement * MdPElement 
 
     /// We cache width with cell contents so it can be easily accessed
     type TableCell = 
         { Width: int
-          Content: MdPara }
+          Content: MdPElement }
 
     type TableRow = TableCell list
     
     type MdDoc = 
         | EmptyDoc
-        | Paragraph of int * MdPara
+        | Paragraph of int * MdPElement
         | Table of ColumnSpec list * TableRow option * TableRow list // bool is has-titles?
-        | CodeBlock of MdPara
+        | CodeBlock of MdPElement
         | VCatDoc of MdDoc * MdDoc
 
 
@@ -95,7 +95,7 @@ module Syntax =
 
     let besideSpace (x:MdText) (y:MdText) : MdText = beside x (beside space y)
 
-    let below (x:MdText) (y:MdText) : MdText = 
+    let belowText (x:MdText) (y:MdText) : MdText = 
         match x,y with
         | EmptyText, d -> d
         | d, EmptyText -> d
@@ -109,7 +109,7 @@ module Syntax =
             | [] -> cont empty
             | x :: xs ->
                 work xs (fun v1 -> 
-                cont (below x v1))
+                cont (belowText x v1))
         work lines id
 
     let stringText (source:string) : MdText = 
@@ -117,14 +117,14 @@ module Syntax =
         | "" -> EmptyText
         | _ -> toLines source |> List.map (fun x -> Text(x)) |> textlines
 
+    let belowPElement (d1:MdPElement) (d2:MdPElement) : MdPElement = 
+        match d1,d2 with
+        | EmptyPE, b -> b
+        | a, EmptyPE -> a
+        | a, b -> VCatPara(a,b)
 
-    let concatMdParas (items:MdPara list) : MdPara = 
-        let concat2 a b = 
-            match a,b with
-            | EmptyPara, d2 -> d2
-            | d1, EmptyPara -> d1
-            | d1, d2 -> VCatPara(d1,d2)
-        List.fold concat2 EmptyPara items
+    let concatMdPElements (items:MdPElement list) : MdPElement = 
+        List.fold belowPElement EmptyPE items
 
 
     let concatMdDocs (items:MdDoc list) : MdDoc = 
@@ -279,10 +279,11 @@ module Syntax =
         xs |> fromLines
 
     /// TODO - This needs a close read over and testing.
-    let renderMdPara (lineWidth:int) (para:MdPara) : string =  
-        let rec work (acc:StringBuilder) (doc:MdPara) (cont:StringBuilder -> string) = 
+    let renderMdPElement (lineWidth:int) (para:MdPElement) : string =  
+        let rec work (acc:StringBuilder) 
+                     (doc:MdPElement) (cont:StringBuilder -> string) = 
             match doc with
-            | EmptyPara -> cont acc
+            | EmptyPE -> cont acc
             | ParaText txt -> 
                 let str = renderMdText lineWidth txt
                 cont (acc.Append(str)) 
@@ -295,7 +296,8 @@ module Syntax =
             | VCatPara(d1,d2) -> 
                 work acc d1 (fun acc1 ->
                 work (acc1.AppendLine()) d2 cont)
-        and workList (acc:string list) (docs:MdPara list) (cont: string list -> string) = 
+        and workList (acc:string list) 
+                     (docs:MdPElement list) (cont: string list -> string) = 
             match docs with
             | [] -> cont (List.rev acc)
             | d :: ds -> 
@@ -305,8 +307,8 @@ module Syntax =
         let sb = new StringBuilder () 
         work sb para (fun x -> x.ToString()) 
 
-    let renderBoundedMdPara (lineWidth:int) (para:MdPara) : string =  
-        renderMdPara lineWidth para 
+    let renderBoundedMdPara (lineWidth:int) (para:MdPElement) : string =  
+        renderMdPElement lineWidth para 
 
     /// Note an item may be a multiline string
     let codeBlock (body:string) : string = 
@@ -329,10 +331,10 @@ module Syntax =
             match doc with
             | EmptyDoc -> cont acc
             | Paragraph (width,para) -> 
-                let str = renderMdPara width para
+                let str = renderMdPElement width para
                 cont (acc.AppendLine(str))
             | CodeBlock para ->
-                let str = renderMdPara 800 para |> codeBlock
+                let str = renderMdPElement 800 para |> codeBlock
                 cont (acc.AppendLine(str))
             | VCatDoc(d1,d2) -> 
                 work acc d1 (fun acc1 -> 

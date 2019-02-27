@@ -44,11 +44,10 @@ type Item =
       Work: WorkType
       Phase: PhaseType }
 
-let nbsp2 : Markdown = 
-    markdownTile <| nbsp ^&^ nbsp
+let nbsp2 : Markdown = nbsp ^@^ nbsp
 
 let logo : Markdown = 
-    markdownTile (inlineImage "" @"include/YW-logo.jpg" None)
+    markdownText (inlineImage "" @"include/YW-logo.jpg" None)
 
 let title1 (phase:PhaseType) : Markdown = 
     let caption = 
@@ -63,7 +62,7 @@ let title2 (sai:string) (name:string) : Markdown =
 let partners : Markdown = 
     let partnerLine name desc : Markdown = 
         let body : Text = (doubleAsterisks <| text name) ^+^ text desc 
-        markdownTile body
+        markdownText body
     concatMarkdown 
         <| [ h2 (text "Asset Replacement Project Partners")
            ; partnerLine "Metasphere" "Project Delivery"

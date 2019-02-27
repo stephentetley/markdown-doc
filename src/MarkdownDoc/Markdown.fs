@@ -72,7 +72,7 @@ module Markdown =
 
     /// Vertical concat.
     let ( ^&^ ) (d1:Text) (d2:Text) : Text = 
-        Syntax.below d1 d2
+        Syntax.belowText d1 d2
 
     let textlines (lines:Text list) : Text = 
         Syntax.textlines lines
@@ -85,7 +85,7 @@ module Markdown =
 
     let entity (name:string) : Text = plaintext <| sprintf "&%s;" name
 
-    let nbsp : Text = entity "nbsp"
+
 
     let copyright : Text = entity "copy"
     let registered : Text = entity "reg"
@@ -212,12 +212,14 @@ module Markdown =
 
 
     /// Paragraph assembles Text
-    type PElement = Syntax.MdPara
+    type PElement = Syntax.MdPElement
 
     let paraText (text:Text) : PElement = 
         Syntax.ParaText text
-
     
+    /// Vertical concat.
+    let ( ^/^ ) (d1:PElement) (d2:PElement) : PElement = 
+        Syntax.belowPElement d1 d2
 
 
     let unordList (elements:PElement list) : PElement = 
@@ -340,6 +342,10 @@ module Markdown =
         Markdown <| fun ctx ->
             let tiles = List.map (fun (doc:Markdown) -> doc.GetMarkdown ctx) elements
             Syntax.concatMdDocs tiles
+
+    /// nbsp
+    let nbsp : Markdown = markdownText (entity "nbsp")
+
 
     /// Page break / Horizontal Rule
     /// Printed as five asterisks.

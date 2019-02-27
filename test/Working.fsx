@@ -23,7 +23,7 @@ let demo02 () =
     let text = HCatText (Text "Hello", HCatText  (Text " ", Text "World!"))
     let olist = OrderedList [ParaText text; ParaText text; ParaText text]
     let ulist = UnorderedList [olist; ParaText text; ParaText text]
-    renderMdPara 80 ulist |> printfn "%s"
+    renderMdPElement 80 ulist |> printfn "%s"
 
 
 let demo03 () =
