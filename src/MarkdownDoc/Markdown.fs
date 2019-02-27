@@ -168,12 +168,13 @@ module Markdown =
     let useImageReference (altText:string) (identifier:string) : Text = 
         hgroup (bang ^^ useReference altText identifier)
         
+    
 
 
     let private inlineLinkBody (altText:string) 
                                (path:string) 
                                (title:option<string>) : Text = 
-        let path1 = path.Replace('\\', '/')
+        let path1 = Common.replaceBackslashes path
         let body : Text = 
             match title with
             | None -> rawText path1
@@ -211,19 +212,40 @@ module Markdown =
 
 
     /// Paragraph assembles Text
-    type Paragraph = Syntax.MdPara
+    type PElement = Syntax.MdPara
 
-    let paraTile (text:Text) : Paragraph = 
+    let paraText (text:Text) : PElement = 
         Syntax.ParaText text
 
     
 
 
-    let unordList (elements:Paragraph list) : Paragraph = 
+    let unordList (elements:PElement list) : PElement = 
         Syntax.UnorderedList elements
 
-    let ordList (elements:Paragraph list) : Paragraph = 
+    let ordList (elements:PElement list) : PElement = 
         Syntax.OrderedList elements
+
+    let private defReference (identifier:string) 
+                             (path:string) 
+                             (title:option<string>) : Text = 
+        let body1 = 
+            squareBrackets (text identifier) ^^ colon ^+^ text (Common.replaceBackslashes path)
+        match title with
+        | None -> body1
+        | Some ss -> body1 ^+^ doubleQuotes (text ss)
+
+    /// [id]: path/to 
+    /// [id]: path/to "Title"
+    let defLinkReference (identifier:string) (path:string) (title:option<string>) : PElement = 
+        paraText (hgroup (defReference identifier path title))
+
+
+    /// ![id]: path/to 
+    /// ![id]: path/to "Title"
+    let defImageReference (identifier:string) (path:string) (title:option<string>) : PElement = 
+         paraText (hgroup (bang ^^ defReference identifier path title))
+
 
     /// Tiled markdown i.e. large sections paragraphs, list elements, table cell text...
 
@@ -270,9 +292,9 @@ module Markdown =
         Markdown <| fun ctx -> 
             doc.GetMarkdown { ctx with ColumnWidth = columnWidth }
     
-    let markdown (para:Paragraph) : Markdown = 
+    let markdown (paragraph:PElement) : Markdown = 
         Markdown <| fun ctx -> 
-            Syntax.Paragraph(ctx.ColumnWidth, para)
+            Syntax.Paragraph(ctx.ColumnWidth, paragraph)
 
 
     /// Formatted according to columnWidth
@@ -303,8 +325,8 @@ module Markdown =
     
 
     /// Code block indents the paragraph with four spaces.
-    let codeBlock (para:Paragraph) : Markdown = 
-        Markdown <| fun ctx -> Syntax.CodeBlock(para)
+    let codeBlock (body:PElement) : Markdown = 
+        Markdown <| fun ctx -> Syntax.CodeBlock(body)
 
     /// Concatenate two Markdown fragments.
     let ( ^@^ ) (a:Markdown) (b:Markdown) : Markdown = 
@@ -323,33 +345,19 @@ module Markdown =
 
         
 
-    let defLinkReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
-        let title1  = 
-            match title with
-            | None -> empty
-            | Some ss -> space ^^ doubleQuotes (text ss)
-        let body = squareBrackets (text identifier) ^^ colon ^+^ angleBrackets (text path) ^^ title1
-        markdownTile (hgroup body)
 
 
-    let defImageReference (identifier:string) (path:string) (title:option<string>) : Markdown = 
-        let title1  = 
-            match title with
-            | None -> empty
-            | Some str -> space ^^ doubleQuotes (text str)
-        let text = squareBrackets (text identifier) ^^ colon ^+^ text path ^^ title1
-        markdownTile text
 
 
     let gridTable (columnSpecs:ColumnSpec list) 
-                  (headers: (Paragraph list) option)
-                  (contents: (Paragraph list) list) : Markdown = 
+                  (headers: (PElement list) option)
+                  (contents: (PElement list) list) : Markdown = 
 
-        let makeCell (spec:ColumnSpec) (para:Paragraph) : Syntax.TableCell = 
+        let makeCell (spec:ColumnSpec) (para:PElement) : Syntax.TableCell = 
             { Width = spec.Width
               Content = para }
 
-        let makeRow (row:Paragraph list) : Syntax.TableRow = 
+        let makeRow (row:PElement list) : Syntax.TableRow = 
             Common.raggedMap2 makeCell columnSpecs row
 
         Markdown <| fun _ ->

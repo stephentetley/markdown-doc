@@ -10,6 +10,10 @@ module Common =
     open System
     open System.Text
 
+    /// Replace back-slashes with forward-slashes.
+    let inline replaceBackslashes (source:string) : string = 
+        source.Replace(oldChar='\\', newChar='/')
+
 
     let internal intersperse (sep:'T) (source:'T list) : 'T list = 
         let rec work (acc:'T list) (xs:'T list) (cont:'T list -> 'T list) = 

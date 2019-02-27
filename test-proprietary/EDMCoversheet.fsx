@@ -2,6 +2,7 @@
 // License: BSD 3 Clause
 
 #r "netstandard"
+#r "System.Xml.Linq.dll"
 
 // Use FSharp.Data for CSV reading
 #I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.0.0\lib\netstandard2.0"
@@ -54,7 +55,7 @@ let title2 (sai:string) (name:string) : Markdown =
 
 
 let contents (workItems:string list) : Markdown = 
-    h3 (text "Contents") ^@^ markdown (unordList (List.map (paraTile << text) workItems))
+    h3 (text "Contents") ^@^ markdown (unordList (List.map (paraText << text) workItems))
 
 let documentControl : Markdown = 
     h3 (text "Document Control")

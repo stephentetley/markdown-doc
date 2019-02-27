@@ -28,12 +28,12 @@ let test02 () =
 
 let test03 () = 
     let m1 : Markdown = 
-        markdown <| unordList [ paraTile <| text "Hello"; paraTile <| text "world!" ]
+        markdown <| unordList [ paraText <| text "Hello"; paraText <| text "world!" ]
     testRender m1
 
 let test04 () = 
     let m1 : Markdown = 
-        markdown <| ordList [ paraTile <| text "Hello"; paraTile <| text "world!" ]
+        markdown <| ordList [ paraText <| text "Hello"; paraText <| text "world!" ]
     testRender m1
 
 let fruitColSpecs : ColumnSpec list = 
@@ -43,7 +43,7 @@ let fruitColSpecs : ColumnSpec list =
     ]
 
 let test05 () = 
-    let plain = paraTile << text
+    let plain = paraText << text
     let headers = [ plain "Fruit"; plain "Price"; plain "Advantages" ]
     let cells = 
         [ [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
