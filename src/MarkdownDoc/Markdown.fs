@@ -157,15 +157,58 @@ module Markdown =
         enclose (text "``") (text "``") source
 
 
+    let private useReference (altText:string) (identifier:string) : Text = 
+        squareBrackets (text altText) ^^ squareBrackets (text identifier)
 
-    let useLinkReference (altText:Text) (identifier:string) : Text = 
-        hgroup 
-            <| squareBrackets altText ^^ squareBrackets (text identifier)
+    /// [Alt text][id]
+    let useLinkReference (altText:string) (identifier:string) : Text = 
+        hgroup (useReference altText identifier)
 
-    let useImageReference (altText:Text) (identifier:string) : Text = 
-        hgroup            
-            <| bang ^^ (squareBrackets altText) ^^ squareBrackets (text identifier)
+    /// ![Alt text][id]
+    let useImageReference (altText:string) (identifier:string) : Text = 
+        hgroup (bang ^^ useReference altText identifier)
         
+
+
+    let private inlineLinkBody (altText:string) 
+                               (path:string) 
+                               (title:option<string>) : Text = 
+        let path1 = path.Replace('\\', '/')
+        let body : Text = 
+            match title with
+            | None -> rawText path1
+            | Some ss -> rawText path1 ^+^ text ss
+        squareBrackets (text altText) ^^ parens body
+
+    /// [Alt text](/path/to)
+    ///
+    /// [Alt text](/path/to "Title") 
+    ///
+    /// Note - if path uses backslash as a separator (Windows style) 
+    /// it is rewritten to use forward slash (Unix style and Pandoc style).
+    /// 
+    /// The path should not be explicitly quoted even if it contains spaces.
+    let inlineLink (altText:string) (path:string) (title:option<string>) : Text = 
+        hgroup (inlineLinkBody altText path title) 
+
+
+    /// ![Alt text](/path/to)
+    ///
+    /// ![Alt text](/path/to "Title") 
+    ///
+    /// Note - if path uses backslash as a separator (Windows style) 
+    /// it is rewritten to use forward slash (Unix style and Pandoc style).
+    /// 
+    /// The path should not be explicitly quoted even if it contains spaces.
+    let inlineImage (altText:string) 
+                    (path:string) 
+                    (title:option<string>) : Text = 
+        hgroup (bang ^^ inlineLinkBody altText path title) 
+
+
+    // ************************************************************************
+    // Paragraph elements
+
 
     /// Paragraph assembles Text
     type Paragraph = Syntax.MdPara
@@ -174,35 +217,7 @@ module Markdown =
         Syntax.ParaText text
 
     
-    /// [A link](/path/to)
-    ///
-    /// [A link](/path/to "Title") 
-    /// Note - if path uses backslash as a separator (Windows style) 
-    /// it is rewritten to use forward slash (Unix style and Pandoc style).
-    let inlineLink (altText:Text) (path:string) (title:option<string>) : Paragraph = 
-        let path1 = path.Replace('\\', '/')
-        let body : Text = 
-            match title with
-            | None -> rawText path1
-            | Some ss -> rawText path1 ^+^ text ss
-        hgroup (bang ^^ squareBrackets altText ^^ parens body) |> paraTile
 
-
-    //let inlineLink (altText:string) (path:string) (title:option<string>) : Paragraph = 
-    //    let path1 = path.Replace('\\', '/')
-    //    let alt1 = 
-    //        match altText with
-    //        | null | "" -> " "
-    //        | _ -> altText
-
-    //    let body = 
-    //        match title with
-    //        | None -> path1
-    //        | Some ss -> sprintf "%s %s" path1 ss
-    //    sprintf "[%s] (%s)" alt1 body|> rawText |> paraTile
-
-    let inlineImage (altText:Text) (path:string) (title:option<string>) : Paragraph = 
-        inlineLink altText path title
 
     let unordList (elements:Paragraph list) : Paragraph = 
         Syntax.UnorderedList elements

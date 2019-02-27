@@ -13,9 +13,12 @@ easily be broken.
 In `MarkdownDoc` terms, inline image links should be `Text` elements.
 
 Do not quote file names even if they
-![large red ](./include/large red.jpg "Large Red Rect") have spaces. Because
+![large red](./include/large red.jpg "Large Red Rect") have spaces. Because
 the optional title will be quoted Pandoc's parser apparently reads anything
 before the first double quote as a file path.
+
+The formatting in the alt text gets removed so in `MarkdownDoc` it should just
+be a string anyway ![This is _alt_ text](include/yellow.jpg).
 
 ## Reference Style
 

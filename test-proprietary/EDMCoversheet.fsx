@@ -42,7 +42,7 @@ let nbsp2 : Markdown =
     markdownTile <| nbsp ^&^ nbsp
 
 let logo : Markdown = 
-    markdown (inlineImage empty @"include/YW-logo.jpg" None)
+    markdownTile (inlineImage "" @"include/YW-logo.jpg" None)
 
 let title1 : Markdown = 
     h1 (text "T0975 - Event Duration Monitoring Phase 2 (EDM2)")

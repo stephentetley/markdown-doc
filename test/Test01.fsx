@@ -72,13 +72,13 @@ let test08 () =
 
 let test09 () = 
     let m1 : Markdown = 
-        markdown <| inlineLink space @"d:\This is a very\long\path\that\should prove\rendering\with group\goes on\a single line\README.md" None
+        markdownTile <| inlineLink "" @"d:\This is a very\long\path\that\should prove\rendering\with group\goes on\a single line\README.md" None
     testRender m1
 
 
 let test10 () = 
     let m1 : Markdown = 
-        markdownTile <| useImageReference space "myImage1"
+        markdownTile <| useImageReference "" "myImage1"
     testRender m1
 
 
