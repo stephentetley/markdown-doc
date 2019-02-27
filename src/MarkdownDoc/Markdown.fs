@@ -207,6 +207,12 @@ module Markdown =
         hgroup (bang ^^ inlineLinkBody altText path title) 
 
 
+    let formatted (fmt:Printf.StringFormat<'a -> string,string>) 
+                  (value:'a) : Text = 
+        sprintf fmt value |> text
+
+
+
     // ************************************************************************
     // Paragraph elements
 

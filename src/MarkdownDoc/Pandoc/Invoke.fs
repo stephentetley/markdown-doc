@@ -10,13 +10,13 @@ module Invoke =
     
     open SLFormat.CommandOptions
 
-    open MarkdownDoc.Internal.Common
+
     open MarkdownDoc.Markdown
 
     
 
     let internal runPandoc1 (shellWorkingDirectory:string) (args:CmdOpt list) : unit =
-        shellRun shellWorkingDirectory "pandoc" (arguments args)
+        SimpleInvoke.runProcess shellWorkingDirectory "pandoc" args
 
     let fromLong : CmdOpt       = argument "--from"
     let toLong : CmdOpt         = argument "--to"
