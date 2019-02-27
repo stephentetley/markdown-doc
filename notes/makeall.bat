@@ -17,7 +17,12 @@ pandoc --from=markdown --to=html --metadata pagetitle="Markdown Typo" --standalo
 pandoc --from=markdown --to=latex --standalone --output=output\typographic.pdf typographic.md
 pandoc --from=markdown --to=docx --reference-doc=include\custom-reference1.docx --standalone --output=output\typographic.docx typographic.md
 
-REM operationally:
+REM operationally
 pandoc --metadata pagetitle="Markdown Operationally" --from=markdown --to=html --standalone --output=output\markdown_operationally.html markdown_operationally.md
 pandoc --from=markdown --to=latex --standalone --output=output\markdown_operationally.pdf markdown_operationally.md
 pandoc --from=markdown --to=docx --reference-doc=include\custom-reference1.docx --standalone --output=output\markdown_operationally.docx markdown_operationally.md
+
+REM imagelinks
+pandoc --from=markdown --to=html --metadata pagetitle="Image Links" --standalone --output=image_links.html image_links.md
+pandoc --from=markdown --to=docx --reference-doc=include/custom-reference1.docx --standalone --output=output/image_links.docx image_links.md
+pandoc --from=markdown --to=latex --standalone --output=output/image_links.pdf image_links.md

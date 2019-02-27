@@ -1,5 +1,5 @@
 
-all: blockquotes notes links typographic operationally
+all: blockquotes notes links typographic operationally image_links
 
 blockquotes:
 	pandoc --from=markdown+pandoc_title_block --to=html --metadata pagetitle="Blockquotes"  --standalone --output=output/blockquotes.html blockquotes.md
@@ -22,3 +22,8 @@ operationally:
 	pandoc --from=markdown+superscript+subscript --to=html --metadata pagetitle="Markdown, Operationally" --standalone --output=output/markdown_operationally.html markdown_operationally.md
 	pandoc --from=markdown+superscript+subscript --to=latex --standalone --output=output/markdown_operationally.pdf markdown_operationally.md
 	pandoc --from=markdown+superscript+subscript --to=docx --reference-doc=include/custom-reference1.docx --standalone --output=output/markdown_operationally.docx markdown_operationally.md
+
+image_links:
+	pandoc --from=markdown --to=html --metadata pagetitle="Image Links" --standalone --output=image_links.html image_links.md
+	pandoc --from=markdown --to=docx --reference-doc=include/custom-reference1.docx --standalone --output=output/image_links.docx image_links.md
+	pandoc --from=markdown --to=latex --standalone --output=output/image_links.pdf image_links.md
