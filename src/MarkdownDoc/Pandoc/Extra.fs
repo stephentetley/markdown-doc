@@ -8,7 +8,27 @@ namespace MarkdownDoc.Pandoc
 module Extra = 
 
     open MarkdownDoc
-    open MarkdownDoc.Internal.Common
+    open MarkdownDoc.Internal
+
+
+
+    /// Grid Table        
+    /// Table printed in the `grid_table` style.
+    let gridTable (columnSpecs:ColumnSpec list) 
+                  (headers: (PElement list) option)
+                  (contents: (PElement list) list) : Markdown = 
+
+        let makeCell (spec:ColumnSpec) (para:PElement) : Syntax.TableCell = 
+            { Width = spec.Width
+              Content = para }
+
+        let makeRow (row:PElement list) : Syntax.TableRow = 
+            Common.raggedMap2 makeCell columnSpecs row
+
+        Markdown <| fun _ ->
+            let rows = List.map makeRow contents
+            Syntax.Table(columnSpecs, Option.map makeRow headers, rows)
+
 
     let inlineRaw (format:string) (content:Text) = 
         enclose (text "`") (text "`") content ^^ text (sprintf "={%s}" format)
@@ -16,8 +36,8 @@ module Extra =
     /// TODO - should the equals sign be implicit?
     let rawCode (rawAttr:string) (codeSource:string) : Markdown = 
         let line1 = backticks3 ^^ braces (equals ^^ plaintext rawAttr)
-        let textlines = plainlines <| toLines codeSource
-        markdownTile <| line1 ^&^ textlines ^&^ backticks3
+        let textlines = plainlines <| Common.toLines codeSource
+        markdownText <| line1 ^&^ textlines ^&^ backticks3
 
 
     let openxmlPagebreak : Markdown = 
@@ -28,4 +48,4 @@ module Extra =
             ; "  </w:r>"
             ; "</w:p>"
             ]
-        rawCode "openxml" <| fromLines block
+        rawCode "openxml" <| Common.fromLines block

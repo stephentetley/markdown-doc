@@ -298,29 +298,29 @@ module Markdown =
 
 
     /// Formatted according to columnWidth
-    let markdownTile (text:Text) : Markdown = 
-        Markdown <| fun ctx -> 
-            Syntax.Paragraph(ctx.ColumnWidth, Syntax.ParaText text)
+    let markdownText (text:Text) : Markdown = 
+        markdown (paraText text)
 
-
+    let inline private atxHeader (hashes:string) (content:Text) : Markdown = 
+        markdownText (hgroup (text hashes ^+^ content))
 
     /// Atx style header H1
-    let h1 (content:Text) : Markdown = markdownTile (text "#" ^+^ content)
+    let h1 (content:Text) : Markdown = atxHeader "#" content
     
     /// Atx style header H2
-    let h2 (content:Text) : Markdown = markdownTile (text "##" ^+^ content)
+    let h2 (content:Text) : Markdown = atxHeader "##" content
 
     /// Atx style header H3
-    let h3 (content:Text) : Markdown = markdownTile (text "###" ^+^ content)
+    let h3 (content:Text) : Markdown = atxHeader "###" content
 
     /// Atx style header H4
-    let h4 (content:Text) : Markdown = markdownTile (text "####" ^+^ content)
+    let h4 (content:Text) : Markdown = atxHeader "####" content
 
     /// Atx style header H5
-    let h5 (content:Text) : Markdown = markdownTile (text "#####" ^+^ content)
+    let h5 (content:Text) : Markdown = atxHeader "#####" content
 
     /// Atx style header H6
-    let h6 (content:Text) : Markdown = markdownTile (text "######" ^+^ content)
+    let h6 (content:Text) : Markdown = atxHeader "######" content
 
     
 
@@ -335,31 +335,12 @@ module Markdown =
             let (Markdown f2) = b
             Syntax.VCatDoc(f1 ctx, f2 ctx)
 
+    /// Concatenate a list of Markdown fragments.        
     let concatMarkdown (elements:Markdown list) : Markdown = 
         Markdown <| fun ctx ->
             let tiles = List.map (fun (doc:Markdown) -> doc.GetMarkdown ctx) elements
             Syntax.concatMdDocs tiles
 
-    //let tiles (paragraphs:Text list) : Markdown = 
-    //    concat <| List.map tile paragraphs 
-
-        
-
-
-
-
-
-    let gridTable (columnSpecs:ColumnSpec list) 
-                  (headers: (PElement list) option)
-                  (contents: (PElement list) list) : Markdown = 
-
-        let makeCell (spec:ColumnSpec) (para:PElement) : Syntax.TableCell = 
-            { Width = spec.Width
-              Content = para }
-
-        let makeRow (row:PElement list) : Syntax.TableRow = 
-            Common.raggedMap2 makeCell columnSpecs row
-
-        Markdown <| fun _ ->
-            let rows = List.map makeRow contents
-            Syntax.Table(columnSpecs, Option.map makeRow headers, rows)
+    /// Page break / Horizontal Rule
+    /// Printed as five asterisks.
+    let horizontalRule : Markdown = markdownText (text "*****")

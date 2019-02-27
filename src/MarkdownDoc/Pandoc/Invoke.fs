@@ -3,8 +3,7 @@
 
 namespace MarkdownDoc.Pandoc
 
-// Currently using a working copy of SLFormat.CommandOptions.
-// Change to a library reference to SL-Format at some point.
+
 
 [<AutoOpen>]
 module Invoke = 
