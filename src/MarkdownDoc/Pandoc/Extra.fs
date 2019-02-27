@@ -48,3 +48,19 @@ module Extra =
             ; "</w:p>"
             ]
         markdown (rawCode "openxml" <| plainlines block)
+
+    /// Strikeout the enclosed text.
+    /// ~~deleted text~~
+    let strikeout (source:Text) : Text = 
+        enclose (text "~~") (text "~~") source
+
+    /// Note - spaces in the superscript are escaped.
+    let superscript (source:string) : Text = 
+        enclose (character '^') (character '^') 
+                (plaintext <| Common.escapeSpaces source)
+
+    /// Note - spaces in the subscript are escaped.
+    let subscript (source:string) : Text = 
+        enclose (character '~') (character '~') 
+                (plaintext <| Common.escapeSpaces source)
+

@@ -12,7 +12,11 @@ module Common =
 
     /// Replace back-slashes with forward-slashes.
     let inline replaceBackslashes (source:string) : string = 
-        source.Replace(oldChar='\\', newChar='/')
+        source.Replace(oldChar = '\\', newChar = '/')
+
+    /// Escape ' ' with "\ "
+    let inline escapeSpaces (source:string) : string = 
+        source.Replace(oldValue = " ", newValue = "\\ ")
 
 
     let internal intersperse (sep:'T) (source:'T list) : 'T list = 
