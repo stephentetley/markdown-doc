@@ -11,6 +11,8 @@ module Extra =
     open MarkdownDoc.Internal
 
 
+    // TODO - we should reify attributes to help us compose them
+
 
     /// Grid Table        
     /// Table printed in the `grid_table` style.
