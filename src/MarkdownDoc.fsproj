@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1-alpha-20190227</Version>
+    <Version>1.0.1-alpha-20190304</Version>
     <Description>Combinator library for generating Markdown output. Pandoc biased.</Description>
   </PropertyGroup>
 
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SLFormat" Version="1.0.2-alpha-20190227" />
+    <PackageReference Include="SLFormat" Version="1.0.2-alpha-20190304" />
   </ItemGroup>
 
 </Project>
