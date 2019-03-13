@@ -55,6 +55,7 @@ module Syntax =
         | HCatText of MdText * MdText
         | VCatText of MdText * MdText
         | Group of MdText
+        static member empty : MdText = EmptyText
 
     type MdPElement = 
         | EmptyPE
@@ -62,6 +63,7 @@ module Syntax =
         | UnorderedList of MdPElement list
         | OrderedList of MdPElement list
         | VCatPara of MdPElement * MdPElement 
+        static member empty : MdPElement = EmptyPE
 
     /// We cache width with cell contents so it can be easily accessed
     type TableCell = 
@@ -76,7 +78,7 @@ module Syntax =
         | Table of ColumnSpec list * TableRow option * TableRow list // bool is has-titles?
         | CodeBlock of MdPElement
         | VCatDoc of MdDoc * MdDoc
-
+        static member empty : MdDoc = EmptyDoc
 
 
 

@@ -5,9 +5,8 @@ namespace MarkdownDoc
 
 // Design issue
 // Whitespace matters in Pandoc.
-// How explicitly should we treat it in this library?
-// Do we help the user (making the implementation complicated) or keep 
-// the implementation simple relying on the user to do the right thing?
+// With the different doc fragments type we should be handling
+// it implicitly - check this assumption!
 
 
 [<AutoOpen>]
@@ -16,6 +15,7 @@ module Markdown =
     open System.IO
 
     open MarkdownDoc.Internal
+    open Internal.Syntax
     
     type Alignment = Syntax.Alignment
     type ColumnSpec = Syntax.ColumnSpec
@@ -26,7 +26,7 @@ module Markdown =
     type Text = Syntax.MdText
 
     /// The empty Text document.
-    let empty : Text = Syntax.EmptyText
+    let emptyText : Text = Text.empty
 
     /// Bind the text into a unbreakable group
     let hgroup (text:Text) : Text = 
@@ -212,6 +212,46 @@ module Markdown =
         sprintf fmt value |> text
 
 
+    /// Print a unsigned byte literal as a decimal.
+    /// Note no F# type specifying suffix is printed, if you want this
+    /// functionality you need to write your own function.
+    let byteDoc (i:byte) : Text = 
+        i.ToString() |> text
+        
+    /// Print a signed byte literal as a decimal.
+    let sbyteDoc (i:sbyte) : Text = 
+        i.ToString() |> text
+
+    /// Print a 16-bit signed byte literal as a decimal.
+    let int16Doc (i:int16) : Text = 
+        i.ToString() |> text
+
+    /// Print a 16-bit unsigned byte literal as a decimal.
+    let uint16Doc (i:uint16) : Text = 
+        i.ToString() |> text
+
+    /// Print a 32-bit signed byte literal as a decimal.
+    let int32Doc (i:int32) : Text = 
+        i.ToString() |> text
+
+    /// Print a 32-bit unsigned byte literal as a decimal.
+    let uint32Doc (i:uint32) : Text = 
+        i.ToString() |> text
+
+    /// Print a 64-bit signed byte literal as a decimal.        
+    let int64Doc (i:int64) : Text = 
+        i.ToString() |> text
+
+    /// Print a 64-bit unsigned byte literal as a decimal.
+    let uint64Doc (i:uint64) : Text = 
+        i.ToString() |> text
+    
+    /// Print a 32-bit IEEE float. 
+    /// The output uses FSharp's ToString() so it may be printed in 
+    /// exponential notation.
+    let float32Doc (d:float32) : Text = 
+        d.ToString() |> text
+
 
     // ************************************************************************
     // Paragraph elements
@@ -219,6 +259,8 @@ module Markdown =
 
     /// Paragraph assembles Text
     type PElement = Syntax.MdPElement
+
+    let emptyPElement : PElement = MdPElement.empty
 
     let paraText (text:Text) : PElement = 
         Syntax.ParaText text
@@ -266,6 +308,8 @@ module Markdown =
     type Markdown = 
         | Markdown of (RenderContext -> Syntax.MdDoc)
 
+        static member empty : Markdown = Markdown (fun _ -> MdDoc.empty)
+
         member internal x.GetMarkdown 
             with get() = match x with | Markdown(fn) -> fn
 
@@ -293,13 +337,15 @@ module Markdown =
             x.Save(sw)
         
 
-    let testRender (source:Markdown) : unit = 
-        source.SaveToString() |> printfn  "----------\n%s\n----------\n"
 
     let localColumnWidth (columnWidth:int) (doc:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
             doc.GetMarkdown { ctx with ColumnWidth = columnWidth }
     
+    
+    let emptyMarkdown : Markdown = Markdown.empty
+
+
     let markdown (paragraph:PElement) : Markdown = 
         Markdown <| fun ctx -> 
             Syntax.Paragraph(ctx.ColumnWidth, paragraph)
@@ -356,3 +402,7 @@ module Markdown =
     /// Page break / Horizontal Rule
     /// Printed as five asterisks.
     let horizontalRule : Markdown = markdownText (text "*****")
+
+
+    let testRender (source:Markdown) : unit = 
+        source.SaveToString() |> printfn  "----------\n%s\n----------\n"
