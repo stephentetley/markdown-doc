@@ -39,7 +39,9 @@ module Common =
     let fromLines (source:string list) : string = 
         String.concat Environment.NewLine source
 
-    
+    /// "Enclose" and concatenate a list of strings.
+    /// The same separator is used for the interior separator
+    /// and the bookends.
     let encloseConcat (separator:string) (items:string list) : string = 
         let sb = new StringBuilder(separator)
         List.iter (fun (item:string) -> 
@@ -65,14 +67,17 @@ module Common =
             List.map (fun xs -> match xs with | [] -> emptyElement; | (x::_) -> x) table
         let tailsOf (table:('a list) list) : ('a list) list = 
             List.map (fun xs -> match xs with | (_::ys) -> ys; | _ -> []) table
-        let rec work ac rows = 
-            if List.forall (fun (x:'a list)  -> List.isEmpty x) rows then 
-                List.rev ac
-            else 
+        
+        let rec work xs cont = 
+            match xs with
+            | [] -> cont []
+            | rows when List.forall List.isEmpty xs -> cont []
+            | rows ->
                 let line1 = headsOf rows
                 let rest = tailsOf rows
-                work (line1::ac) rest
-        work [] table
+                work rest (fun vs -> 
+                cont (line1::vs))
+        work table (fun xs -> List.rev xs)
 
     
     // ************************************************************************
