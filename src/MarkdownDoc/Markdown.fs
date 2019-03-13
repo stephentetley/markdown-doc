@@ -258,27 +258,27 @@ module Markdown =
 
 
     /// Paragraph assembles Text
-    type PElement = Syntax.MdPElement
+    type ParaElement = Syntax.MdPElement
 
-    let emptyPElement : PElement = MdPElement.empty
+    let emptyParaElement : ParaElement = MdPElement.empty
 
-    let paraText (text:Text) : PElement = 
+    let paraText (text:Text) : ParaElement = 
         Syntax.ParaText text
     
     /// Vertical concat.
-    let ( ^/^ ) (d1:PElement) (d2:PElement) : PElement = 
+    let ( ^/^ ) (d1:ParaElement) (d2:ParaElement) : ParaElement = 
         Syntax.belowPElement d1 d2
 
 
-    let unordList (elements:PElement list) : PElement = 
+    let unordList (elements:ParaElement list) : ParaElement = 
         Syntax.UnorderedList elements
 
-    let ordList (elements:PElement list) : PElement = 
+    let ordList (elements:ParaElement list) : ParaElement = 
         Syntax.OrderedList elements
 
     let private defReference (identifier:string) 
                              (path:string) 
-                             (title:option<string>) : Text = 
+                             (title:string option) : Text = 
         let body1 = 
             squareBrackets (text identifier) ^^ colon ^+^ text (Common.replaceBackslashes path)
         match title with
@@ -287,13 +287,17 @@ module Markdown =
 
     /// [id]: path/to 
     /// [id]: path/to "Title"
-    let defLinkReference (identifier:string) (path:string) (title:option<string>) : PElement = 
+    let defLinkReference (identifier:string) 
+                         (path:string) 
+                         (title:string option) : ParaElement = 
         paraText (hgroup (defReference identifier path title))
 
 
     /// ![id]: path/to 
     /// ![id]: path/to "Title"
-    let defImageReference (identifier:string) (path:string) (title:option<string>) : PElement = 
+    let defImageReference (identifier:string) 
+                          (path:string) 
+                          (title:string option) : ParaElement = 
          paraText (hgroup (bang ^^ defReference identifier path title))
 
 
@@ -346,7 +350,7 @@ module Markdown =
     let emptyMarkdown : Markdown = Markdown.empty
 
 
-    let markdown (paragraph:PElement) : Markdown = 
+    let markdown (paragraph:ParaElement) : Markdown = 
         Markdown <| fun ctx -> 
             Syntax.Paragraph(ctx.ColumnWidth, paragraph)
 
@@ -379,7 +383,7 @@ module Markdown =
     
 
     /// Code block indents the paragraph with four spaces.
-    let codeBlock (body:PElement) : Markdown = 
+    let codeBlock (body:ParaElement) : Markdown = 
         Markdown <| fun ctx -> Syntax.CodeBlock(body)
 
     /// Concatenate two Markdown fragments.

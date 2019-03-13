@@ -17,14 +17,14 @@ module Extra =
     /// Grid Table        
     /// Table printed in the `grid_table` style.
     let gridTable (columnSpecs:ColumnSpec list) 
-                  (headers: (PElement list) option)
-                  (contents: (PElement list) list) : Markdown = 
+                  (headers: (ParaElement list) option)
+                  (contents: (ParaElement list) list) : Markdown = 
 
-        let makeCell (spec:ColumnSpec) (para:PElement) : Syntax.TableCell = 
+        let makeCell (spec:ColumnSpec) (para:ParaElement) : Syntax.TableCell = 
             { Width = spec.Width
               Content = para }
 
-        let makeRow (row:PElement list) : Syntax.TableRow = 
+        let makeRow (row:ParaElement list) : Syntax.TableRow = 
             Common.raggedMap2 makeCell columnSpecs row
 
         Markdown <| fun _ ->
@@ -36,7 +36,7 @@ module Extra =
         enclose (text "`") (text "`") content ^^ text (sprintf "={%s}" format)
 
     /// TODO - should the equals sign be implicit?
-    let rawCode (rawAttr:string) (codeSource:Text) : PElement = 
+    let rawCode (rawAttr:string) (codeSource:Text) : ParaElement = 
         let line1 = hgroup (backticks3 ^^ braces (equals ^^ plaintext rawAttr))
         paraText line1 ^/^ paraText codeSource ^/^ paraText backticks3
 
