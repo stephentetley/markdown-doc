@@ -157,7 +157,7 @@ module Syntax =
     let markdownParagraph (width:int) (body:MdParaElement) : MdDoc = 
         Paragraph(width, body)
 
-    let codeParagraph (body:MdParaElement) : MdDoc = 
+    let codeBlock (body:MdParaElement) : MdDoc = 
         CodeBlock body
 
     /// Our implementation of tables is Pandoc specific
@@ -319,7 +319,7 @@ module Syntax =
         xs |> fromLines
 
     /// TODO - This needs a close read over and testing.
-    let renderMdPElement (lineWidth:int) (para:MdParaElement) : string =  
+    let renderMdParaElement (lineWidth:int) (para:MdParaElement) : string =  
         let rec work (acc:StringBuilder) 
                      (doc:MdParaElement) (cont:StringBuilder -> string) = 
             match doc with
@@ -347,11 +347,9 @@ module Syntax =
         let sb = new StringBuilder () 
         work sb para (fun x -> x.ToString()) 
 
-    let renderBoundedMdPara (lineWidth:int) (para:MdParaElement) : string =  
-        renderMdPElement lineWidth para 
 
     /// Note an item may be a multiline string
-    let codeBlock (body:string) : string = 
+    let renderCodeBody (body:string) : string = 
         toLines body |> List.map (prefixLine "    ") |> fromLines
 
     /// This renders a row to it's component cell strings.
@@ -361,7 +359,7 @@ module Syntax =
             match cells with
             | [] -> cont (List.rev acc)
             | c1 :: cs -> 
-                let str1 = renderBoundedMdPara c1.Width c1.Content
+                let str1 = renderMdParaElement c1.Width c1.Content
                 workCells (str1::acc) cs cont
         workCells [] row id
         
@@ -371,10 +369,10 @@ module Syntax =
             match doc with
             | EmptyDoc -> cont acc
             | Paragraph (width,para) -> 
-                let str = renderMdPElement width para
+                let str = renderMdParaElement width para
                 cont (acc.AppendLine(str))
             | CodeBlock para ->
-                let str = renderMdPElement 800 para |> codeBlock
+                let str = renderMdParaElement 800 para |> renderCodeBody
                 cont (acc.AppendLine(str))
             | VCatDoc(d1,d2) -> 
                 work acc d1 (fun acc1 -> 

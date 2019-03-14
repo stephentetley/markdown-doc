@@ -403,7 +403,7 @@ module Markdown =
 
     /// Code block indents the paragraph with four spaces.
     let codeBlock (body:ParaElement) : Markdown = 
-        Markdown <| fun ctx -> Syntax.codeParagraph body
+        Markdown <| fun ctx -> Syntax.codeBlock body
 
     /// Concatenate two Markdown fragments.
     let ( ^@^ ) (a:Markdown) (b:Markdown) : Markdown = 
