@@ -48,7 +48,7 @@ module Extra =
 
         Markdown <| fun _ ->
             let rows = List.map makeRow contents
-            Syntax.Table(columnSpecs, Option.map makeRow headers, rows)
+            Syntax.table columnSpecs (Option.map makeRow headers) rows
 
     /// Produces '{=format}'
     let rawAttribute (format:string) : Text = 
@@ -61,7 +61,7 @@ module Extra =
     /// TODO - should the equals sign be implicit?
     let rawCode (format:string) (codeSource:Text) : ParaElement = 
         let line1 = hgroup (backticks3 ^^ rawAttribute format)
-        paraText line1 ^/^ paraText codeSource ^/^ paraText backticks3
+        paraText line1 ^&^ paraText codeSource ^&^ paraText backticks3
 
 
     let openxmlPagebreak : Markdown = 

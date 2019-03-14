@@ -57,27 +57,27 @@ module Syntax =
                 | Group of MdText
         static member empty : MdText = EmptyText
 
-    type MdPElement = 
-        | EmptyPE
-        | ParaText of MdText 
-        | UnorderedList of MdPElement list
-        | OrderedList of MdPElement list
-        | VCatPara of MdPElement * MdPElement 
-        static member empty : MdPElement = EmptyPE
+    type MdParaElement = 
+        private | EmptyPE
+                | ParaText of MdText 
+                | UnorderedList of MdParaElement list
+                | OrderedList of MdParaElement list
+                | VCatPara of MdParaElement * MdParaElement 
+        static member empty : MdParaElement = EmptyPE
 
     /// We cache width with cell contents so it can be easily accessed
     type TableCell = 
         { Width: int
-          Content: MdPElement }
+          Content: MdParaElement }
 
     type TableRow = TableCell list
     
     type MdDoc = 
-        | EmptyDoc
-        | Paragraph of int * MdPElement
-        | Table of ColumnSpec list * TableRow option * TableRow list // bool is has-titles?
-        | CodeBlock of MdPElement
-        | VCatDoc of MdDoc * MdDoc
+        private | EmptyDoc
+                | Paragraph of int * MdParaElement
+                | Table of ColumnSpec list * TableRow option * TableRow list // bool is has-titles?
+                | CodeBlock of MdParaElement
+                | VCatDoc of MdDoc * MdDoc
         static member empty : MdDoc = EmptyDoc
 
 
@@ -85,9 +85,8 @@ module Syntax =
     // ************************************************************************
     // Markdown builders
 
-    let empty : MdText = EmptyText
+    // Text Builders
 
-    let inline groupText (text:MdText) = Group text
 
     /// No escaping, or line splitting.
     let inline rawText (contents:string) = Text contents
@@ -96,6 +95,8 @@ module Syntax =
         /// Ampersand must be replaced first, otherwise we get double escaping.
         let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
         Text s1  
+
+    let inline groupText (text:MdText) = Group text
 
     let space : MdText = Text " "
 
@@ -119,7 +120,7 @@ module Syntax =
     let belowTexts (lines:MdText list) : MdText = 
         let rec work zs cont = 
             match zs with
-            | [] -> cont empty
+            | [] -> cont MdText.empty
             | x :: xs ->
                 work xs (fun v1 -> 
                 cont (belowText x v1))
@@ -131,23 +132,50 @@ module Syntax =
         | "" -> EmptyText
         | _ -> toLines source |> List.map (fun x -> Text(x)) |> belowTexts
 
-    let belowPElement (d1:MdPElement) (d2:MdPElement) : MdPElement = 
+
+    // PElement Builders
+
+    let inline paragraphText (text:MdText) : MdParaElement = ParaText text
+
+    let inline uList (items:MdParaElement list) : MdParaElement = 
+        UnorderedList items
+
+    let inline oList (items:MdParaElement list) : MdParaElement = 
+        OrderedList items
+
+    let belowParaElement (d1:MdParaElement) (d2:MdParaElement) : MdParaElement = 
         match d1,d2 with
         | EmptyPE, b -> b
         | a, EmptyPE -> a
         | a, b -> VCatPara(a,b)
 
-    let concatMdPElements (items:MdPElement list) : MdPElement = 
-        List.fold belowPElement EmptyPE items
+    let belowParaElements (items:MdParaElement list) : MdParaElement = 
+        List.fold belowParaElement EmptyPE items
+
+    // Doc Builders
+
+    let inline markdownParagraph (width:int) (body:MdParaElement) : MdDoc = 
+        Paragraph(width, body)
+
+    let inline codeParagraph (body:MdParaElement) : MdDoc = 
+        CodeBlock body
+
+    /// Our implementation of tables is Pandoc specific
+    /// so we don't provide a a wrapper in the 'Markdown' module.
+    let inline table (colSpecs: ColumnSpec list) 
+                     (titles: TableRow option) 
+                     (tableRows: TableRow list) : MdDoc = 
+        Table(colSpecs, titles, tableRows)
 
 
-    let concatMdDocs (items:MdDoc list) : MdDoc = 
-        let concat2 a b = 
-            match a,b with
-            | EmptyDoc, d2 -> d2
-            | d1, EmptyDoc -> d1
-            | d1, d2 -> VCatDoc(d1,d2)
-        List.fold concat2 EmptyDoc items
+    let belowDoc (d1:MdDoc) (d2:MdDoc) : MdDoc = 
+        match d1,d2 with
+        | EmptyDoc, b -> b
+        | a, EmptyDoc -> a
+        | a, b -> VCatDoc(a,b)
+
+    let belowDocs (items:MdDoc list) : MdDoc = 
+        List.fold belowDoc EmptyDoc items
 
     // ************************************************************************
     // Render Preliminary - render tables
@@ -291,9 +319,9 @@ module Syntax =
         xs |> fromLines
 
     /// TODO - This needs a close read over and testing.
-    let renderMdPElement (lineWidth:int) (para:MdPElement) : string =  
+    let renderMdPElement (lineWidth:int) (para:MdParaElement) : string =  
         let rec work (acc:StringBuilder) 
-                     (doc:MdPElement) (cont:StringBuilder -> string) = 
+                     (doc:MdParaElement) (cont:StringBuilder -> string) = 
             match doc with
             | EmptyPE -> cont acc
             | ParaText txt -> 
@@ -309,7 +337,7 @@ module Syntax =
                 work acc d1 (fun acc1 ->
                 work (acc1.AppendLine()) d2 cont)
         and workList (acc:string list) 
-                     (docs:MdPElement list) (cont: string list -> string) = 
+                     (docs:MdParaElement list) (cont: string list -> string) = 
             match docs with
             | [] -> cont (List.rev acc)
             | d :: ds -> 
@@ -319,7 +347,7 @@ module Syntax =
         let sb = new StringBuilder () 
         work sb para (fun x -> x.ToString()) 
 
-    let renderBoundedMdPara (lineWidth:int) (para:MdPElement) : string =  
+    let renderBoundedMdPara (lineWidth:int) (para:MdParaElement) : string =  
         renderMdPElement lineWidth para 
 
     /// Note an item may be a multiline string

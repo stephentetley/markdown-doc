@@ -19,19 +19,19 @@ let demo01 () =
     testRenderText sample
 
 let demo02 () =
-    let olist = orderedList [Syntax.ParaText sample; Syntax.ParaText sample; ParaText sample]
-    let ulist = UnorderedList [olist; ParaText text; ParaText text]
-    renderMdPElement 80 ulist |> printfn "%s"
+    let olist = orderedList [paraText sample; paraText sample; paraText sample]
+    let ulist = unorderedList [olist; paraText sample; paraText sample]
+    testRender (markdown ulist)
 
 
 let demo03 () =
 
-    let header = Paragraph (80, ParaText (Text "# Title"))
-    let olist = OrderedList [ParaText text; ParaText text; ParaText text]
-    let ulist = UnorderedList [olist; ParaText text; ParaText text]
-    let para1 = Paragraph (80, ulist)
-    let document = VCatDoc(header, para1)
-    renderMdDoc document |> printfn "%s"
+    let header = fixedWidthMarkdown 80 (paraText (rawtext "# Title"))
+    let olist = orderedList [paraText sample; paraText sample; paraText sample]
+    let ulist = unorderedList [olist; paraText sample; paraText sample]
+    let para1 = fixedWidthMarkdown 80 ulist
+    let document = header ^@^ para1
+    testRender document
 
 let test01 () = 
     let text = "one two  three   four"
@@ -39,7 +39,7 @@ let test01 () =
     String.concat " " splits 
 
 let test02 () = 
-    raggedMap2 (sprintf "%c-%d") ['a';'b';'c';'d'] [1;2;3;4;5] 
+    Internal.Common.raggedMap2 (sprintf "%c-%d") ['a';'b';'c';'d'] [1;2;3;4;5] 
 
 type TextualData1 = 
     | TextString of string

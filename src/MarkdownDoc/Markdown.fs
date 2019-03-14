@@ -9,6 +9,12 @@ namespace MarkdownDoc
 // it implicitly - check this assumption!
 
 
+// VCat Note.
+// The combinator symbols get heavier (^/^), (^&^), (^@^)
+// as the text object the combine is larger.
+
+
+
 [<AutoOpen>]
 module Markdown = 
 
@@ -69,7 +75,7 @@ module Markdown =
         Syntax.besideSpace d1 d2
 
     /// Vertical concat.
-    let ( ^&^ ) (d1:Text) (d2:Text) : Text = 
+    let ( ^/^ ) (d1:Text) (d2:Text) : Text = 
         Syntax.belowText d1 d2
 
     /// Build a text document from a list of Text lines.
@@ -258,23 +264,23 @@ module Markdown =
 
 
     /// Paragraph assembles Text
-    type ParaElement = Syntax.MdPElement
+    type ParaElement = Syntax.MdParaElement
 
-    let emptyParaElement : ParaElement = Syntax.MdPElement.empty
+    let emptyParaElement : ParaElement = Syntax.MdParaElement.empty
 
     let paraText (text:Text) : ParaElement = 
-        Syntax.ParaText text
+        Syntax.paragraphText text
     
     /// Vertical concat.
-    let ( ^/^ ) (d1:ParaElement) (d2:ParaElement) : ParaElement = 
-        Syntax.belowPElement d1 d2
+    let ( ^&^ ) (d1:ParaElement) (d2:ParaElement) : ParaElement = 
+        Syntax.belowParaElement d1 d2
 
 
-    let unordList (elements:ParaElement list) : ParaElement = 
-        Syntax.UnorderedList elements
+    let unorderedList (elements:ParaElement list) : ParaElement = 
+        Syntax.uList elements
 
-    let ordList (elements:ParaElement list) : ParaElement = 
-        Syntax.OrderedList elements
+    let orderedList (elements:ParaElement list) : ParaElement = 
+        Syntax.oList elements
 
     let private defReference (identifier:string) 
                              (path:string) 
@@ -349,11 +355,16 @@ module Markdown =
     
     let emptyMarkdown : Markdown = Markdown.empty
 
-
+    /// Lift paragraph contents to Markdown.
     let markdown (paragraph:ParaElement) : Markdown = 
         Markdown <| fun ctx -> 
-            Syntax.Paragraph(ctx.ColumnWidth, paragraph)
+            Syntax.markdownParagraph ctx.ColumnWidth paragraph
 
+    /// Lift paragraph contents to Markdown, render to 
+    /// the spcified width.
+    let fixedWidthMarkdown (width:int) (paragraph:ParaElement) : Markdown = 
+        Markdown <| fun _ -> 
+            Syntax.markdownParagraph width paragraph
 
     /// Formatted according to columnWidth
     let markdownText (text:Text) : Markdown = 
@@ -384,20 +395,20 @@ module Markdown =
 
     /// Code block indents the paragraph with four spaces.
     let codeBlock (body:ParaElement) : Markdown = 
-        Markdown <| fun ctx -> Syntax.CodeBlock(body)
+        Markdown <| fun ctx -> Syntax.codeParagraph body
 
     /// Concatenate two Markdown fragments.
     let ( ^@^ ) (a:Markdown) (b:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
             let (Markdown f1) = a 
             let (Markdown f2) = b
-            Syntax.VCatDoc(f1 ctx, f2 ctx)
+            Syntax.belowDoc (f1 ctx) (f2 ctx)
 
     /// Concatenate a list of Markdown fragments.        
     let concatMarkdown (elements:Markdown list) : Markdown = 
         Markdown <| fun ctx ->
             let tiles = List.map (fun (doc:Markdown) -> doc.GetMarkdown ctx) elements
-            Syntax.concatMdDocs tiles
+            Syntax.belowDocs tiles
 
     /// nbsp
     let nbsp : Markdown = markdownText (entity "nbsp")

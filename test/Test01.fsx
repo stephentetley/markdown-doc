@@ -28,12 +28,12 @@ let test02 () =
 
 let test03 () = 
     let m1 : Markdown = 
-        markdown <| unordList [ paraText <| text "Hello"; paraText <| text "world!" ]
+        markdown <| unorderedList [ paraText <| text "Hello"; paraText <| text "world!" ]
     testRender m1
 
 let test04 () = 
     let m1 : Markdown = 
-        markdown <| ordList [ paraText <| text "Hello"; paraText <| text "world!" ]
+        markdown <| orderedList [ paraText <| text "Hello"; paraText <| text "world!" ]
     testRender m1
 
 let fruitColSpecs : ColumnSpec list = 
@@ -46,8 +46,8 @@ let test05 () =
     let plain = paraText << text
     let headers = [ plain "Fruit"; plain "Price"; plain "Advantages" ]
     let cells = 
-        [ [ plain "Bananas"; plain "$1.34"; unordList [plain "builtin-in wrapper"; plain "bright color"] ] 
-        ; [ plain "Oranges"; plain "$2.10"; unordList [plain "cures scurvy"; plain "tasty"] ] 
+        [ [ plain "Bananas"; plain "$1.34"; unorderedList [plain "builtin-in wrapper"; plain "bright color"] ] 
+        ; [ plain "Oranges"; plain "$2.10"; unorderedList [plain "cures scurvy"; plain "tasty"] ] 
         ]
     gridTable fruitColSpecs (Some headers) cells |> testRender
 
