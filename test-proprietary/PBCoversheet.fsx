@@ -75,7 +75,7 @@ let workDoc (work:WorkType) : Text =
     | Revisit -> text "Point Blue Revisit Form"
 
 let contents (work:WorkType) : Markdown = 
-    h3 (text "Contents") ^@^ markdown (unordList [ paraText (workDoc work)])
+    h3 (text "Contents") ^@^ markdown (unorderedList [ paraText (workDoc work)])
 
 let makeDoc (item:Item) : Markdown = 
     concatMarkdown  

@@ -83,11 +83,19 @@ module Markdown =
     let textlines (lines:Text list) : Text = 
         Syntax.belowTexts lines
 
+    /// Horizontal concatenate. No separating space.
+    let hcat (items:Text list) : Text = 
+        List.fold (^^) Text.empty items
+
+
+    /// Horizontal concatenate with a separating space.
+    let hsep (items:Text list) : Text = 
+        List.fold (^+^) Text.empty items
 
     let bang : Text = character '!'
     let colon : Text = character ':'
     let space : Text = character ' '
-    let equals : Text = character '='
+    let equalsSign : Text = character '='
 
     let entity (name:string) : Text = rawtext <| sprintf "&%s;" name
 

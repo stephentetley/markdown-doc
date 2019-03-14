@@ -89,14 +89,14 @@ module Syntax =
 
 
     /// No escaping, or line splitting.
-    let inline rawText (contents:string) = Text contents
+    let rawText (contents:string) = Text contents
 
-    let inline escapedText (content:string) : MdText = 
+    let escapedText (content:string) : MdText = 
         /// Ampersand must be replaced first, otherwise we get double escaping.
         let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
         Text s1  
 
-    let inline groupText (text:MdText) = Group text
+    let groupText (text:MdText) = Group text
 
     let space : MdText = Text " "
 
@@ -135,12 +135,12 @@ module Syntax =
 
     // PElement Builders
 
-    let inline paragraphText (text:MdText) : MdParaElement = ParaText text
+    let paragraphText (text:MdText) : MdParaElement = ParaText text
 
-    let inline uList (items:MdParaElement list) : MdParaElement = 
+    let uList (items:MdParaElement list) : MdParaElement = 
         UnorderedList items
 
-    let inline oList (items:MdParaElement list) : MdParaElement = 
+    let oList (items:MdParaElement list) : MdParaElement = 
         OrderedList items
 
     let belowParaElement (d1:MdParaElement) (d2:MdParaElement) : MdParaElement = 
@@ -154,15 +154,15 @@ module Syntax =
 
     // Doc Builders
 
-    let inline markdownParagraph (width:int) (body:MdParaElement) : MdDoc = 
+    let markdownParagraph (width:int) (body:MdParaElement) : MdDoc = 
         Paragraph(width, body)
 
-    let inline codeParagraph (body:MdParaElement) : MdDoc = 
+    let codeParagraph (body:MdParaElement) : MdDoc = 
         CodeBlock body
 
     /// Our implementation of tables is Pandoc specific
     /// so we don't provide a a wrapper in the 'Markdown' module.
-    let inline table (colSpecs: ColumnSpec list) 
+    let table (colSpecs: ColumnSpec list) 
                      (titles: TableRow option) 
                      (tableRows: TableRow list) : MdDoc = 
         Table(colSpecs, titles, tableRows)

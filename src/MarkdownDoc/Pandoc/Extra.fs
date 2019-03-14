@@ -10,28 +10,36 @@ module Extra =
     open MarkdownDoc
     open MarkdownDoc.Internal
 
-    // TODO - once we have fixed rawtext
+    [<Struct>]
+    type Attribute = 
+        | Attribute of Text
+        member x.Body 
+            with get () : Text = match x with | Attribute(t) -> t
 
-    //type Attributes =
-    //    private | EmptyAttr
-    //            | AttrText of string
-    //            | HCat of Attributes * Attributes
-    //    static member empty : Attributes = EmptyAttr
+    /// Renders as an hgroup inside braces, space separated.
+    let private renderAttrs (attrs:Attribute list) : Text = 
+        attrs 
+            |> List.map (fun x -> x.Body)
+            |> hsep
+            |> braces
+            |> hgroup
 
-    //let private render (attributes:Attributes) : Text = 
-    //    let rec work (attrs:Attributes) (cont : Text -> Text) : unit = 
-    //        match attrs with
-    //        | Empty -> cont Text.empty
-    //        | Text(s) -> 
-    //            cont (plaintext s)
-    //        | Cat(x,y) -> 
-    //            work x (fun _ ->
-    //            work y cont)
+    /// Note - the function prefixes the name with a hash (#).
+    /// You don't have to.
+    let identifier (name:string) : Attribute = 
+        Attribute <| rawtext (sprintf "#%s" name)
 
-    //    work x (fun t -> hgroup t)
+    /// Note - the function prefixes the name with a dot (.).
+    /// You don't have to.
+    let selector (name:string) : Attribute = 
+        Attribute <| rawtext (sprintf ".%s" name)
 
-    // TODO - we should reify attributes to help us compose them
+    let keyValue (key:string) (value:Text) : Attribute = 
+        Attribute (rawtext key ^^ equalsSign ^^ value)
 
+    /// Produces '=format'
+    let rawAttribute (formatName:string) : Attribute = 
+        Attribute (equalsSign ^^ rawtext formatName)
 
     /// Grid Table        
     /// Table printed in the `grid_table` style.
@@ -50,17 +58,15 @@ module Extra =
             let rows = List.map makeRow contents
             Syntax.table columnSpecs (Option.map makeRow headers) rows
 
-    /// Produces '{=format}'
-    let rawAttribute (format:string) : Text = 
-        hgroup (braces (character '=' ^^ text format))
+
 
     /// Produces '`content`{=format}'            
     let inlineRaw (content:Text) (format:string) = 
-        enclose (text "`") (text "`") content ^^ rawAttribute format
+        enclose (text "`") (text "`") content ^^ renderAttrs [rawAttribute format]
 
-    /// TODO - should the equals sign be implicit?
+    /// Multiline raw code with format attribute
     let rawCode (format:string) (codeSource:Text) : ParaElement = 
-        let line1 = hgroup (backticks3 ^^ rawAttribute format)
+        let line1 = hgroup (backticks3 ^^ renderAttrs [rawAttribute format])
         paraText line1 ^&^ paraText codeSource ^&^ paraText backticks3
 
 
