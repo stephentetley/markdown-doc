@@ -5,6 +5,7 @@ namespace MarkdownDoc.Internal
 
 // Explicitly open all Internal modules.
 
+[<RequireQualifiedAccess>]
 module Syntax = 
 
     open System.Text
@@ -49,12 +50,11 @@ module Syntax =
     /// Group changes the render context to render on a single 
     /// unbroken line.
     type MdText =
-        | EmptyText
-        | Text of string
-        | RawText of string
-        | HCatText of MdText * MdText
-        | VCatText of MdText * MdText
-        | Group of MdText
+        private | EmptyText
+                | Text of string
+                | HCatText of MdText * MdText
+                | VCatText of MdText * MdText
+                | Group of MdText
         static member empty : MdText = EmptyText
 
     type MdPElement = 
@@ -87,6 +87,16 @@ module Syntax =
 
     let empty : MdText = EmptyText
 
+    let inline groupText (text:MdText) = Group text
+
+    /// No escaping, or line splitting.
+    let inline rawText (contents:string) = Text contents
+
+    let inline escapedText (content:string) : MdText = 
+        /// Ampersand must be replaced first, otherwise we get double escaping.
+        let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
+        Text s1  
+
     let space : MdText = Text " "
 
     let beside (x:MdText) (y:MdText) : MdText = 
@@ -97,6 +107,7 @@ module Syntax =
 
     let besideSpace (x:MdText) (y:MdText) : MdText = beside x (beside space y)
 
+    /// Vertically concatenate two lines of text.
     let belowText (x:MdText) (y:MdText) : MdText = 
         match x,y with
         | EmptyText, d -> d
@@ -104,8 +115,8 @@ module Syntax =
         | d1,d2 -> VCatText(d1,d2)
 
 
-
-    let textlines (lines:MdText list) : MdText = 
+    /// Vertically concat the list lines of text.
+    let belowTexts (lines:MdText list) : MdText = 
         let rec work zs cont = 
             match zs with
             | [] -> cont empty
@@ -114,10 +125,11 @@ module Syntax =
                 cont (belowText x v1))
         work lines id
 
+
     let stringText (source:string) : MdText = 
         match source with
         | "" -> EmptyText
-        | _ -> toLines source |> List.map (fun x -> Text(x)) |> textlines
+        | _ -> toLines source |> List.map (fun x -> Text(x)) |> belowTexts
 
     let belowPElement (d1:MdPElement) (d2:MdPElement) : MdPElement = 
         match d1,d2 with
@@ -208,8 +220,8 @@ module Syntax =
         let consWords (words:SimpleDoc list) 
                       (lines:SimpleLine list) : SimpleLine list = 
             (List.rev words) :: lines
-        let groupWords (words:SimpleDoc list) 
-                       (lines:SimpleLine list) : SimpleDoc = 
+        let groupWordsIntoImage (words:SimpleDoc list) 
+                                (lines:SimpleLine list) : SimpleDoc = 
              consWords words lines
                 |> List.rev
                 |> List.map wordsToString
@@ -223,8 +235,6 @@ module Syntax =
             | EmptyText -> cont accLines accWords
             | Text str -> 
                 cont accLines (TextualString str :: accWords)
-            | RawText str -> 
-                cont accLines (TextualImage str :: accWords)
             | HCatText(d1,d2) -> 
                 work accLines accWords d1 (fun ls1 ws1 ->
                 work ls1 ws1 d2 cont)
@@ -234,8 +244,8 @@ module Syntax =
             | Group (d1) -> 
                 /// Empty the accumulators
                 work [] [] d1 (fun ls ws -> 
-                let word1 = groupWords ws ls
-                cont accLines (word1::accWords))
+                let image1 = groupWordsIntoImage ws ls
+                cont accLines (image1::accWords))
                     
         work [] [] text (fun lines words -> consWords words lines |> List.rev) 
 

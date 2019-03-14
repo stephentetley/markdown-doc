@@ -10,6 +10,25 @@ module Extra =
     open MarkdownDoc
     open MarkdownDoc.Internal
 
+    // TODO - once we have fixed rawtext
+
+    //type Attributes =
+    //    private | EmptyAttr
+    //            | AttrText of string
+    //            | HCat of Attributes * Attributes
+    //    static member empty : Attributes = EmptyAttr
+
+    //let private render (attributes:Attributes) : Text = 
+    //    let rec work (attrs:Attributes) (cont : Text -> Text) : unit = 
+    //        match attrs with
+    //        | Empty -> cont Text.empty
+    //        | Text(s) -> 
+    //            cont (plaintext s)
+    //        | Cat(x,y) -> 
+    //            work x (fun _ ->
+    //            work y cont)
+
+    //    work x (fun t -> hgroup t)
 
     // TODO - we should reify attributes to help us compose them
 
@@ -31,13 +50,17 @@ module Extra =
             let rows = List.map makeRow contents
             Syntax.Table(columnSpecs, Option.map makeRow headers, rows)
 
+    /// Produces '{=format}'
+    let rawAttribute (format:string) : Text = 
+        hgroup (braces (character '=' ^^ text format))
 
-    let inlineRaw (format:string) (content:Text) = 
-        enclose (text "`") (text "`") content ^^ text (sprintf "={%s}" format)
+    /// Produces '`content`{=format}'            
+    let inlineRaw (content:Text) (format:string) = 
+        enclose (text "`") (text "`") content ^^ rawAttribute format
 
     /// TODO - should the equals sign be implicit?
-    let rawCode (rawAttr:string) (codeSource:Text) : ParaElement = 
-        let line1 = hgroup (backticks3 ^^ braces (equals ^^ plaintext rawAttr))
+    let rawCode (format:string) (codeSource:Text) : ParaElement = 
+        let line1 = hgroup (backticks3 ^^ rawAttribute format)
         paraText line1 ^/^ paraText codeSource ^/^ paraText backticks3
 
 
@@ -49,7 +72,7 @@ module Extra =
             ; "  </w:r>"
             ; "</w:p>"
             ]
-        markdown (rawCode "openxml" <| plainlines block)
+        markdown (rawCode "openxml" <| rawlines block)
 
     /// Strikeout the enclosed text.
     /// ~~deleted text~~
@@ -57,12 +80,14 @@ module Extra =
         enclose (text "~~") (text "~~") source
 
     /// Note - spaces in the superscript are escaped.
+    /// The escaping relaces ' ' with "\ ".
     let superscript (source:string) : Text = 
         enclose (character '^') (character '^') 
-                (plaintext <| Common.escapeSpaces source)
+                (text <| Common.escapeSpaces source)
 
     /// Note - spaces in the subscript are escaped.
+    /// The escaping relaces ' ' with "\ ".
     let subscript (source:string) : Text = 
         enclose (character '~') (character '~') 
-                (plaintext <| Common.escapeSpaces source)
+                (text <| Common.escapeSpaces source)
 

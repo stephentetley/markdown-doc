@@ -15,7 +15,6 @@ module Markdown =
     open System.IO
 
     open MarkdownDoc.Internal
-    open Internal.Syntax
     
     type Alignment = Syntax.Alignment
     type ColumnSpec = Syntax.ColumnSpec
@@ -30,37 +29,36 @@ module Markdown =
 
     /// Bind the text into a unbreakable group
     let hgroup (text:Text) : Text = 
-        Syntax.Group text
+        Syntax.groupText text
 
     /// Build a Text item from a single char. 
     /// '&' and '<' will be escaped.
     let character (ch:char) : Text = 
         match ch with
-        | '<' -> Syntax.Text "&lt;"
-        | '&' -> Syntax.Text "&amp;"
-        | _ -> Syntax.Text <| ch.ToString()
+        | '<' -> Syntax.rawText "&lt;"
+        | '&' -> Syntax.rawText "&amp;"
+        | _ -> Syntax.rawText <| ch.ToString()
+
+    /// Build a Text item from a single char. 
+    /// No escaping.
+    let rawchar (ch:char) : Text = Syntax.rawText <| ch.ToString()
+        
 
     /// Build a Text item from a string. 
     /// '&' and '<' will be escaped.
-    let text (content:string) : Text = 
-        /// Ampersand must be replaced first, otherwise we get double escaping.
-        let s1 = content.Replace("&", "&amp;").Replace("<", "&lt;")
-        Syntax.Text s1  
+    /// No line splitting.
+    let text (content:string) : Text = Syntax.escapedText content  
         
     /// Build a Text item from a string. 
     /// No escaping is performed, use this function with care.
-    let plaintext (content:string) : Text = 
-        Syntax.Text content  
+    let rawtext (content:string) : Text = 
+        Syntax.rawText content  
 
-    let plainlines (contents:string list) : Text = 
-        Syntax.textlines <| List.map plaintext contents
+    /// Build a multiline Text item from a string. 
+    /// No escaping is performed, use this function with care.
+    let rawlines (contents:string list) : Text = 
+        Syntax.belowTexts <| List.map rawtext contents
 
-    let rawText (source:string) : Text = 
-        Syntax.RawText source
-
-    /// Print the Text to the console.
-    let testRenderText (source:Text) : unit = 
-        Syntax.renderMdText 80 source |> printfn  "----------\n%s\n----------\n"
 
     /// Horizontal concat directly (no separating space)
     let ( ^^ ) (d1:Text) (d2:Text) : Text = 
@@ -74,8 +72,10 @@ module Markdown =
     let ( ^&^ ) (d1:Text) (d2:Text) : Text = 
         Syntax.belowText d1 d2
 
+    /// Build a text document from a list of Text lines.
+    /// The lines are vertically concatenated.
     let textlines (lines:Text list) : Text = 
-        Syntax.textlines lines
+        Syntax.belowTexts lines
 
 
     let bang : Text = character '!'
@@ -83,7 +83,7 @@ module Markdown =
     let space : Text = character ' '
     let equals : Text = character '='
 
-    let entity (name:string) : Text = plaintext <| sprintf "&%s;" name
+    let entity (name:string) : Text = rawtext <| sprintf "&%s;" name
 
 
 
@@ -104,7 +104,7 @@ module Markdown =
     let euro : Text = entity "euro"
 
     /// Print 3 backticks.
-    let backticks3 : Text = plaintext "```"
+    let backticks3 : Text = rawtext "```"
 
 
     let enclose (left:Text) (right:Text) (d1:Text) : Text = 
@@ -112,49 +112,49 @@ module Markdown =
 
 
     let parens (source:Text) : Text = 
-        enclose (character '(') (character ')') source
+        enclose (rawchar '(') (rawchar ')') source
 
     let squareBrackets (source:Text) : Text = 
-        enclose (character '[') (character ']') source
+        enclose (rawchar '[') (rawchar ']') source
 
     /// Can be used for inlining links.
     let angleBrackets (source:Text) : Text = 
-        enclose (character '<') (character '>') source
+        enclose (rawchar '<') (rawchar '>') source
 
     /// Curly braces
     let braces (source:Text) : Text = 
-        enclose (character '{') (character '}') source
+        enclose (rawchar '{') (rawchar '}') source
 
 
     let singleQuotes (source:Text) : Text = 
-        enclose (character '\'') (character '\'') source
+        enclose (rawchar '\'') (rawchar '\'') source
 
     let doubleQuotes (source:Text) : Text = 
-        enclose (character '"') (character '"') source
+        enclose (rawchar '"') (rawchar '"') source
 
     /// Emphasis
     let asterisks (source:Text) : Text = 
-        enclose (character '*') (character '*') source
+        enclose (rawchar '*') (rawchar '*') source
 
     /// Emphasis
     let underscores (source:Text) : Text = 
-        enclose (character '_') (character '_') source
+        enclose (rawchar '_') (rawchar '_') source
 
     /// Strong emphasis
     let doubleAsterisks (source:Text) : Text = 
-        enclose (text "**") (text "**") source
+        enclose (rawtext "**") (rawtext "**") source
 
     /// Strong emphasis
     let doubleUnderscores (source:Text) : Text = 
-        enclose (text "__") (text "__") source
+        enclose (rawtext "__") (rawtext "__") source
 
     /// Backticks for inline code.
     let backticks (source:Text) : Text = 
-        enclose (character '`') (character '`') source
+        enclose (rawchar '`') (rawchar '`') source
 
     /// Backticks for inline code.
     let doubleBackticks (source:Text) : Text = 
-        enclose (text "``") (text "``") source
+        enclose (rawtext "``") (rawtext "``") source
 
 
     let private useReference (altText:string) (identifier:string) : Text = 
@@ -177,8 +177,8 @@ module Markdown =
         let path1 = Common.replaceBackslashes path
         let body : Text = 
             match title with
-            | None -> rawText path1
-            | Some ss -> rawText path1 ^+^ text ss
+            | None -> rawtext path1
+            | Some ss -> rawtext path1 ^+^ text ss
         squareBrackets (text altText) ^^ parens body
 
     /// [Alt text](/path/to)
@@ -260,7 +260,7 @@ module Markdown =
     /// Paragraph assembles Text
     type ParaElement = Syntax.MdPElement
 
-    let emptyParaElement : ParaElement = MdPElement.empty
+    let emptyParaElement : ParaElement = Syntax.MdPElement.empty
 
     let paraText (text:Text) : ParaElement = 
         Syntax.ParaText text
@@ -312,7 +312,7 @@ module Markdown =
     type Markdown = 
         | Markdown of (RenderContext -> Syntax.MdDoc)
 
-        static member empty : Markdown = Markdown (fun _ -> MdDoc.empty)
+        static member empty : Markdown = Markdown (fun _ -> Syntax.MdDoc.empty)
 
         member internal x.GetMarkdown 
             with get() = match x with | Markdown(fn) -> fn
@@ -406,6 +406,13 @@ module Markdown =
     /// Page break / Horizontal Rule
     /// Printed as five asterisks.
     let horizontalRule : Markdown = markdownText (text "*****")
+
+
+
+
+    /// Print the Text to the console.
+    let testRenderText (source:Text) : unit = 
+        Syntax.renderMdText 80 source |> printfn  "----------\n%s\n----------\n"
 
 
     let testRender (source:Markdown) : unit = 

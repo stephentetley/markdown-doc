@@ -9,25 +9,23 @@ open System.Text
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
+#load "..\src\MarkdownDoc\Markdown.fs"
 
+open MarkdownDoc
 
-open MarkdownDoc.Internal.Common
-open MarkdownDoc.Internal.Syntax
-
+let sample = text "Hello" ^^ character ' '  ^^ text "World!"
 
 let demo01 () =
-    let text = HCatText (Text "Hello", HCatText  (Text " ", Text "World!"))
-    renderMdText 20 text
+    testRenderText sample
 
 let demo02 () =
-    let text = HCatText (Text "Hello", HCatText  (Text " ", Text "World!"))
-    let olist = OrderedList [ParaText text; ParaText text; ParaText text]
+    let olist = orderedList [Syntax.ParaText sample; Syntax.ParaText sample; ParaText sample]
     let ulist = UnorderedList [olist; ParaText text; ParaText text]
     renderMdPElement 80 ulist |> printfn "%s"
 
 
 let demo03 () =
-    let text = HCatText (Text "Hello", HCatText  (Text " ", Text "World!"))
+
     let header = Paragraph (80, ParaText (Text "# Title"))
     let olist = OrderedList [ParaText text; ParaText text; ParaText text]
     let ulist = UnorderedList [olist; ParaText text; ParaText text]
