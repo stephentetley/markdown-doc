@@ -16,7 +16,7 @@ module Invoke =
     
 
     let internal runPandoc1 (shellWorkingDirectory:string) (args:CmdOpt list) : unit =
-        SimpleInvoke.runProcess shellWorkingDirectory "pandoc" args
+        SimpleInvoke.runProcessSimple shellWorkingDirectory "pandoc" args
 
     let fromLong : CmdOpt       = argument "--from"
     let toLong : CmdOpt         = argument "--to"
