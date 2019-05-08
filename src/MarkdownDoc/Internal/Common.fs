@@ -62,11 +62,11 @@ module Common =
         work [] list1 list2 (List.rev)
 
     /// F#'s built-in List.transpose needs perfect input. It cannot handle ragged tables.
-    let raggedTranspose (emptyElement:'a) (table:('a list) list) : ('a list) list = 
-        let headsOf (table:('a list) list) : 'a list = 
-            List.map (fun xs -> match xs with | [] -> emptyElement; | (x::_) -> x) table
-        let tailsOf (table:('a list) list) : ('a list) list = 
-            List.map (fun xs -> match xs with | (_::ys) -> ys; | _ -> []) table
+    let raggedTransposeRow (row:(string list) list) : (string list) list = 
+        let headsOf (cells:(string list) list) : string list = 
+            List.map (fun xs -> match xs with | [] -> ""; | (x::_) -> x) cells
+        let tailsOf (cells:(string list) list) : (string list) list = 
+            List.map (fun xs -> match xs with | (_::ys) -> ys; | _ -> []) cells
         
         let rec work xs cont = 
             match xs with
@@ -77,7 +77,7 @@ module Common =
                 let rest = tailsOf rows
                 work rest (fun vs -> 
                 cont (line1::vs))
-        work table (fun xs -> List.rev xs)
+        work row (fun x -> x)
 
     
     // ************************************************************************

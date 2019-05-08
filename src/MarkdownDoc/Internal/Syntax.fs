@@ -193,7 +193,7 @@ module Syntax =
     let renderRow (cells:(int * string) list) : string = 
         let widths = List.map fst cells
         let multiCells = List.map (snd >> toLines) cells
-        let linearRows = raggedTranspose "" multiCells
+        let linearRows = raggedTransposeRow multiCells
         let annoLinearRows = linearRows |> List.map (fun row -> raggedMap2 (fun x y -> (x,y)) widths row)
         let renderLine (cells:(int * string) list) : string = 
             List.map padString cells |> encloseConcat "|" 
