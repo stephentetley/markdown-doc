@@ -13,8 +13,6 @@
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc
-open MarkdownDoc.Internal
-open MarkdownDoc.Internal.Common
 open MarkdownDoc.Pandoc
 
 
