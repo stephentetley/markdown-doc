@@ -3,7 +3,7 @@
 
 #r "netstandard"
 
-#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190322\lib\netstandard2.0"
+#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190712\lib\netstandard2.0"
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
@@ -52,7 +52,7 @@ let test05 () =
 
 let test06 () = 
     let m1 : Markdown = 
-        markdownText (text "hello") ^@^ openxmlPagebreak ^@^ markdownText (text "world")
+        markdownText (text "hello") ^!!^ openxmlPagebreak ^!!^ markdownText (text "world")
     testRender m1
     
 

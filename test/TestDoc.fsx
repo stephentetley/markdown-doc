@@ -4,7 +4,7 @@
 #r "netstandard"
 open System.IO
 
-#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190322\lib\netstandard2.0"
+#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190712\lib\netstandard2.0"
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
@@ -17,8 +17,8 @@ open MarkdownDoc
 open MarkdownDoc.Pandoc
 
 let testDoc : Markdown = 
-    h1 (text "Markdown Doc")
-    ^@^ markdownText (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
+         h1 (text "Markdown Doc")
+    ^!!^ markdownText (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
 
 
 let test01 () : unit  =

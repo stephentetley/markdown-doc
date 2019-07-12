@@ -10,7 +10,7 @@ namespace MarkdownDoc
 
 
 // VCat Note.
-// The combinator symbols get heavier (^/^), (^&^), (^@^)
+// The combinator symbols get heavier (^/^), (^!^), (^!!^)
 // as the text object the combine is larger.
 
 
@@ -280,7 +280,7 @@ module Markdown =
         Syntax.paragraphText text
     
     /// Vertical concat.
-    let ( ^&^ ) (d1:ParaElement) (d2:ParaElement) : ParaElement = 
+    let ( ^!^ ) (d1:ParaElement) (d2:ParaElement) : ParaElement = 
         Syntax.belowParaElement d1 d2
 
 
@@ -406,7 +406,7 @@ module Markdown =
         Markdown <| fun ctx -> Syntax.codeBlock body
 
     /// Concatenate two Markdown fragments.
-    let ( ^@^ ) (a:Markdown) (b:Markdown) : Markdown = 
+    let ( ^!!^ ) (a:Markdown) (b:Markdown) : Markdown = 
         Markdown <| fun ctx -> 
             let (Markdown f1) = a 
             let (Markdown f2) = b

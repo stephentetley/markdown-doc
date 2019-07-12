@@ -67,7 +67,7 @@ module Extra =
     /// Multiline raw code with format attribute
     let rawCode (format:string) (codeSource:Text) : ParaElement = 
         let line1 = hgroup (backticks3 ^^ renderAttrs [rawAttribute format])
-        paraText line1 ^&^ paraText codeSource ^&^ paraText backticks3
+        paraText line1 ^!^ paraText codeSource ^!^ paraText backticks3
 
 
     let openxmlPagebreak : Markdown = 

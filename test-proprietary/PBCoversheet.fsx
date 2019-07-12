@@ -5,11 +5,11 @@
 #r "System.Xml.Linq.dll"
 
 // Use FSharp.Data for CSV reading
-#I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.0.0\lib\netstandard2.0"
+#I @"C:\Users\stephen\.nuget\packages\fsharp.data\3.1.1\lib\netstandard2.0"
 #r @"FSharp.Data.dll"
 open FSharp.Data
 
-#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190322\lib\netstandard2.0"
+#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190712\lib\netstandard2.0"
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
@@ -44,7 +44,7 @@ type Item =
       Work: WorkType
       Phase: PhaseType }
 
-let nbsp2 : Markdown = nbsp ^@^ nbsp
+let nbsp2 : Markdown = nbsp ^!!^ nbsp
 
 let logo : Markdown = 
     markdownText (inlineImage "" @"include/YW-logo.jpg" None)
@@ -75,7 +75,7 @@ let workDoc (work:WorkType) : Text =
     | Revisit -> text "Point Blue Revisit Form"
 
 let contents (work:WorkType) : Markdown = 
-    h3 (text "Contents") ^@^ markdown (unorderedList [ paraText (workDoc work)])
+    h3 (text "Contents") ^!!^ markdown (unorderedList [ paraText (workDoc work)])
 
 let makeDoc (item:Item) : Markdown = 
     concatMarkdown  

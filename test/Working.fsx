@@ -4,7 +4,7 @@
 #r "netstandard"
 open System.Text
 
-#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190322\lib\netstandard2.0"
+#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190712\lib\netstandard2.0"
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
@@ -30,7 +30,7 @@ let demo03 () =
     let olist = orderedList [paraText sample; paraText sample; paraText sample]
     let ulist = unorderedList [olist; paraText sample; paraText sample]
     let para1 = fixedWidthMarkdown 80 ulist
-    let document = header ^@^ para1
+    let document = header ^!!^ para1
     testRender document
 
 let test01 () = 
