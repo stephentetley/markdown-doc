@@ -13,8 +13,8 @@ module Invoke =
 
     open MarkdownDoc.Markdown
 
-    let private ( ^^ ) (left : string) (right : string) = left + right
-    let private ( ^+^ ) (left : string) (right : string) = left + " " + right
+    let private ( ++ ) (left : string) (right : string) = left + right
+    let private ( +^+ ) (left : string) (right : string) = left + " " + right
 
     let extensions (exts : Extension list) = 
         String.concat "" <| List.map (fun x -> x.ToString()) exts
@@ -23,10 +23,16 @@ module Invoke =
         SimpleInvoke.runProcessSimple (Some shellWorkingDirectory) "pandoc" args
 
     let fromArg (format : string) (inputExtensions : Extension list) : CmdOpt = 
-        argument "--from" &= format ^^ (extensions inputExtensions)
+        argument "--from" &= format ++ (extensions inputExtensions)
 
-    let toLong : CmdOpt         = argument "--to"
-    let metadata : CmdOpt       = argument "--metadata"
+    let toArg (format : string) (inputExtensions : Extension list) : CmdOpt = 
+        argument "--to" &= format ++ (extensions inputExtensions)
+
+
+    let metadata (key : string) (value :string) : CmdOpt = 
+        argument "--metadata" &= key &% value
+
+
     let standalone : CmdOpt     = argument "--standalone"
     let output : CmdOpt         = argument "--output"
 
@@ -38,7 +44,7 @@ module Invoke =
 
     /// Option "--metadata=pagetitle:"TITLE"
     let metadataPagetitle (title:string) : CmdOpt = 
-        metadata &= "pagetitle" &% title
+        metadata "pagetitle" title
 
 
     type PandocOptions = 
@@ -62,11 +68,12 @@ module Invoke =
                   (options:PandocOptions) : unit = 
         let opts = 
             [ fromArg       fromFormat options.InputExtensions
-            ; toLong        &= toFormat   &** options.OutputExtensions
+            ; toArg         toFormat   options.OutputExtensions
             ; (if options.Standalone then standalone else noArgument)
             ; output        &= argValue outputPath
             ; literal       <| argValue inputPath
             ]
+        renderCmdOpts opts |> printfn "// pandoc %s" 
         runPandoc1 shellWorkingDirectory opts
 
     let execPandoc (shellWorkingDirectory:string) 
