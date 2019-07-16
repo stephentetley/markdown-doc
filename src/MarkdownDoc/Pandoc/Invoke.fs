@@ -73,6 +73,7 @@ module Invoke =
             [ fromArg       fromFormat options.InputExtensions
             ; toArg         toFormat   options.OutputExtensions
             ; (if options.Standalone then standalone else noArgument)
+            ; group         <| options.OtherOptions
             ; output        &= argValue outputPath
             ; literal       <| doubleQuote inputPath
             ]
