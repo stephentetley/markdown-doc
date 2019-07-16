@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018,2019
 // License: BSD 3 Clause
 
-namespace MarkdownDoc
+namespace MarkdownDoc.Markdown
 
 // Design issue
 // Whitespace matters in Pandoc.
@@ -22,9 +22,6 @@ module Markdown =
 
     open MarkdownDoc.Internal
     
-    type Alignment = Syntax.Alignment
-    type ColumnSpec = Syntax.ColumnSpec
-
 
     /// Text is the type for 'body text'. 
     /// Sentences and markup smaller than a paragraph.

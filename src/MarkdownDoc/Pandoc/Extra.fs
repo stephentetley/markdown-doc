@@ -7,8 +7,9 @@ namespace MarkdownDoc.Pandoc
 [<AutoOpen>]
 module Extra = 
 
-    open MarkdownDoc
     open MarkdownDoc.Internal
+    open MarkdownDoc.Markdown
+    
 
     [<Struct>]
     type Attribute = 
@@ -41,23 +42,29 @@ module Extra =
     let rawAttribute (formatName:string) : Attribute = 
         Attribute (equalsSign ^^ rawtext formatName)
 
+
+
     /// Grid Table        
     /// Table printed in the `grid_table` style.
-    let gridTable (columnSpecs:ColumnSpec list) 
-                  (headers: (ParaElement list) option)
-                  (contents: (ParaElement list) list) : Markdown = 
+    let private gridTableInternal (columnSpecs : ColumnSpec list) 
+                                  (headers : TableRow option)
+                                  (contents : TableRow list) : Markdown = 
 
-        let makeCell (spec:ColumnSpec) (para:ParaElement) : Syntax.TableCell = 
+        let makeCell (spec : ColumnSpec) (para : TableCell) : Syntax.MdTableCell = 
             { Width = spec.Width
               Content = para }
 
-        let makeRow (row:ParaElement list) : Syntax.TableRow = 
+        let makeRow (row : ParaElement list) : Syntax.MdTableRow = 
             Common.raggedMap2 makeCell columnSpecs row
 
         Markdown <| fun _ ->
             let rows = List.map makeRow contents
             Syntax.table columnSpecs (Option.map makeRow headers) rows
 
+
+
+    let gridTable (table : Table) : Markdown = 
+        gridTableInternal table.ColumnSpecs table.ColumnHeadings table.Rows
 
 
     /// Produces '`content`{=format}'            

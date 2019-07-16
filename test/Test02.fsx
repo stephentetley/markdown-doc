@@ -9,6 +9,7 @@
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -41,7 +42,10 @@ let controlTable (author:string) : Markdown =
     let row1 = 
         List.map makeCell ["1.0"; author; nowstring; "For EDMS"]
     let row2 = [ParaElement.empty; ParaElement.empty; ParaElement.empty; ParaElement.empty]
-    gridTable columnSpecs (Some headers) [row1; row2] 
+    gridTable { ColumnSpecs = columnSpecs 
+              ; ColumnHeadings = Some headers
+              ; Rows = [row1; row2] 
+              }
 
 let demo01 () = 
     controlTable "S Tetley" |> testRender

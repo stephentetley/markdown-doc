@@ -9,6 +9,7 @@
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -47,7 +48,7 @@ let test05 () =
         [ [ plain "Bananas"; plain "$1.34"; unorderedList [plain "builtin-in wrapper"; plain "bright color"] ] 
         ; [ plain "Oranges"; plain "$2.10"; unorderedList [plain "cures scurvy"; plain "tasty"] ] 
         ]
-    gridTable fruitColSpecs (Some headers) cells |> testRender
+    gridTable (makeTable fruitColSpecs headers cells) |> testRender
 
 
 let test06 () = 

@@ -10,6 +10,7 @@ open System.IO
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -24,7 +25,7 @@ let testDoc : Markdown =
 let test01 () : unit  =
     let workingDirectory = Path.Combine(__SOURCE_DIRECTORY__, @"../output/")
     let outputDocxName = "TestDoc.docx"
-    let mdFileName = "TestDoc.md"
+    let mdFileName = Path.Combine(workingDirectory, "TestDoc.md")
     let stylesDoc = @"../notes/include/custom-reference1.docx" 
-    testDoc.Save(Path.Combine(workingDirectory, mdFileName))
+    testDoc.Save( mdFileName)
     runPandocDocx workingDirectory mdFileName outputDocxName (Some stylesDoc) pandocDefaults

@@ -10,7 +10,7 @@ open System.Text
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
 #load "..\src\MarkdownDoc\Markdown\Markdown.fs"
-
+#load "..\src\MarkdownDoc\Markdown\Table.fs"
 open MarkdownDoc.Markdown
 
 let sample = text "Hello" ^^ character ' '  ^^ text "World!"

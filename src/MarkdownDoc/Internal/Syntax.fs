@@ -66,16 +66,16 @@ module Syntax =
         static member empty : MdParaElement = EmptyPE
 
     /// We cache width with cell contents so it can be easily accessed
-    type TableCell = 
+    type MdTableCell = 
         { Width: int
           Content: MdParaElement }
 
-    type TableRow = TableCell list
+    type MdTableRow = MdTableCell list
     
     type MdDoc = 
         private | EmptyDoc
                 | Paragraph of int * MdParaElement
-                | Table of ColumnSpec list * TableRow option * TableRow list // bool is has-titles?
+                | Table of ColumnSpec list * MdTableRow option * MdTableRow list // bool is has-titles?
                 | CodeBlock of MdParaElement
                 | VCatDoc of MdDoc * MdDoc
         static member empty : MdDoc = EmptyDoc
@@ -163,8 +163,8 @@ module Syntax =
     /// Our implementation of tables is Pandoc specific
     /// so we don't provide a a wrapper in the 'Markdown' module.
     let table (colSpecs: ColumnSpec list) 
-                     (titles: TableRow option) 
-                     (tableRows: TableRow list) : MdDoc = 
+                     (titles: MdTableRow option) 
+                     (tableRows: MdTableRow list) : MdDoc = 
         Table(colSpecs, titles, tableRows)
 
 
@@ -354,8 +354,10 @@ module Syntax =
 
     /// This renders a row to it's component cell strings.
     /// It is not the final output of a row which has to be transposed into lines.
-    let renderTableRow1 (row:TableRow) : string list = 
-        let rec workCells (acc:string list) (cells:TableCell list) (cont:string list -> string list) = 
+    let renderTableRow1 (row : MdTableRow) : string list = 
+        let rec workCells (acc:string list) 
+                          (cells : MdTableCell list) 
+                          (cont:string list -> string list) = 
             match cells with
             | [] -> cont (List.rev acc)
             | c1 :: cs -> 
@@ -364,8 +366,10 @@ module Syntax =
         workCells [] row id
         
 
-    let renderMdDoc (document:MdDoc) : string = 
-        let rec work (acc:StringBuilder) (doc:MdDoc) (cont:StringBuilder -> string) = 
+    let renderMdDoc (document : MdDoc) : string = 
+        let rec work (acc : StringBuilder) 
+                     (doc : MdDoc) 
+                     (cont : StringBuilder -> string) : string = 
             match doc with
             | EmptyDoc -> cont acc
             | Paragraph (width,para) -> 
@@ -385,8 +389,9 @@ module Syntax =
                 let tableText = acc1.ToString()
                 cont (acc.AppendLine(tableText)))
         and workRows (makeTableText:(string list) list -> string)
-                     (acc:(string list) list) (rows:TableRow list) 
-                       (cont:StringBuilder -> string) = 
+                     (acc:(string list) list) 
+                     (rows : MdTableRow list) 
+                     (cont:StringBuilder -> string) : string = 
             match rows with
             | [] -> let tableText = makeTableText (List.rev acc)
                     cont (new StringBuilder(value=tableText))
