@@ -14,14 +14,14 @@ module Invoke =
     open MarkdownDoc.Markdown
 
     let private ( ++ ) (left : string) (right : string) = left + right
-    let private ( +^+ ) (left : string) (right : string) = left + " " + right
+    
 
     let extensions (exts : Extension list) = 
         String.concat "" <| List.map (fun x -> x.ToString()) exts
 
     let internal runPandoc1 (shellWorkingDirectory : string) 
-                            (args : CmdOpt list) : Result<int,string> =
-        SimpleInvoke.executeProcess (Some shellWorkingDirectory) "pandoc" args
+                            (opts : CmdOpt list) : Result<int,string> =
+        SimpleInvoke.executeProcess (Some shellWorkingDirectory) "pandoc" opts
 
     let fromArg (format : string) (inputExtensions : Extension list) : CmdOpt = 
         argument "--from" &= format ++ (extensions inputExtensions)
@@ -60,6 +60,10 @@ module Invoke =
           InputExtensions = []
           OutputExtensions = []
           OtherOptions = []  }
+
+    let addOption (cmdOpt : CmdOpt) (options : PandocOptions) : PandocOptions = 
+        let others = options.OtherOptions
+        { options with OtherOptions = others @ [cmdOpt] }
             
     let runPandoc (showShellCommand : bool) 
                   (shellWorkingDirectory : string)
@@ -106,8 +110,7 @@ module Invoke =
             match stylesDoc with
             | None -> options
             | Some path-> 
-                let extras = referenceDoc (argValue path) :: options.OtherOptions 
-                { options with OtherOptions = extras }
+                options |> addOption (referenceDoc <| argValue path)
         runPandoc showShellCommand shellWorkingDirectory "markdown" "docx" inputPath outputPath options1
 
 
@@ -121,8 +124,7 @@ module Invoke =
             match pageTitle with
             | None -> options
             | Some title -> 
-                let extras = metadataPagetitle title :: options.OtherOptions 
-                { options with OtherOptions = extras }
+                options |> addOption (metadataPagetitle title)
         runPandoc showShellCommand shellWorkingDirectory "markdown" "html5" inputPath outputPath options1
 
 

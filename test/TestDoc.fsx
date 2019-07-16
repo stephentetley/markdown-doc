@@ -6,6 +6,7 @@ open System.IO
 
 #I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190712\lib\netstandard2.0"
 #r "SLFormat.dll"
+open SLFormat.CommandOptions
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
@@ -22,12 +23,19 @@ let testDoc : Markdown =
     ^!!^ markdownText (text "Code blocks are a line prefixing transformation (prefix each line by 4 spaces).")
 
 
+let htmlOptions : PandocOptions = 
+    pandocDefaults 
+        |> addOption (argument "--self-contained") 
+        |> addOption (argument "--highlight-style" &= "tango") 
+
 let test01 () : Result<int, string>  =
     let workingDirectory = Path.Combine(__SOURCE_DIRECTORY__, @"../output/")
     let outputDocxName = "TestDoc.docx"
+    let outputHtmlName = "TestDoc.html"
     let mdFileName = Path.Combine(workingDirectory, "TestDoc.md")
     let stylesDoc = @"../notes/include/custom-reference1.docx" 
     testDoc.Save( mdFileName)
-    runPandocDocx true workingDirectory mdFileName outputDocxName (Some stylesDoc) pandocDefaults
+    runPandocDocx true workingDirectory mdFileName outputDocxName (Some stylesDoc) pandocDefaults |> ignore
 
+    runPandocHtml5 true workingDirectory mdFileName outputHtmlName (Some "Test Doc") htmlOptions
 
