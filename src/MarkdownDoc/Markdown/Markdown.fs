@@ -11,7 +11,7 @@ namespace MarkdownDoc
 
 // VCat Note.
 // The combinator symbols get heavier (^/^), (^!^), (^!!^)
-// as the text object the combine is larger.
+// as the text object they combine is larger.
 
 
 

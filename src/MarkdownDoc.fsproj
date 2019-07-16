@@ -13,7 +13,8 @@
   <ItemGroup>
     <Compile Include="MarkdownDoc\Internal\Common.fs" />
     <Compile Include="MarkdownDoc\Internal\Syntax.fs" />
-    <Compile Include="MarkdownDoc\Markdown.fs" />
+    <Compile Include="MarkdownDoc\Markdown\Markdown.fs" />
+    <Compile Include="MarkdownDoc\Markdown\Table.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Extra.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Invoke.fs" />
   </ItemGroup>

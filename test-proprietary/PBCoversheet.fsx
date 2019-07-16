@@ -14,10 +14,10 @@ open FSharp.Data
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
-#load "..\src\MarkdownDoc\Markdown.fs"
+#load "..\src\MarkdownDoc\Markdown\Markdown.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
-open MarkdownDoc
+open MarkdownDoc.Markdown
 open MarkdownDoc.Pandoc
 
 let safeName (input:string) : string = 

@@ -13,12 +13,18 @@ module Invoke =
 
     open MarkdownDoc.Markdown
 
-    
+    let private ( ^^ ) (left : string) (right : string) = left + right
+    let private ( ^+^ ) (left : string) (right : string) = left + " " + right
+
+    let extensions (exts : Extension list) = 
+        String.concat "" <| List.map (fun x -> x.ToString()) exts
 
     let internal runPandoc1 (shellWorkingDirectory:string) (args:CmdOpt list) : unit =
         SimpleInvoke.runProcessSimple (Some shellWorkingDirectory) "pandoc" args
 
-    let fromLong : CmdOpt       = argument "--from"
+    let fromArg (format : string) (inputExtensions : Extension list) : CmdOpt = 
+        argument "--from" &= format ^^ (extensions inputExtensions)
+
     let toLong : CmdOpt         = argument "--to"
     let metadata : CmdOpt       = argument "--metadata"
     let standalone : CmdOpt     = argument "--standalone"
@@ -27,10 +33,12 @@ module Invoke =
 
     /// Option "--reference-doc=FILE"
     /// Reference the supplied "*.docx" or "*.odt" file for custom styles
-    let referenceDoc (path:string) : CmdOpt = argument "--reference-doc" &= argValue path
+    let referenceDoc (path:string) : CmdOpt = 
+        argument "--reference-doc" &= argValue path
 
     /// Option "--metadata=pagetitle:"TITLE"
-    let metadataPagetitle (title:string) : CmdOpt = metadata &= "pagetitle" &% title
+    let metadataPagetitle (title:string) : CmdOpt = 
+        metadata &= "pagetitle" &% title
 
 
     type PandocOptions = 
@@ -40,7 +48,7 @@ module Invoke =
           OtherOptions: CmdOpt list
         }
 
-    let pandocDefaults :PandocOptions = 
+    let pandocDefaults : PandocOptions = 
         { Standalone = true
           InputExtensions = []
           OutputExtensions = []
@@ -53,7 +61,7 @@ module Invoke =
                   (outputPath:string)
                   (options:PandocOptions) : unit = 
         let opts = 
-            [ fromLong      &= fromFormat &** options.InputExtensions
+            [ fromArg       fromFormat options.InputExtensions
             ; toLong        &= toFormat   &** options.OutputExtensions
             ; (if options.Standalone then standalone else noArgument)
             ; output        &= argValue outputPath

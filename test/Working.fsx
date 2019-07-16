@@ -9,9 +9,9 @@ open System.Text
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\Syntax.fs"
-#load "..\src\MarkdownDoc\Markdown.fs"
+#load "..\src\MarkdownDoc\Markdown\Markdown.fs"
 
-open MarkdownDoc
+open MarkdownDoc.Markdown
 
 let sample = text "Hello" ^^ character ' '  ^^ text "World!"
 
@@ -39,7 +39,7 @@ let test01 () =
     String.concat " " splits 
 
 let test02 () = 
-    Internal.Common.raggedMap2 (sprintf "%c-%d") ['a';'b';'c';'d'] [1;2;3;4;5] 
+    MarkdownDoc.Internal.Common.raggedMap2 (sprintf "%c-%d") ['a';'b';'c';'d'] [1;2;3;4;5] 
 
 type TextualData1 = 
     | TextString of string
