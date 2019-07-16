@@ -19,8 +19,9 @@ module Invoke =
     let extensions (exts : Extension list) = 
         String.concat "" <| List.map (fun x -> x.ToString()) exts
 
-    let internal runPandoc1 (shellWorkingDirectory:string) (args:CmdOpt list) : unit =
-        SimpleInvoke.runProcessSimple (Some shellWorkingDirectory) "pandoc" args
+    let internal runPandoc1 (shellWorkingDirectory : string) 
+                            (args : CmdOpt list) : Result<int,string> =
+        SimpleInvoke.executeProcess (Some shellWorkingDirectory) "pandoc" args
 
     let fromArg (format : string) (inputExtensions : Extension list) : CmdOpt = 
         argument "--from" &= format ++ (extensions inputExtensions)
@@ -48,10 +49,10 @@ module Invoke =
 
 
     type PandocOptions = 
-        { Standalone: bool 
-          InputExtensions: Extension list
-          OutputExtensions: Extension list
-          OtherOptions: CmdOpt list
+        { Standalone : bool 
+          InputExtensions : Extension list
+          OutputExtensions : Extension list
+          OtherOptions : CmdOpt list
         }
 
     let pandocDefaults : PandocOptions = 
@@ -60,91 +61,69 @@ module Invoke =
           OutputExtensions = []
           OtherOptions = []  }
             
-    let runPandoc (shellWorkingDirectory:string)
-                  (fromFormat:string) 
-                  (toFormat:string) 
-                  (inputPath:string)
-                  (outputPath:string)
-                  (options:PandocOptions) : unit = 
+    let runPandoc (showShellCommand : bool) 
+                  (shellWorkingDirectory : string)
+                  (fromFormat : string) 
+                  (toFormat : string) 
+                  (inputPath : string)
+                  (outputPath : string)
+                  (options : PandocOptions) : Result<int, string> = 
+        
         let opts = 
             [ fromArg       fromFormat options.InputExtensions
             ; toArg         toFormat   options.OutputExtensions
             ; (if options.Standalone then standalone else noArgument)
             ; output        &= argValue outputPath
-            ; literal       <| argValue inputPath
+            ; literal       <| doubleQuote inputPath
             ]
-        renderCmdOpts opts |> printfn "// pandoc %s" 
-        runPandoc1 shellWorkingDirectory opts
+        if showShellCommand then
+            printfn "Working Directory: %s" shellWorkingDirectory
+            renderCmdOpts opts |> printfn "> pandoc %s" 
+        else ()
 
-    let execPandoc (shellWorkingDirectory:string) 
-                   (fromFormat:string) 
-                   (toFormat:string) 
-                   (outputPath:string) 
-                   (options:PandocOptions)
-                   (doc:Markdown) : unit =
-        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
-        doc.Save(mdpath)
-        runPandoc shellWorkingDirectory fromFormat toFormat mdpath outputPath options
+        runPandoc1 shellWorkingDirectory opts
 
         
      /// Generate plain text from a Markdown file
-    let runPandocPlain (shellWorkingDirectory:string) 
-                       (inputPath:string) 
-                       (outputPath:string) 
-                       (options:PandocOptions) : unit =
-        runPandoc shellWorkingDirectory "markdown" "plain" inputPath outputPath options
+    let runPandocPlain (showShellCommand : bool) 
+                       (shellWorkingDirectory : string) 
+                       (inputPath : string) 
+                       (outputPath : string) 
+                       (options : PandocOptions) : Result<int, string> =
+        runPandoc showShellCommand shellWorkingDirectory "markdown" "plain" inputPath outputPath options
 
-     /// Generate plain text from a Markdown Doc.
-    let execPandocPlain (shellWorkingDirectory:string) 
-                        (outputPath:string) 
-                        (options:PandocOptions) 
-                        (doc:Markdown): unit =
-        execPandoc shellWorkingDirectory "markdown" "plain" outputPath options doc
         
 
     /// Generate Docx
-    let runPandocDocx (shellWorkingDirectory:string) 
-                      (inputPath:string) 
-                      (outputPath:string) 
-                      (stylesDoc:string option)  
-                      (options:PandocOptions) : unit =
+    let runPandocDocx (showShellCommand : bool) 
+                      (shellWorkingDirectory : string) 
+                      (inputPath : string) 
+                      (outputPath : string) 
+                      (stylesDoc : string option)  
+                      (options : PandocOptions) : Result<int, string> =
         let options1 = 
             match stylesDoc with
             | None -> options
             | Some path-> 
                 let extras = referenceDoc (argValue path) :: options.OtherOptions 
                 { options with OtherOptions = extras }
-        runPandoc shellWorkingDirectory "markdown" "docx" inputPath outputPath options1
-    
-    let execPandocDocx (shellWorkingDirectory:string) 
-                       (outputPath:string) 
-                       (stylesDoc:string option) 
-                       (options:PandocOptions) 
-                       (doc:Markdown): unit =
-        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
-        doc.Save(mdpath)
-        runPandocDocx shellWorkingDirectory mdpath outputPath stylesDoc options
+        runPandoc showShellCommand shellWorkingDirectory "markdown" "docx" inputPath outputPath options1
 
-    let runPandocHtml (shellWorkingDirectory:string) 
-                      (inputPath:string) 
-                      (outputPath:string) 
-                      (pageTitle:string option)
-                      (options:PandocOptions) : unit =
+
+    let runPandocHtml5 (showShellCommand : bool) 
+                       (shellWorkingDirectory : string) 
+                       (inputPath : string) 
+                       (outputPath : string) 
+                       (pageTitle : string option)
+                       (options : PandocOptions) : Result<int, string> =
         let options1 = 
             match pageTitle with
             | None -> options
             | Some title -> 
                 let extras = metadataPagetitle title :: options.OtherOptions 
                 { options with OtherOptions = extras }
-        runPandoc shellWorkingDirectory "markdown" "html" inputPath outputPath options1
+        runPandoc showShellCommand shellWorkingDirectory "markdown" "html5" inputPath outputPath options1
 
-    let execPandocHtml (shellWorkingDirectory:string) 
-                       (outputPath:string) 
-                       (pageTitle:string option)
-                       (options:PandocOptions) 
-                       (doc:Markdown): unit =
-        let mdpath = System.IO.Path.ChangeExtension(outputPath, "md")
-        doc.Save(mdpath)
-        runPandocHtml shellWorkingDirectory mdpath outputPath pageTitle options
+
 
  

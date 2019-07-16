@@ -71,7 +71,9 @@ let makeDoc (item:Item) : Markdown =
 
 
 
-let generateDocx (workingDirectory:string) (mdInputPath:string) (outputDocxName:string) : unit  =
+let generateDocx (workingDirectory:string) 
+                 (mdInputPath:string) 
+                 (outputDocxName:string) : Result<int, string>  =
     let stylesDoc = @"include/custom-reference1.docx" 
-    runPandocDocx workingDirectory mdInputPath outputDocxName (Some stylesDoc) pandocDefaults
+    runPandocDocx true workingDirectory mdInputPath outputDocxName (Some stylesDoc) pandocDefaults
 

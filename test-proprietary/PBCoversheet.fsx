@@ -149,15 +149,16 @@ let outputItem (item:Item) : unit =
         match item.Phase with
         | Phase1 -> "phase1"
         | Phase2 -> "phase2"
-    
+    let mdPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "md")
     let docxPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "docx")
     let htmlPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "html")
     let txtPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "txt")    
     let stylesDoc = System.IO.Path.Combine(cwd, @"include/custom-reference1.docx")
     let doc:Markdown = makeDoc item
-    execPandocDocx cwd docxPath (Some stylesDoc) pandocDefaults doc
-    execPandocHtml cwd  htmlPath (Some item.Name) pandocDefaults doc
-    execPandocPlain cwd txtPath pandocDefaults doc
+    doc.Save(mdPath)
+    runPandocDocx true cwd mdPath docxPath (Some stylesDoc) pandocDefaults |> ignore
+    runPandocHtml5 true cwd mdPath htmlPath (Some item.Name) pandocDefaults |> ignore
+    runPandocPlain true cwd mdPath txtPath pandocDefaults |> ignore
 
 
 
