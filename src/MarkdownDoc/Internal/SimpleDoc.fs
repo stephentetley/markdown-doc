@@ -3,9 +3,7 @@
 
 namespace MarkdownDoc.Internal
 
-// Explicitly open all Internal modules.
 
-[<RequireQualifiedAccess>]
 module SimpleDoc = 
 
     open System.Text
@@ -41,9 +39,10 @@ module SimpleDoc =
 
     type SimpleDoc = 
         | Empty 
-        | SimpleBlock of lines : Text list
-        | SimpleTable of columnInfo : ColumnSpec list * headers : SimpleDoc option * rows : SimpleDoc list 
-    
+        | Block of lines : Text list
+        | Table of columnInfo : ColumnSpec list * headers : SimpleRow option * rows : SimpleRow list 
+        | VConcat of SimpleDoc * SimpleDoc
+    and SimpleRow = SimpleDoc list
 
     
     type internal Word = TextElement
@@ -70,7 +69,7 @@ module SimpleDoc =
 
     /// Precondition: source is a single input line with only 
     /// spaces (no tabs/newlines).
-    let breakText (width:int) (source:Text) : string list = 
+    let breakTextLine (width:int) (source:Text) : string list = 
         let makeLine (xs:Word list) : string = List.rev xs |> wordsToString
 
         let consWords (words:Word list) (lines:string list) : string list = 
@@ -96,14 +95,53 @@ module SimpleDoc =
                     work accLines (w::accWords) (pos + 1 + w.Length) ws cont
         work [] [] 0 (textToWords source) (fun xs -> List.rev xs)
 
-
+    //let renderSimpleRow (row : SimpleRow) : string list = 
+    //    let rec workCells (acc:string list) 
+    //                      (cells : SimpleRow list) 
+    //                      (cont:string list -> string list) = 
+    //        match cells with
+    //        | [] -> cont (List.rev acc)
+    //        | c1 :: cs -> 
+    //            let str1 = renderMdParaElement c1.Width c1.Content
+    //            workCells (str1::acc) cs cont
+    //    workCells [] row id
 
     let renderSimpleDoc (lineWidth : int) (source : SimpleDoc) : string = 
-        let rec work sdoc (cont : (string list) list -> string list) = 
+        let rec work (sdoc : SimpleDoc) 
+                     (cont : string list -> string list) = 
             match sdoc with
             | Empty -> cont []
-            | SimpleBlock(lines) -> 
-                let xss = List.map (breakText lineWidth) lines in cont xss
+            | Block(lines) -> 
+                let xss = List.map (breakTextLine lineWidth) lines 
+                let acc1 = List.concat xss
+                cont acc1
+            | VConcat(Empty,d2) -> 
+                work d2 cont
+            | VConcat(d1,Empty) -> 
+                work d1 cont
+            | VConcat(d1,d2) -> 
+                work d1 (fun xs -> 
+                work d2 (fun ys -> 
+                let acc = xs @ [""] @ ys in cont acc ))
+            //| SimpleTable(columnSpecs,header,rows) -> 
+            //    /// Send a partially instantiated table-text building function to `WorkRows`
+            //    let tableToString rows =
+            //         textGridTable columnSpecs (Option.map renderTableRow1 header) rows
+            //    workRows tableToString [] rows (fun acc1 -> 
+            //    let tableText = acc1.ToString()
+            //    cont (acc.AppendLine(tableText)))
+        //and workRows (makeTableText:(string list) list -> string)
+        //             (acc:(string list) list) 
+        //             (rows : MdTableRow list) 
+        //             (cont:StringBuilder -> string) : string = 
+        //    match rows with
+        //    | [] -> let tableText = makeTableText (List.rev acc)
+        //            cont (new StringBuilder(value=tableText))
+        //    | x :: xs -> 
+        //        let rowCells = renderTableRow1 x 
+        //        workRows makeTableText (rowCells::acc) xs cont
 
             //    | SimpleTable of columnInfo : ColumnSpec list * headers : SimpleDoc option * rows : SimpleDoc list 
-        work source (fun xss -> List.concat xss) |> fromLines
+
+
+        work source (fun xs -> xs) |> fromLines

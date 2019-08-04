@@ -22,6 +22,10 @@ module Syntax =
         | AlignCenter 
         | AlignRight
 
+    type Indent = 
+        | Uniform of allLines : int
+        | Hanging of restLines : int
+
     type ColumnSpec = 
         { Width: int
           Alignment: Alignment }
@@ -40,6 +44,12 @@ module Syntax =
         /// and right spacing.
         member x.LineSection 
             with get () : string = String.replicate (x.Width + 2) "-"
+
+
+
+
+    /// Group "abcde fgh ijkl"  not broken, even on space.
+    /// Group (VCat "abcde fgh" "ijkl") == VCat (Group "abcde fgh") (Group "ijkl")
 
 
     /// Note - rendering VCatText writes an explicit Markdown 
@@ -75,11 +85,27 @@ module Syntax =
     type MdDoc = 
         private | EmptyDoc
                 | Paragraph of int * MdParaElement
-                | Table of ColumnSpec list * MdTableRow option * MdTableRow list // bool is has-titles?
+                | Table of ColumnSpec list * MdTableRow option * MdTableRow list 
                 | CodeBlock of MdParaElement
                 | VCatDoc of MdDoc * MdDoc
         static member empty : MdDoc = EmptyDoc
 
+
+
+
+    /// If we include indent information with Blocks we can model code blocks, lists, etc.
+    /// without needing specific constructors.
+    /// We cannot insist that vertical composition inserts a sapce between blocks with
+    /// this representation - e.g. a list is a list of blocks and there is no blank line 
+    /// between them.
+    type MdBlock = 
+        internal | EmptyBlock
+                 | BlankLine
+                 | TextBlock of MdText
+                 | Block of Indent * MdBlock
+                 | VCatBlock of MdBlock * MdBlock
+                 | TableBlock of ColumnSpec list * MdTableRow option * MdTableRow list 
+        static member empty : MdDoc = EmptyDoc
 
 
     // ************************************************************************
@@ -401,3 +427,46 @@ module Syntax =
 
         let sb = new StringBuilder () 
         work sb document (fun x -> x.ToString()) 
+
+
+
+    //let renderMdBlock (document : MdBlock) : string = 
+    //    let rec work (lineWidth : int) 
+    //                 (acc : StringBuilder) 
+    //                 (doc : MdBlock) 
+    //                 (cont : StringBuilder -> string) : string = 
+    //        match doc with
+    //        | EmptyBlock -> cont acc
+    //        | BlankLine -> 
+    //            let acc1 = acc.AppendLine() in cont acc1
+    //        | TextBlock txt -> 
+    //            let str = renderMdText lineWidth txt
+    //            cont (acc.Append(str)) 
+    //        | Block(ind, block) -> 
+                
+    //        //| Paragraph (width,para) -> 
+    //        //    let str = renderMdParaElement width para
+    //        //    cont (acc.AppendLine(str))
+    //        //| VCatDoc(d1,d2) -> 
+    //        //    work acc d1 (fun acc1 -> 
+    //        //    work (acc1.AppendLine()) d2 cont)
+    //        //| Table(columnSpecs,header,rows) -> 
+    //        //    /// Send a partially instantiated table-text building function to `WorkRows`
+    //        //    let tableToString rows =
+    //        //         textGridTable columnSpecs (Option.map renderTableRow1 header) rows
+    //        //    workRows tableToString [] rows (fun acc1 -> 
+    //        //    let tableText = acc1.ToString()
+    //        //    cont (acc.AppendLine(tableText)))
+    //    and workRows (makeTableText:(string list) list -> string)
+    //                 (acc:(string list) list) 
+    //                 (rows : MdTableRow list) 
+    //                 (cont:StringBuilder -> string) : string = 
+    //        match rows with
+    //        | [] -> let tableText = makeTableText (List.rev acc)
+    //                cont (new StringBuilder(value=tableText))
+    //        | x :: xs -> 
+    //            let rowCells = renderTableRow1 x 
+    //            workRows makeTableText (rowCells::acc) xs cont
+
+    //    let sb = new StringBuilder () 
+    //    work 120 sb document (fun x -> x.ToString()) 
