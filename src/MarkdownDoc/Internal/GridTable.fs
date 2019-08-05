@@ -9,34 +9,18 @@ module GridTable =
 
     open MarkdownDoc.Internal.Common
 
-    
-    type TextElement = 
-        | TextString of string
-        | TextImage of string        // i.e. an unbreakable string
-        | TextSpace 
-        member v.Content
-            with get() : string = 
-                match v with
-                | TextString s -> s
-                | TextImage s -> s
-                | TextSpace -> " "
-        member v.Length 
-            with get() : int = v.Content.Length
-
-    type internal Text = TextElement list
-
-
     type Alignment = 
         | AlignDefault 
         | AlignLeft 
         | AlignCenter 
         | AlignRight
 
+
     type ColumnSpec = 
         { Width: int
           Alignment: Alignment }
 
-
+    
     
     /// Pad one space left and one or more spaces right.
     /// The length of the generated string is `2 + original length`.

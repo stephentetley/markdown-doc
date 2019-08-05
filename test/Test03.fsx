@@ -9,7 +9,7 @@
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\GridTable.fs"
 #load "..\src\MarkdownDoc\Internal\SimpleDoc.fs"
-
+open MarkdownDoc.Internal.GridTable
 open MarkdownDoc.Internal.SimpleDoc
 
 

@@ -172,4 +172,6 @@ module Common =
 
     let fromListH (xs : string list) : HString = fun ys -> xs @ ys
 
+    let toStringH (src: HString) : string = toListH src |> fromLines 
+
 

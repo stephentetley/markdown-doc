@@ -7,8 +7,9 @@ namespace MarkdownDoc.Internal
 module SimpleDoc = 
 
     open System.Text
-    open MarkdownDoc.Internal.Common
 
+    open MarkdownDoc.Internal.Common
+    open MarkdownDoc.Internal.GridTable
     
     type TextElement = 
         | TextString of string
@@ -24,17 +25,6 @@ module SimpleDoc =
             with get() : int = v.Content.Length
 
     type internal Text = TextElement list
-
-
-    type Alignment = 
-        | AlignDefault 
-        | AlignLeft 
-        | AlignCenter 
-        | AlignRight
-
-    type ColumnSpec = 
-        { Width: int
-          Alignment: Alignment }
 
 
     type SimpleDoc = 
@@ -94,57 +84,71 @@ module SimpleDoc =
                 else 
                     work accLines (w::accWords) (pos + 1 + w.Length) ws cont
         work [] [] 0 (textToWords source) (fun xs -> List.rev xs)
-    
 
 
-    //let renderSimpleRow (row : SimpleRow) : string list = 
-    //    let rec workCells (acc:string list) 
-    //                      (cells : SimpleRow list) 
-    //                      (cont:string list -> string list) = 
-    //        match cells with
-    //        | [] -> cont (List.rev acc)
-    //        | c1 :: cs -> 
-    //            let str1 = renderMdParaElement c1.Width c1.Content
-    //            workCells (str1::acc) cs cont
-    //    workCells [] row id
-
-    let renderSimpleDoc (lineWidth : int) (source : SimpleDoc) : string = 
-        let rec workDoc (sdoc : SimpleDoc) 
-                        (cont : string list -> string list) = 
+    let renderSimpleDoc (documentLineWidth : int) (source : SimpleDoc) : string = 
+        let rec workDoc (lineWidth : int)
+                        (sdoc : SimpleDoc) 
+                        (cont : HString -> HString) : HString = 
             match sdoc with
-            | Empty -> cont []
+            | Empty -> cont emptyH
             | Block(lines) -> 
-                let xss = List.map (breakTextLine lineWidth) lines 
-                let acc1 = List.concat xss
+                let xss = List.map (fromListH << breakTextLine lineWidth) lines 
+                let acc1 = concatH xss
                 cont acc1
             | VConcat(Empty,d2) -> 
-                workDoc d2 cont
+                workDoc lineWidth d2 cont
             | VConcat(d1,Empty) -> 
-                workDoc d1 cont
+                workDoc lineWidth d1 cont
             | VConcat(d1,d2) -> 
-                workDoc d1 (fun xs -> 
-                workDoc d2 (fun ys -> 
-                let acc = xs @ [""] @ ys in cont acc ))
-            // | Table(columnSpecs,header,rows) -> 
-                
-            //    /// Send a partially instantiated table-text building function to `WorkRows`
-            //    let tableToString rows =
-            //         textGridTable columnSpecs (Option.map renderTableRow1 header) rows
-            //    workRows tableToString [] rows (fun acc1 -> 
-            //    let tableText = acc1.ToString()
-            //    cont (acc.AppendLine(tableText)))
-        //and workRows (makeTableText:(string list) list -> string)
-        //             (acc:(string list) list) 
-        //             (rows : MdTableRow list) 
-        //             (cont:StringBuilder -> string) : string = 
-        //    match rows with
-        //    | [] -> let tableText = makeTableText (List.rev acc)
-        //            cont (new StringBuilder(value=tableText))
-        //    | x :: xs -> 
-        //        let rowCells = renderTableRow1 x 
-        //        workRows makeTableText (rowCells::acc) xs cont
+                workDoc lineWidth d1 (fun xs -> 
+                workDoc lineWidth d2 (fun ys -> 
+                let acc = appendH (snocH xs "") ys in cont acc ))
+            | Table(columnSpecs, None, rows) -> 
+                workRows columnSpecs rows (fun xss -> 
+                let xss1 = List.map (List.map toStringH) xss
+                let (ans : HString) = drawGridTable columnSpecs None xss1
+                cont ans)
 
-            //    | SimpleTable of columnInfo : ColumnSpec list * headers : SimpleDoc option * rows : SimpleDoc list 
+            //| Table(columnSpecs, Some headers, rows) -> 
+            //    workHeader headers (fun hs -> 
+            //    workRows columnSpecs rows (fun xss -> 
+            //    let (hs1 : string list) = List.map toStringH hs
+            //    let (xss1 : (string list) list)= List.map (List.map toStringH) xss
+            //    let (ans : HString) = drawGridTable columnSpecs (Some hs1) xss1
+            //    cont emptyH))
+
+        and workHeader (specs : ColumnSpec list)
+                       (cells : SimpleDoc list)
+                       (cont : HString list -> HString) : HString = 
+            match specs, cells with
+            | [], _ -> cont []
+            | _, [] -> cont []
+            | (s1 :: srest), (c1 :: crest) -> 
+                workDoc s1.Width c1 (fun v1 -> 
+                workHeader srest crest (fun vs -> 
+                cont (v1 :: vs)))
 
 
-        workDoc source (fun xs -> xs) |> fromLines
+        and workRows (specs : ColumnSpec list)
+                     (rows : (SimpleDoc list) list) 
+                     (cont : (HString list) list -> HString) : HString = 
+            match rows with
+            | [] -> cont []
+            | r1 :: rest -> 
+                workRow specs r1 (fun v1 -> 
+                workRows specs rest (fun vs -> 
+                cont (v1 :: vs)))
+        
+        and workRow (specs : ColumnSpec list)
+                    (cells : SimpleDoc list) 
+                    (cont : HString list -> HString) : HString = 
+            match specs, cells with
+            | [], _ -> cont []
+            | _, [] -> cont []
+            | (s1 :: srest), (c1 :: crest) -> 
+                workDoc s1.Width c1 (fun v1 -> 
+                workRow srest crest (fun vs -> 
+                cont (v1 :: vs)))
+
+        workDoc documentLineWidth source (fun xs -> xs) |> toStringH
