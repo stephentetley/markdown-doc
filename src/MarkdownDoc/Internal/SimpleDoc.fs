@@ -94,6 +94,8 @@ module SimpleDoc =
                 else 
                     work accLines (w::accWords) (pos + 1 + w.Length) ws cont
         work [] [] 0 (textToWords source) (fun xs -> List.rev xs)
+    
+
 
     //let renderSimpleRow (row : SimpleRow) : string list = 
     //    let rec workCells (acc:string list) 
@@ -107,8 +109,8 @@ module SimpleDoc =
     //    workCells [] row id
 
     let renderSimpleDoc (lineWidth : int) (source : SimpleDoc) : string = 
-        let rec work (sdoc : SimpleDoc) 
-                     (cont : string list -> string list) = 
+        let rec workDoc (sdoc : SimpleDoc) 
+                        (cont : string list -> string list) = 
             match sdoc with
             | Empty -> cont []
             | Block(lines) -> 
@@ -116,14 +118,15 @@ module SimpleDoc =
                 let acc1 = List.concat xss
                 cont acc1
             | VConcat(Empty,d2) -> 
-                work d2 cont
+                workDoc d2 cont
             | VConcat(d1,Empty) -> 
-                work d1 cont
+                workDoc d1 cont
             | VConcat(d1,d2) -> 
-                work d1 (fun xs -> 
-                work d2 (fun ys -> 
+                workDoc d1 (fun xs -> 
+                workDoc d2 (fun ys -> 
                 let acc = xs @ [""] @ ys in cont acc ))
-            //| SimpleTable(columnSpecs,header,rows) -> 
+            // | Table(columnSpecs,header,rows) -> 
+                
             //    /// Send a partially instantiated table-text building function to `WorkRows`
             //    let tableToString rows =
             //         textGridTable columnSpecs (Option.map renderTableRow1 header) rows
@@ -144,4 +147,4 @@ module SimpleDoc =
             //    | SimpleTable of columnInfo : ColumnSpec list * headers : SimpleDoc option * rows : SimpleDoc list 
 
 
-        work source (fun xs -> xs) |> fromLines
+        workDoc source (fun xs -> xs) |> fromLines
