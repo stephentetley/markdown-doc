@@ -45,7 +45,7 @@ let controlTable (author:string) : SimpleDoc =
     Table(columnSpecs, Some headers, [row1; row2])
 
 let demo02 () = 
-    controlTable "S Tetley" |> renderSimpleDoc 80
+    controlTable "S Tetley" |> renderSimpleDoc 80 |> printfn "%s"
 
 
 

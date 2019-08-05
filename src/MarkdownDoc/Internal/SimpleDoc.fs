@@ -104,19 +104,20 @@ module SimpleDoc =
                 workDoc lineWidth d1 (fun xs -> 
                 workDoc lineWidth d2 (fun ys -> 
                 let acc = appendH (snocH xs "") ys in cont acc ))
+
             | Table(columnSpecs, None, rows) -> 
                 workRows columnSpecs rows (fun xss -> 
                 let xss1 = List.map (List.map toStringH) xss
                 let (ans : HString) = drawGridTable columnSpecs None xss1
                 cont ans)
 
-            //| Table(columnSpecs, Some headers, rows) -> 
-            //    workHeader headers (fun hs -> 
-            //    workRows columnSpecs rows (fun xss -> 
-            //    let (hs1 : string list) = List.map toStringH hs
-            //    let (xss1 : (string list) list)= List.map (List.map toStringH) xss
-            //    let (ans : HString) = drawGridTable columnSpecs (Some hs1) xss1
-            //    cont emptyH))
+            | Table(columnSpecs, Some headers, rows) -> 
+                workHeader columnSpecs headers (fun hs -> 
+                workRows columnSpecs rows (fun xss -> 
+                let (hs1 : string list) = List.map toStringH hs
+                let (xss1 : (string list) list) = List.map (List.map toStringH) xss
+                let (ans : HString) = drawGridTable columnSpecs (Some hs1) xss1
+                cont ans))
 
         and workHeader (specs : ColumnSpec list)
                        (cells : SimpleDoc list)
