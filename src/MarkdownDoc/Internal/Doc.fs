@@ -8,9 +8,11 @@ module Doc =
 
     open System.Text
 
+    open MarkdownDoc.Internal
     open MarkdownDoc.Internal.Common
     open MarkdownDoc.Internal.GridTable
     open MarkdownDoc.Internal.SimpleDoc
+    
     
 
     /// Note - rendering VCatText writes an explicit Markdown 
@@ -52,22 +54,64 @@ module Doc =
 
     and MdTableRow = MdTableCell list
 
+    /// An interm datatype - it is easier to translate MdText into this than
+    /// directly translate to TextElements
+    type InterimTextElement = 
+        | TE of SimpleDoc.TextElement
+        | TNewline
 
-    let textToLines (source : MdText) : Text list =
-        let rec work t1 acc cont = 
-            match t1 with 
-            | EmptyText -> cont acc
-            | Text s -> 
-                let acc1 = snocH acc [TextString s]
-                cont acc1
-            //| HCatText of MdText * MdText
-            //| VCatText of MdText * MdText
-            //| Group of MdText
+    /// Turn a list of InterimTextElement int a list of Texts 
+    /// (a Text represents a line).
+    let interimToSimpleText (source : InterimTextElement list) : SimpleText list = 
+        List.foldBack (fun elt (currentLine, lines) -> 
+                            match elt with
+                            | TNewline -> ([], currentLine :: lines)
+                            | TE t1 -> (t1 :: currentLine, lines))
+                        source
+                        ([],[]) 
+                |> fun (line1,lines) -> line1 :: lines
 
-        work source emptyH (fun x -> x) |> toListH
+    /// Apply Group to multiline text makes each line an unbreakable "image".
+    let applyGroup (lines : SimpleText list) : HList<InterimTextElement> = 
+        let applyGroup1 (source : SimpleText) : HList<InterimTextElement> = 
+            let str1 = source |> List.map (fun v -> v.Content) |>  String.concat "" 
+            singletonH (TE (SimpleDoc.TextImage str1))
+        List.map applyGroup1 lines |> concatH
 
-    let blockToSimpleDoc (source : MdBlock) : SimpleDoc = 
+    let textToInterim (source : MdText) : InterimTextElement list =
         let rec work t1 cont = 
             match t1 with 
-            | EmptyBlock -> cont Empty
+            | EmptyText -> cont emptyH
+            | Text s -> 
+                cont (singletonH (TE (SimpleDoc.TextString s)))
+            | HCatText (t1,t2) ->
+                work t1 (fun xs -> 
+                work t2 (fun ys -> 
+                cont (appendH xs ys)))
+            | VCatText (t1,t2) ->
+                work t1 (fun xs -> 
+                work t2 (fun ys -> 
+                cont (appendH xs (consH TNewline ys))))
+            | Group t1 -> 
+                work t1 (fun xs -> 
+                let images = interimToSimpleText (toListH xs) |> applyGroup
+                cont images)
+        work source (fun x -> x) |> toListH
+    
+    let textToSimpleText (source : MdText) : SimpleText list = 
+        source |> textToInterim |> interimToSimpleText
+
+    let blockToSimpleDoc (source : MdBlock) : SimpleDoc.SimpleDoc = 
+        let rec work t1 cont = 
+            match t1 with 
+            | EmptyBlock -> cont SimpleDoc.Empty
+            | BlankLine -> cont (SimpleDoc.Block [])
+            | TextBlock txt -> 
+                let lines = textToSimpleText txt
+                cont (SimpleDoc.Block lines)
+            | VCatBlock (b1,b2) ->
+                work b1 (fun v1 ->
+                work b2 (fun v2 -> 
+                cont (VConcat(v1,v2))))
+
         work source (fun x -> x)

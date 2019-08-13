@@ -24,12 +24,12 @@ module SimpleDoc =
         member v.Length 
             with get() : int = v.Content.Length
 
-    type internal Text = TextElement list
+    type SimpleText = TextElement list
 
 
     type SimpleDoc = 
         | Empty 
-        | Block of lines : Text list
+        | Block of lines : SimpleText list
         | Table of columnInfo : ColumnSpec list * headers : SimpleRow option * rows : SimpleRow list 
         | VConcat of SimpleDoc * SimpleDoc
     and SimpleRow = SimpleDoc list
@@ -38,7 +38,7 @@ module SimpleDoc =
     type internal Word = TextElement
 
 
-    let private textToWords (source:Text) : Word list = 
+    let private textToWords (source : SimpleText) : Word list = 
         let split1 (text:TextElement) : Word list = 
             match text with
             | TextSpace -> [TextSpace]
@@ -59,17 +59,19 @@ module SimpleDoc =
 
     /// Precondition: source is a single input line with only 
     /// spaces (no tabs/newlines).
-    let breakTextLine (width:int) (source:Text) : string list = 
-        let makeLine (xs:Word list) : string = List.rev xs |> wordsToString
+    let breakTextLine (width : int) (source : SimpleText) : string list = 
+        let makeLine (xs : Word list) : string = List.rev xs |> wordsToString
 
-        let consWords (words:Word list) (lines:string list) : string list = 
+        let consWords (words : Word list) (lines : string list) : string list = 
             match words with 
             | [] -> lines
             | _ -> makeLine words :: lines
 
-        let rec work (accLines:string list) 
-                     (accWords:Word list) (pos:int) (inputs:Word list) 
-                     (cont:string list -> string list) =  
+        let rec work (accLines : string list) 
+                     (accWords : Word list) 
+                     (pos : int) 
+                     (inputs : Word list) 
+                     (cont : string list -> string list) =  
             match inputs with 
             | [] -> 
                 cont (consWords accWords accLines)
