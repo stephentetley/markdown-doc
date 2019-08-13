@@ -154,24 +154,24 @@ module Common =
 
     // ************************************************************************
 
-    type HString = string list -> string list
+    type HList<'a> = 'a list -> 'a list
 
-    let emptyH  : HString = id
+    let emptyH : HList<'a> = id
 
-    let consH (item : string) (s1 : HString) : HString = (fun x -> item :: x) << s1
+    let consH (item : 'a) (s1 : HList<'a>) : HList<'a> = (fun x -> item :: x) << s1
 
-    let singletonH (item : string) : HString = consH item emptyH 
+    let singletonH (item : 'a) : HList<'a> = consH item emptyH 
 
-    let snocH (s1 : HString) (item : string) : HString = s1 << (fun x -> item :: x) 
+    let snocH (s1 : HList<'a>) (item : 'a) : HList<'a> = s1 << (fun x -> item :: x) 
     
-    let appendH (s1 : HString) (s2 : HString) : HString = s1 << s2
+    let appendH (s1 : HList<'a>) (s2 : HList<'a>) : HList<'a> = s1 << s2
 
-    let concatH (strs : HString list) : HString = List.foldBack (<<) strs id
+    let concatH (strs : HList<'a> list) : HList<'a> = List.foldBack (<<) strs id
     
-    let toListH (s1 : HString) : string list = s1 []
+    let toListH (s1 : HList<'a>) : 'a list = s1 []
 
-    let fromListH (xs : string list) : HString = fun ys -> xs @ ys
+    let fromListH (xs : 'a list) : HList<'a> = fun ys -> xs @ ys
+
+    type HString = HList<string>
 
     let toStringH (src: HString) : string = toListH src |> fromLines 
-
-

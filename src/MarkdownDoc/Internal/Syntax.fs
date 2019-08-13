@@ -93,20 +93,6 @@ module Syntax =
 
 
 
-    /// If we include indent information with Blocks we can model code blocks, lists, etc.
-    /// without needing specific constructors.
-    /// We cannot insist that vertical composition inserts a sapce between blocks with
-    /// this representation - e.g. a list is a list of blocks and there is no blank line 
-    /// between them.
-    type MdBlock = 
-        internal | EmptyBlock
-                 | BlankLine
-                 | TextBlock of MdText
-                 | Block of Indent * MdBlock
-                 | VCatBlock of MdBlock * MdBlock
-                 | TableBlock of ColumnSpec list * MdTableRow option * MdTableRow list 
-        static member empty : MdDoc = EmptyDoc
-
 
     // ************************************************************************
     // Markdown builders
