@@ -29,11 +29,8 @@ module Doc =
         static member empty : MdText = EmptyText
 
 
-    /// If we include indent information with Blocks we can model code blocks, lists, etc.
-    /// without needing specific constructors.
-    type Indent = 
-        | Uniform of allLines : int
-        | Hanging of restLines : int
+
+
 
     
     /// We cannot insist that vertical composition inserts a sapce between blocks with
@@ -48,9 +45,8 @@ module Doc =
                  | TableBlock of ColumnSpec list * MdTableRow option * MdTableRow list 
         static member empty : MdBlock = EmptyBlock
     
-    /// We cache width with cell contents so it can be easily accessed
-    /// (othwerwise we would have to look up the respective ColumnSpec)
-    and MdTableCell = { Width: int; Content: MdBlock }
+    /// Cell is just a Block
+    and MdTableCell = MdBlock
 
     and MdTableRow = MdTableCell list
 
@@ -112,6 +108,30 @@ module Doc =
             | VCatBlock (b1,b2) ->
                 work b1 (fun v1 ->
                 work b2 (fun v2 -> 
-                cont (VConcat(v1,v2))))
-
+                cont (SimpleDoc.VConcat(v1,v2))))
+            | Block (indent, b1) -> 
+                work b1 (fun v1 -> 
+                let v2 = SimpleDoc.applyIndent indent v1
+                cont v2)
+            | TableBlock (specs, None, rows) -> 
+                workRows rows (fun xs ->
+                cont (SimpleDoc.Table(specs, None, xs)))
+            | TableBlock (specs, Some headers, rows) -> 
+                workRow headers (fun hs ->
+                workRows rows (fun xs ->
+                cont (SimpleDoc.Table(specs, Some hs, xs))))
+        and workRows xs cont = 
+            match xs with
+            | [] -> cont []
+            | d1 :: rest -> 
+                workRow d1 (fun v1 ->
+                workRows rest (fun vs -> 
+                cont (v1::vs)))
+        and workRow xs cont = 
+            match xs with
+            | [] -> cont []
+            | cell :: rest -> 
+                work cell (fun v1 -> 
+                workRow rest (fun vs -> 
+                cont (v1::vs)))
         work source (fun x -> x)

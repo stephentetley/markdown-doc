@@ -10,6 +10,8 @@ module SimpleDoc =
 
     open MarkdownDoc.Internal.Common
     open MarkdownDoc.Internal.GridTable
+
+    
     
     type TextElement = 
         | TextString of string
@@ -25,6 +27,12 @@ module SimpleDoc =
             with get() : int = v.Content.Length
 
     type SimpleText = TextElement list
+
+    /// If we include indent information with Blocks we can model code blocks, lists, etc.
+    /// without needing specific constructors.
+    type Indent = 
+        | Uniform of allLines : int
+        | Hanging of restLines : int
 
 
     type SimpleDoc = 
@@ -155,3 +163,27 @@ module SimpleDoc =
                 cont (v1 :: vs)))
 
         workDoc documentLineWidth source (fun xs -> xs) |> toStringH
+
+    let applyIndent1 (indent : Indent) (source : SimpleText list) : SimpleText list = 
+        let indent1 (i : int) (txt : SimpleText) = TextString (String.replicate i " ") :: txt
+        match indent, source with
+        | _, [] -> []
+        | Hanging i, x :: xs -> 
+            x :: List.map (indent1 i) xs
+        | Uniform i, xs -> 
+            List.map (indent1 i) xs
+
+
+    let applyIndent (indent : Indent) (source : SimpleDoc) : SimpleDoc = 
+        let rec work sdoc cont = 
+            match sdoc with
+            | Empty -> cont Empty
+            | Block lines -> 
+                let ans = applyIndent1 indent lines in cont (Block ans)
+            | Table (spec, header, rows) -> 
+                cont (Table (spec, header, rows))
+            | VConcat (d1, d2) -> 
+                work d1 (fun v1 -> 
+                work d2 (fun v2 -> 
+                cont (VConcat(v1,v2))))
+        work source (fun x -> x)
