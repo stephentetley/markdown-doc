@@ -9,8 +9,12 @@
 #load "..\src\MarkdownDoc\Internal\Common.fs"
 #load "..\src\MarkdownDoc\Internal\GridTable.fs"
 #load "..\src\MarkdownDoc\Internal\SimpleDoc.fs"
+#load "..\src\MarkdownDoc\Internal\Doc.fs"
+#load "..\src\MarkdownDoc\Markdown\Text.fs"
+#load "..\src\MarkdownDoc\Markdown\Block.fs"
 open MarkdownDoc.Internal.GridTable
 open MarkdownDoc.Internal.SimpleDoc
+open MarkdownDoc.Markdown
 
 
 let demo01 () =
@@ -46,6 +50,12 @@ let controlTable (author:string) : SimpleDoc =
 
 let demo02 () = 
     controlTable "S Tetley" |> renderSimpleDoc 80 |> printfn "%s"
+
+
+let demo03 () = 
+    text "Hello" ^+^ text "world!"
+        |> testRenderText 80
+
 
 
 

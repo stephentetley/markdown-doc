@@ -21,21 +21,22 @@ module Doc =
     /// Group changes the render context to render on a single 
     /// unbroken line.
     type MdText =
-        private | EmptyText
-                | Text of string
-                | HCatText of MdText * MdText
-                | VCatText of MdText * MdText
-                | Group of MdText
-        static member empty : MdText = EmptyText
-
-
-
+        internal | EmptyText
+                 | Text of string
+                 | HCatText of MdText * MdText
+                 | VCatText of MdText * MdText
+                 | Group of MdText
 
 
     
-    /// We cannot insist that vertical composition inserts a sapce between blocks with
+
+
+    
+    /// We cannot insist that vertical composition inserts a space between blocks with
     /// this representation - e.g. a list is a list of blocks and there is no blank line 
     /// between them.
+    /// Vertical spacing must be done "manually" though the combinators should eliminate
+    /// concatenations of Blank and Blank   .
     type MdBlock = 
         internal | EmptyBlock
                  | BlankLine
@@ -43,7 +44,6 @@ module Doc =
                  | Block of Indent * MdBlock
                  | VCatBlock of MdBlock * MdBlock
                  | TableBlock of ColumnSpec list * MdTableRow option * MdTableRow list 
-        static member empty : MdBlock = EmptyBlock
     
     /// Cell is just a Block
     and MdTableCell = MdBlock

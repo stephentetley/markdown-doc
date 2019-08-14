@@ -19,6 +19,8 @@
     <Compile Include="MarkdownDoc\Internal\Doc.fs" />
     <Compile Include="MarkdownDoc\Internal\Syntax.fs" />
     <Compile Include="MarkdownDoc\Markdown\Markdown.fs" />
+    <Compile Include="MarkdownDoc\Markdown\Text.fs" />
+    <Compile Include="MarkdownDoc\Markdown\Block.fs" />
     <Compile Include="MarkdownDoc\Markdown\Table.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Extra.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Invoke.fs" />
