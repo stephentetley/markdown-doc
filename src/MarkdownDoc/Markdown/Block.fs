@@ -36,8 +36,15 @@ module TBlockext =
         Doc.VCatBlock(doc1, doc2)
 
 
-    //let unorderedList (elements:Block list) : Block = 
-    //    Syntax.uList elements
+    let vcat (blocks : Markdown list) : Markdown = 
+        match blocks with
+        | [] -> emptyMarkdown
+        | b1 :: rest -> List.fold (^!!^) b1 rest
+        
+
+    let unorderedList (elements : Markdown list) : Markdown = 
+        let listItem (d1 : Markdown) = Doc.Block(SimpleDoc.Hanging("*   ","    "), d1)
+        elements |> List.map listItem |> vcat
 
     //let orderedList (elements:Block list) : Block = 
     //    Syntax.oList elements
@@ -94,7 +101,7 @@ module TBlockext =
 
     /// Code block indents the paragraph with four spaces.
     let codeBlock (body : Markdown) : Markdown = 
-        Doc.Block (Indent.Uniform 4, body)
+        Doc.Block (Indent.Uniform "    ", body)
 
 
 
@@ -118,8 +125,12 @@ module TBlockext =
             |> SimpleDoc.renderSimpleDoc lineWidth
 
     /// Print the Text to the console.
-    let testRenderText (lineWidth : int) (source:Text) : unit = 
+    let testRenderText (lineWidth : int) (source : Text) : unit = 
         renderMarkdown lineWidth (markdownText source) 
             |> printfn  "----------\n%s\n----------\n"
 
 
+    /// Print the Markdown to the console.
+    let testRender (lineWidth : int) (source : Markdown) : unit = 
+        renderMarkdown lineWidth source
+            |> printfn  "----------\n%s\n----------\n"

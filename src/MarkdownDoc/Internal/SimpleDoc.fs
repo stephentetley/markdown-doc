@@ -31,8 +31,8 @@ module SimpleDoc =
     /// If we include indent information with Blocks we can model code blocks, lists, etc.
     /// without needing specific constructors.
     type Indent = 
-        | Uniform of allLines : int
-        | Hanging of restLines : int
+        | Uniform of allLines : string
+        | Hanging of firstLine : string * restLines : string
 
 
     type SimpleDoc = 
@@ -106,14 +106,11 @@ module SimpleDoc =
                 let xss = List.map (fromListH << breakTextLine lineWidth) lines 
                 let acc1 = concatH xss
                 cont acc1
-            | VConcat(Empty,d2) -> 
-                workDoc lineWidth d2 cont
-            | VConcat(d1,Empty) -> 
-                workDoc lineWidth d1 cont
+
             | VConcat(d1,d2) -> 
                 workDoc lineWidth d1 (fun xs -> 
                 workDoc lineWidth d2 (fun ys -> 
-                let acc = appendH (snocH xs "") ys in cont acc ))
+                let acc = appendH xs ys in cont acc ))
 
             | Table(columnSpecs, None, rows) -> 
                 workRows columnSpecs rows (fun xss -> 
@@ -165,13 +162,13 @@ module SimpleDoc =
         workDoc documentLineWidth source (fun xs -> xs) |> toStringH
 
     let applyIndent1 (indent : Indent) (source : SimpleText list) : SimpleText list = 
-        let indent1 (i : int) (txt : SimpleText) = TextString (String.replicate i " ") :: txt
+        let indentLine (prefix : string) (txt : SimpleText) = TextString prefix :: txt
         match indent, source with
         | _, [] -> []
-        | Hanging i, x :: xs -> 
-            x :: List.map (indent1 i) xs
+        | Hanging(a,b), x :: xs -> 
+            indentLine a x :: List.map (indentLine b) xs
         | Uniform i, xs -> 
-            List.map (indent1 i) xs
+            List.map (indentLine i) xs
 
 
     let applyIndent (indent : Indent) (source : SimpleDoc) : SimpleDoc = 

@@ -57,6 +57,10 @@ let demo03 () =
         |> testRenderText 80
 
 
+let test04 () = 
+    let m1 : Markdown = 
+        unorderedList [ markdownText <| text "Hello"; markdownText <| text "world!" ]
+    testRender 120 m1
 
 
 
