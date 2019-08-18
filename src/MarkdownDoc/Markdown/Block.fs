@@ -46,8 +46,18 @@ module Block =
         let listItem (d1 : Markdown) = Doc.Block(SimpleDoc.Hanging("*   ","    "), d1)
         elements |> List.map listItem |> vcat
 
-    //let orderedList (elements:Block list) : Block = 
-    //    Syntax.oList elements
+    let orderedList (elements : Markdown list) : Markdown = 
+        
+        let size = 4 + elements.Length.ToString().Length
+        let fill (width : int) (str : string) : string = 
+            str.PadRight(totalWidth = width, paddingChar = ' ')
+        let (items, _) = 
+            List.mapFold (fun (ix : int) (d1 : Markdown) -> 
+                            let d2 = Doc.Block(SimpleDoc.Hanging(fill size (sprintf "%i." ix), String.replicate size " "), d1)
+                            (d2, ix + 1))
+                        1
+                        elements
+        vcat items
 
     //let private defReference (identifier:string) 
     //                         (path:string) 
@@ -123,6 +133,11 @@ module Block =
     let renderMarkdown (lineWidth : int) (source : Markdown) : string = 
         Doc.blockToSimpleDoc source
             |> SimpleDoc.renderSimpleDoc lineWidth
+
+
+    let writeMarkdown (lineWidth : int) (source : Markdown) (fileName : string) : unit = 
+        let output = renderMarkdown lineWidth source
+        File.WriteAllText(path = fileName, contents = output)
 
     /// Print the Text to the console.
     let testRenderText (lineWidth : int) (source : Text) : unit = 

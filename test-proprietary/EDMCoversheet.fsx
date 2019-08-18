@@ -13,8 +13,11 @@ open FSharp.Data
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\Syntax.fs"
-#load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Internal\GridTable.fs"
+#load "..\src\MarkdownDoc\Internal\SimpleDoc.fs"
+#load "..\src\MarkdownDoc\Internal\Doc.fs"
+#load "..\src\MarkdownDoc\Markdown\Text.fs"
+#load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -53,7 +56,7 @@ let title2 (sai:string) (name:string) : Markdown =
     h2 (text sai ^+^ text name)
 
 let contents (workItems:string list) : Markdown = 
-    h3 (text "Contents") ^!!^ markdown (unorderedList (List.map (paraText << text) workItems))
+    h3 (text "Contents") ^!!^ unorderedList (List.map (markdownText << text) workItems)
 
 let documentControl : Markdown = 
     h3 (text "Document Control")

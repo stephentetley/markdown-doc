@@ -5,11 +5,13 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1-alpha-20190721</Version>
+    <Version>1.0.1-alpha-20190818</Version>
     <Description>Combinator library for generating Markdown output. Pandoc biased.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>Stephen Tetley</Copyright>
     <PackageProjectUrl>https://github.com/stephentetley/markdown-doc</PackageProjectUrl>
+    <Authors>Stephen Tetley</Authors>
+    <Company>Stephen Tetley</Company>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,8 +19,6 @@
     <Compile Include="MarkdownDoc\Internal\GridTable.fs" />
     <Compile Include="MarkdownDoc\Internal\SimpleDoc.fs" />
     <Compile Include="MarkdownDoc\Internal\Doc.fs" />
-    <Compile Include="MarkdownDoc\Internal\Syntax.fs" />
-    <Compile Include="MarkdownDoc\Markdown\OldMarkdown.fs" />
     <Compile Include="MarkdownDoc\Markdown\Text.fs" />
     <Compile Include="MarkdownDoc\Markdown\Block.fs" />
     <Compile Include="MarkdownDoc\Markdown\Table.fs" />

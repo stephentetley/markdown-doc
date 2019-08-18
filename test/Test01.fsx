@@ -33,10 +33,10 @@ let test03 () =
         unorderedList [ markdownText <| text "Hello"; markdownText <| text "world!" ]
     testRender 80 m1
 
-//let test04 () = 
-//    let m1 : Markdown = 
-//        orderedList [ markdownText <| text "Hello"; markdownText <| text "world!" ]
-//    testRender 80 m1
+let test04 () = 
+    let m1 : Markdown = 
+        orderedList [ markdownText <| text "Hello"; markdownText <| text "world!" ]
+    testRender 80 m1
 
 let fruitColSpecs : ColumnSpec list = 
     [ { Width = 30; Alignment = Alignment.AlignLeft } 

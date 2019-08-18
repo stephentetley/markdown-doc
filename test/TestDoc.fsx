@@ -9,8 +9,11 @@ open System.IO
 open SLFormat.CommandOptions
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\Syntax.fs"
-#load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Internal\GridTable.fs"
+#load "..\src\MarkdownDoc\Internal\SimpleDoc.fs"
+#load "..\src\MarkdownDoc\Internal\Doc.fs"
+#load "..\src\MarkdownDoc\Markdown\Text.fs"
+#load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
@@ -28,13 +31,14 @@ let htmlOptions : PandocOptions =
         |> addOption (argument "--self-contained") 
         |> addOption (argument "--highlight-style" &= "tango") 
 
+
 let test01 () : Result<int, string>  =
     let workingDirectory = Path.Combine(__SOURCE_DIRECTORY__, @"../output/")
     let outputDocxName = "TestDoc.docx"
     let outputHtmlName = "TestDoc.html"
     let mdFileName = Path.Combine(workingDirectory, "TestDoc.md")
     let stylesDoc = @"../notes/include/custom-reference1.docx" 
-    testDoc.Save( mdFileName)
+    writeMarkdown 120 testDoc mdFileName
     runPandocDocx true workingDirectory mdFileName outputDocxName (Some stylesDoc) pandocDefaults |> ignore
 
     runPandocHtml5 true workingDirectory mdFileName outputHtmlName (Some "Test Doc") htmlOptions

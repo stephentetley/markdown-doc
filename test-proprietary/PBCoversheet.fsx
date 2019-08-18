@@ -13,8 +13,11 @@ open FSharp.Data
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\Syntax.fs"
-#load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Internal\GridTable.fs"
+#load "..\src\MarkdownDoc\Internal\SimpleDoc.fs"
+#load "..\src\MarkdownDoc\Internal\Doc.fs"
+#load "..\src\MarkdownDoc\Markdown\Text.fs"
+#load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -76,7 +79,7 @@ let workDoc (work:WorkType) : Text =
     | Revisit -> text "Point Blue Revisit Form"
 
 let contents (work:WorkType) : Markdown = 
-    h3 (text "Contents") ^!!^ markdown (unorderedList [ paraText (workDoc work)])
+    h3 (text "Contents") ^!!^ unorderedList [ markdownText (workDoc work)]
 
 let makeDoc (item:Item) : Markdown = 
     concatMarkdown  
@@ -155,7 +158,7 @@ let outputItem (item:Item) : unit =
     let txtPath = System.IO.Path.Combine(cwd, "output", phase, makeFileName item "txt")    
     let stylesDoc = System.IO.Path.Combine(cwd, @"include/custom-reference1.docx")
     let doc:Markdown = makeDoc item
-    doc.Save(mdPath)
+    writeMarkdown 120 doc mdPath
     runPandocDocx true cwd mdPath docxPath (Some stylesDoc) pandocDefaults |> ignore
     runPandocHtml5 true cwd mdPath htmlPath (Some item.Name) pandocDefaults |> ignore
     runPandocPlain true cwd mdPath txtPath pandocDefaults |> ignore
