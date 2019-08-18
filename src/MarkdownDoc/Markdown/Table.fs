@@ -7,16 +7,16 @@ namespace MarkdownDoc.Markdown
 module Table = 
     
     open MarkdownDoc.Internal
-    open MarkdownDoc
 
-    type Alignment = Syntax.Alignment
-    type ColumnSpec = Syntax.ColumnSpec
+
+    type Alignment = GridTable.Alignment
+    type ColumnSpec = GridTable.ColumnSpec
     
 
 
-    type TableCell = ParaElement
+    type TableCell = Doc.MdTableCell
     
-    type TableRow = TableCell list
+    type TableRow = Doc.MdTableRow
 
     type Table = 
         { ColumnSpecs : ColumnSpec list

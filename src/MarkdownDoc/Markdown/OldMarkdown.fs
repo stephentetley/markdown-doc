@@ -15,8 +15,8 @@ namespace MarkdownDoc.Markdown
 
 
 
-[<AutoOpen>]
-module Markdown = 
+
+module OldMarkdown = 
 
     open System.IO
 

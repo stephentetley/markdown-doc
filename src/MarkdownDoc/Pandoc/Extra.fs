@@ -8,6 +8,7 @@ namespace MarkdownDoc.Pandoc
 module Extra = 
 
     open MarkdownDoc.Internal
+    open MarkdownDoc.Internal.Doc
     open MarkdownDoc.Markdown
     
 
@@ -46,25 +47,11 @@ module Extra =
 
     /// Grid Table        
     /// Table printed in the `grid_table` style.
-    let private gridTableInternal (columnSpecs : ColumnSpec list) 
-                                  (headers : TableRow option)
-                                  (contents : TableRow list) : Markdown = 
-
-        let makeCell (spec : ColumnSpec) (para : TableCell) : Syntax.MdTableCell = 
-            { Width = spec.Width
-              Content = para }
-
-        let makeRow (row : ParaElement list) : Syntax.MdTableRow = 
-            Common.raggedMap2 makeCell columnSpecs row
-
-        Markdown <| fun _ ->
-            let rows = List.map makeRow contents
-            Syntax.table columnSpecs (Option.map makeRow headers) rows
-
+    
 
 
     let gridTable (table : Table) : Markdown = 
-        gridTableInternal table.ColumnSpecs table.ColumnHeadings table.Rows
+       MdBlock.TableBlock(table.ColumnSpecs, table.ColumnHeadings, table.Rows)
 
 
     /// Produces '`content`{=format}'            
@@ -72,11 +59,18 @@ module Extra =
         enclose (text "`") (text "`") content ^^ renderAttrs [rawAttribute format]
 
     /// Multiline raw code with format attribute
-    let rawCode (format:string) (codeSource:Text) : ParaElement = 
+    /// ```{=format}
+    /// _body_
+    /// ```
+    let rawCode (format : string) (codeSource : Markdown) : Markdown = 
         let line1 = hgroup (backticks3 ^^ renderAttrs [rawAttribute format])
-        paraText line1 ^!^ paraText codeSource ^!^ paraText backticks3
+        markdownText line1 ^!!^ codeSource ^!!^ markdownText backticks3
 
-
+    /// ```{=openxml}
+    /// <w:p>
+    /// _etc_
+    /// </w:p>
+    /// ```
     let openxmlPagebreak : Markdown = 
         let block = 
             [ "<w:p>"
@@ -85,7 +79,7 @@ module Extra =
             ; "  </w:r>"
             ; "</w:p>"
             ]
-        markdown (rawCode "openxml" <| rawlines block)
+        rawCode "openxml" << markdownText <| rawlines block
 
     /// Strikeout the enclosed text.
     /// ~~deleted text~~

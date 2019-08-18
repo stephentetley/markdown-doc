@@ -6,7 +6,7 @@ namespace MarkdownDoc.Markdown
 
 
 [<AutoOpen>]
-module TBlockext = 
+module Block = 
 
     open System.IO
 

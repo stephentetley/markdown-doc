@@ -6,7 +6,7 @@ namespace MarkdownDoc.Internal
 // Explicitly open all Internal modules.
 
 [<RequireQualifiedAccess>]
-module Syntax = 
+module OldSyntax = 
 
     open System.Text
     open MarkdownDoc.Internal.Common

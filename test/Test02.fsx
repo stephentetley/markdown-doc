@@ -7,8 +7,11 @@
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\Syntax.fs"
-#load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Internal\GridTable.fs"
+#load "..\src\MarkdownDoc\Internal\SimpleDoc.fs"
+#load "..\src\MarkdownDoc\Internal\Doc.fs"
+#load "..\src\MarkdownDoc\Markdown\Text.fs"
+#load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
@@ -32,21 +35,24 @@ let controlTable (author:string) : Markdown =
 
     let nowstring = System.DateTime.Now.ToShortDateString()
 
-    let makeHeaderCell (s:string) : ParaElement = 
-        text s |> doubleAsterisks |> paraText
+    let makeHeaderCell (s:string) : TableCell = 
+        text s |> doubleAsterisks |> markdownText
 
-    let makeCell (s:string) : ParaElement = text s |> paraText
+    let makeCell (s:string) : TableCell = text s |> markdownText
 
     let headers = 
         List.map makeHeaderCell ["Revision"; "Prepared By"; "Date"; "Comments"]
+
     let row1 = 
         List.map makeCell ["1.0"; author; nowstring; "For EDMS"]
-    let row2 = [ParaElement.empty; ParaElement.empty; ParaElement.empty; ParaElement.empty]
+
+    let row2 = [emptyMarkdown; emptyMarkdown; emptyMarkdown; emptyMarkdown]
+
     gridTable { ColumnSpecs = columnSpecs 
               ; ColumnHeadings = Some headers
               ; Rows = [row1; row2] 
               }
 
 let demo01 () = 
-    controlTable "S Tetley" |> testRender
+    controlTable "S Tetley" |> testRender 80
 
