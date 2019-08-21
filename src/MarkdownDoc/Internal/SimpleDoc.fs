@@ -37,6 +37,7 @@ module SimpleDoc =
 
     type SimpleDoc = 
         | Empty 
+        | BlankLine
         | Block of lines : SimpleText list
         | Table of columnInfo : ColumnSpec list * headers : SimpleRow option * rows : SimpleRow list 
         | VConcat of SimpleDoc * SimpleDoc
@@ -102,6 +103,7 @@ module SimpleDoc =
                         (cont : HString -> HString) : HString = 
             match sdoc with
             | Empty -> cont emptyH
+            | BlankLine -> cont (singletonH "")
             | Block(lines) -> 
                 let xss = List.map (fromListH << breakTextLine lineWidth) lines 
                 let acc1 = concatH xss
@@ -175,6 +177,7 @@ module SimpleDoc =
         let rec work sdoc cont = 
             match sdoc with
             | Empty -> cont Empty
+            | BlankLine -> cont BlankLine
             | Block lines -> 
                 let ans = applyIndent1 indent lines in cont (Block ans)
             | Table (spec, header, rows) -> 

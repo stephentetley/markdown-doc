@@ -13,6 +13,7 @@
 #load "..\src\MarkdownDoc\Markdown\Text.fs"
 #load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
+#load "..\src\MarkdownDoc\Markdown\InlineHtml.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
@@ -83,8 +84,18 @@ let test10 () =
         markdownText <| useImageReference "" "myImage1"
     testRender 80 m1
 
+let test11 () = 
+    let ms : Markdown list = 
+        [ h1 (rawtext "title1")
+        ; h2 (rawtext "title1.1")
+        ]
+    testRender 80 (vcat ms)
+    testRender 80 (vsep ms)
 
-
+let test12 () = 
+    let m1 : Markdown = 
+        markdownText <| htmlIdAnchor "anchor1" (rawtext "This is an anchor")
+    testRender 80 m1
 
 
 

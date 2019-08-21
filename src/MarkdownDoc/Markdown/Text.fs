@@ -27,7 +27,7 @@ module Text =
 
     /// Build a Text item from a single char. 
     /// '&' and '<' will be escaped.
-    let character (ch:char) : Text = 
+    let character (ch : char) : Text = 
         match ch with
         | '<' -> Doc.Text "&lt;"
         | '&' -> Doc.Text "&amp;"
@@ -35,7 +35,7 @@ module Text =
 
     /// Build a Text item from a single char. 
     /// No escaping.
-    let rawchar (ch:char) : Text = Doc.Text <| ch.ToString()
+    let rawchar (ch : char) : Text = Doc.Text <| ch.ToString()
         
 
     let private escapedText (content : string) : Text = 
@@ -46,11 +46,11 @@ module Text =
     /// Build a Text item from a string. 
     /// '&' and '<' will be escaped.
     /// No line splitting.
-    let text (content:string) : Text = escapedText content  
+    let text (content : string) : Text = escapedText content  
         
     /// Build a Text item from a string. 
     /// No escaping is performed, use this function with care.
-    let rawtext (content:string) : Text = 
+    let rawtext (content : string) : Text = 
         Doc.Text content  
 
 
@@ -87,16 +87,16 @@ module Text =
     
     /// Build a multiline Text item from a string. 
     /// No escaping is performed, use this function with care.
-    let rawlines (contents:string list) : Text = 
+    let rawlines (contents : string list) : Text = 
         textlines <| List.map rawtext contents
 
     /// Horizontal concatenate. No separating space.
-    let hcat (items:Text list) : Text = 
+    let hcat (items : Text list) : Text = 
         List.fold (^^) emptyText items
 
 
     /// Horizontal concatenate with a separating space.
-    let hsep (items:Text list) : Text = 
+    let hsep (items : Text list) : Text = 
         List.fold (^+^) emptyText items
 
     let bang : Text = character '!'
@@ -128,73 +128,80 @@ module Text =
     let backticks3 : Text = rawtext "```"
 
 
-    let enclose (left:Text) (right:Text) (d1:Text) : Text = 
+    let enclose (left : Text) (right : Text) (d1 : Text) : Text = 
         left ^^ d1 ^^ right
 
+    /// Add to markdown-doc?
+    let textPunctuate (separator : Text) (texts : Text list) : Text = 
+        match texts with 
+        | [] -> emptyText
+        | [d1] -> d1
+        | d1 :: rest -> List.fold (fun ac d -> ac ^^ separator ^^ d) d1 rest
 
-    let parens (source:Text) : Text = 
+
+    let parens (source : Text) : Text = 
         enclose (rawchar '(') (rawchar ')') source
 
-    let squareBrackets (source:Text) : Text = 
+    let squareBrackets (source : Text) : Text = 
         enclose (rawchar '[') (rawchar ']') source
 
     /// Can be used for inlining links.
-    let angleBrackets (source:Text) : Text = 
+    let angleBrackets (source : Text) : Text = 
         enclose (rawchar '<') (rawchar '>') source
 
     /// Curly braces
-    let braces (source:Text) : Text = 
+    let braces (source : Text) : Text = 
         enclose (rawchar '{') (rawchar '}') source
 
 
-    let singleQuotes (source:Text) : Text = 
+    let singleQuotes (source : Text) : Text = 
         enclose (rawchar '\'') (rawchar '\'') source
 
-    let doubleQuotes (source:Text) : Text = 
+    let doubleQuotes (source : Text) : Text = 
         enclose (rawchar '"') (rawchar '"') source
 
     /// Emphasis
-    let asterisks (source:Text) : Text = 
+    let asterisks (source : Text) : Text = 
         enclose (rawchar '*') (rawchar '*') source
 
     /// Emphasis
-    let underscores (source:Text) : Text = 
+    let underscores (source : Text) : Text = 
         enclose (rawchar '_') (rawchar '_') source
 
     /// Strong emphasis
-    let doubleAsterisks (source:Text) : Text = 
+    let doubleAsterisks (source : Text) : Text = 
         enclose (rawtext "**") (rawtext "**") source
 
     /// Strong emphasis
-    let doubleUnderscores (source:Text) : Text = 
+    let doubleUnderscores (source : Text) : Text = 
         enclose (rawtext "__") (rawtext "__") source
 
     /// Backticks for inline code.
-    let backticks (source:Text) : Text = 
+    let backticks (source : Text) : Text = 
         enclose (rawchar '`') (rawchar '`') source
 
     /// Backticks for inline code.
-    let doubleBackticks (source:Text) : Text = 
+    let doubleBackticks (source : Text) : Text = 
         enclose (rawtext "``") (rawtext "``") source
 
 
-    let private useReference (altText:string) (identifier:string) : Text = 
+    let private useReference (altText : string) (identifier : string) : Text = 
         squareBrackets (text altText) ^^ squareBrackets (text identifier)
 
     /// [Alt text][id]
-    let useLinkReference (altText:string) (identifier:string) : Text = 
+    let useLinkReference (altText : string) (identifier : string) : Text = 
         hgroup (useReference altText identifier)
 
     /// ![Alt text][id]
-    let useImageReference (altText:string) (identifier:string) : Text = 
+    let useImageReference (altText : string) (identifier : string) : Text = 
         hgroup (bang ^^ useReference altText identifier)
         
     
 
 
-    let private inlineLinkBody (altText:string) 
-                               (path:string) 
-                               (title:option<string>) : Text = 
+    let private inlineLinkBody (altText : string) 
+                               (path : string) 
+                               (title : string option) : Text = 
         let path1 = Common.replaceBackslashes path
         let body : Text = 
             match title with
@@ -210,7 +217,7 @@ module Text =
     /// it is rewritten to use forward slash (Unix style and Pandoc style).
     /// 
     /// The path should not be explicitly quoted even if it contains spaces.
-    let inlineLink (altText:string) (path:string) (title:option<string>) : Text = 
+    let inlineLink (altText : string) (path : string) (title : option<string>) : Text = 
         hgroup (inlineLinkBody altText path title) 
 
 
@@ -222,56 +229,74 @@ module Text =
     /// it is rewritten to use forward slash (Unix style and Pandoc style).
     /// 
     /// The path should not be explicitly quoted even if it contains spaces.
-    let inlineImage (altText:string) 
-                    (path:string) 
-                    (title:option<string>) : Text = 
+    let inlineImage (altText : string) 
+                    (path : string) 
+                    (title : option<string>) : Text = 
         hgroup (bang ^^ inlineLinkBody altText path title) 
 
 
-    let formatted (fmt:Printf.StringFormat<'a -> string,string>) 
-                  (value:'a) : Text = 
+    let formatted (fmt : Printf.StringFormat<'a -> string,string>) 
+                  (value : 'a) : Text = 
         sprintf fmt value |> text
 
 
     /// Print a unsigned byte literal as a decimal.
     /// Note no F# type specifying suffix is printed, if you want this
     /// functionality you need to write your own function.
-    let byteDoc (i:byte) : Text = 
+    let byteMd (i : byte) : Text = 
         i.ToString() |> text
         
     /// Print a signed byte literal as a decimal.
-    let sbyteDoc (i:sbyte) : Text = 
+    let sbyteMd (i : sbyte) : Text = 
         i.ToString() |> text
 
     /// Print a 16-bit signed byte literal as a decimal.
-    let int16Doc (i:int16) : Text = 
+    let int16Md (i : int16) : Text = 
         i.ToString() |> text
 
     /// Print a 16-bit unsigned byte literal as a decimal.
-    let uint16Doc (i:uint16) : Text = 
+    let uint16Md (i : uint16) : Text = 
         i.ToString() |> text
 
     /// Print a 32-bit signed byte literal as a decimal.
-    let int32Doc (i:int32) : Text = 
+    let int32Md (i : int32) : Text = 
         i.ToString() |> text
 
     /// Print a 32-bit unsigned byte literal as a decimal.
-    let uint32Doc (i:uint32) : Text = 
+    let uint32Md (i : uint32) : Text = 
         i.ToString() |> text
 
     /// Print a 64-bit signed byte literal as a decimal.        
-    let int64Doc (i:int64) : Text = 
+    let int64Md (i : int64) : Text = 
         i.ToString() |> text
 
     /// Print a 64-bit unsigned byte literal as a decimal.
-    let uint64Doc (i:uint64) : Text = 
+    let uint64Md (i : uint64) : Text = 
         i.ToString() |> text
     
     /// Print a 32-bit IEEE float. 
     /// The output uses FSharp's ToString() so it may be printed in 
     /// exponential notation.
-    let float32Doc (d:float32) : Text = 
+    let float32Md (d : float32) : Text = 
         d.ToString() |> text
 
+    
+    /// The output uses FSharp's ToString() so it may be printed in 
+    /// exponential notation.
+    let doubleMd (d : double) : Text = 
+        d.ToString() |> text
 
+    /// The output uses FSharp's ToString().
+    let decimalMd (d : decimal) : Text = 
+        d.ToString() |> text
+
+    /// Print a DataTime. 
+    /// The output uses FSharp's ToString() so it may be printed in 
+    /// exponential notation.
+    let dateTimeMd (datetime : System.DateTime) (format : string) : Text = 
+        datetime.ToString(format) |> text
+
+    /// Format: yyyy-MM-dd hh:mm:ss
+    let iso8601DateTimeMd (datetime : System.DateTime) : Text = 
+        dateTimeMd datetime "yyyy-MM-dd hh:mm:ss"
     

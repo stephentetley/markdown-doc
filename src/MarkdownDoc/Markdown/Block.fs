@@ -25,6 +25,9 @@ module Block =
 
     let emptyMarkdown : Markdown = Doc.EmptyBlock
 
+    let blankLine : Markdown = Doc.BlankLine
+    
+    
     let markdownText (text : Text) : Markdown = 
         Doc.TextBlock text
 
@@ -40,6 +43,12 @@ module Block =
         match blocks with
         | [] -> emptyMarkdown
         | b1 :: rest -> List.fold (^!!^) b1 rest
+
+    let vsep (docs : Markdown list) : Markdown = 
+        match docs with 
+        | [] -> emptyMarkdown
+        | [d1] -> d1
+        | d1 :: rest -> List.fold (fun ac d -> ac ^!!^ blankLine ^!!^ d) d1 rest
         
 
     let unorderedList (elements : Markdown list) : Markdown = 

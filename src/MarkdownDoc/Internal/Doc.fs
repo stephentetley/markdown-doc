@@ -101,7 +101,7 @@ module Doc =
         let rec work t1 cont = 
             match t1 with 
             | EmptyBlock -> cont SimpleDoc.Empty
-            | BlankLine -> cont (SimpleDoc.Block [])
+            | BlankLine -> cont (SimpleDoc.BlankLine)
             | TextBlock txt -> 
                 let lines = textToSimpleText txt
                 cont (SimpleDoc.Block lines)
