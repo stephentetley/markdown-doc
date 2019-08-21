@@ -163,29 +163,41 @@ module SimpleDoc =
 
         workDoc documentLineWidth source (fun xs -> xs) |> toStringH
 
-    let applyIndent1 (indent : Indent) (source : SimpleText list) : SimpleText list = 
+    let applyIndent1 (indent1 : string)  (indentRest : string) (source : SimpleText list) : SimpleText list = 
         let indentLine (prefix : string) (txt : SimpleText) = TextString prefix :: txt
-        match indent, source with
-        | _, [] -> []
-        | Hanging(a,b), x :: xs -> 
-            indentLine a x :: List.map (indentLine b) xs
-        | Uniform i, xs -> 
-            List.map (indentLine i) xs
+        match source with
+        | x :: xs -> indentLine indent1 x :: List.map (indentLine indentRest) xs 
+        | [] -> []
 
-
-    let applyIndent (indent : Indent) (source : SimpleDoc) : SimpleDoc = 
+    let private indentable (source : SimpleDoc) : bool = 
         let rec work sdoc cont = 
             match sdoc with
-            | Empty -> cont Empty
-            | BlankLine -> cont BlankLine
-            | Block lines -> 
-                let ans = applyIndent1 indent lines in cont (Block ans)
-            | Table (spec, header, rows) -> 
-                cont (Table (spec, header, rows))
-            // 21/8/2019
-            // This is wrong and stops nested lists rendering correctly...
-            | VConcat (d1, d2) -> 
+            | Block xs -> cont (not xs.IsEmpty)
+            | VConcat (d1,d2) -> 
                 work d1 (fun v1 -> 
                 work d2 (fun v2 -> 
-                cont (VConcat(v1,v2))))
+                cont (v1 || v2)))
+            | _ -> cont false
         work source (fun x -> x)
+
+    let private applyIndentAux (indent1 : string)  (indentRest : string) (source : SimpleDoc) : SimpleDoc = 
+        let rec work (sdoc : SimpleDoc) (ind1 : string) (ind2 : string) (cont : SimpleDoc -> SimpleDoc)  = 
+            match sdoc with
+            | Block lines -> 
+                let ans = applyIndent1 ind1 ind2 lines in cont (Block ans)
+            | VConcat (d1, d2) when indentable d1 -> 
+                work d1 ind1 ind2 (fun v1 -> 
+                // use (ind2,ind2) for rest
+                work d2 ind2 ind2 (fun v2 -> 
+                cont (VConcat(v1,v2))))
+            | VConcat (d1,d2) -> 
+                // when know d1 cannot be indented
+                work d2 ind1 ind2 (fun v2 -> 
+                cont (VConcat(d1,v2)))
+            | _ -> cont sdoc 
+        work source indent1 indentRest (fun x -> x)
+
+    let applyIndent (indent : Indent) (source : SimpleDoc) : SimpleDoc = 
+        match indent with
+        | Hanging(a,b) -> applyIndentAux a b source
+        | Uniform a -> applyIndentAux a a source
