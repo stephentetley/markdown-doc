@@ -34,21 +34,25 @@ module Block =
     let markdownLines (lines : Text list) : Markdown = 
         lines |> textlines |> Doc.TextBlock
     
-    /// Vertical concat.
-    let ( ^!!^ ) (doc1 : Markdown) (doc2 : Markdown) : Markdown = 
+    /// Vertical concat - no blank line between.
+    let ( ^!^ ) (doc1 : Markdown) (doc2 : Markdown) : Markdown = 
         Doc.VCatBlock(doc1, doc2)
+
+    /// Vertical concat with a blank line between.
+    let ( ^!!^ ) (doc1 : Markdown) (doc2 : Markdown) : Markdown = 
+        doc1 ^!^ blankLine ^!^ doc2
 
 
     let vcat (blocks : Markdown list) : Markdown = 
         match blocks with
         | [] -> emptyMarkdown
-        | b1 :: rest -> List.fold (^!!^) b1 rest
+        | b1 :: rest -> List.fold (^!^) b1 rest
 
     let vsep (docs : Markdown list) : Markdown = 
         match docs with 
         | [] -> emptyMarkdown
         | [d1] -> d1
-        | d1 :: rest -> List.fold (fun ac d -> ac ^!!^ blankLine ^!!^ d) d1 rest
+        | d1 :: rest -> List.fold (fun ac d -> ac ^!!^ d) d1 rest
         
 
     let unorderedList (elements : Markdown list) : Markdown = 
@@ -124,11 +128,6 @@ module Block =
 
 
 
-    /// Concatenate a list of Markdown fragments.        
-    let concatMarkdown (elements : Markdown list) : Markdown = 
-        match elements with
-        | [] -> emptyMarkdown
-        | d1 :: rest -> List.fold (^!!^) d1 rest
 
     /// nbsp
     let nbsp : Markdown = markdownText (entity "nbsp")

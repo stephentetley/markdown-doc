@@ -17,15 +17,15 @@ module GridTable =
 
 
     type ColumnSpec = 
-        { Width: int
-          Alignment: Alignment }
+        { Width : int
+          Alignment : Alignment }
 
     
     
     /// Pad one space left and one or more spaces right.
     /// The length of the generated string is `2 + original length`.
     /// The string should not be multiline at this point.
-    let private padString (width:int, text:string) = 
+    let private padString (width : int, text : string) : string = 
         " " + text.PadRight(width + 1 , ' ')
 
     /// Cell is two characters wider than the specification to allow for left

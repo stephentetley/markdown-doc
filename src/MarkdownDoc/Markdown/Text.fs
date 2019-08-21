@@ -56,22 +56,22 @@ module Text =
 
 
     /// Horizontal concat directly (no separating space)
-    let ( ^^ ) (doc1 : Text) (doc2 : Text) : Text = 
-        match doc1, doc2 with
+    let ( ^^ ) (text1 : Text) (text2 : Text) : Text = 
+        match text1, text2 with
         | Doc.EmptyText, d2 -> d2
         | d1, Doc.EmptyText -> d1
         | d1,d2 -> Doc.HCatText(d1, d2)
 
     /// Horizontal concat with a separating space 
-    let ( ^+^ ) (doc1 : Text) (doc2 : Text) : Text = 
-        match doc1, doc2 with
+    let ( ^+^ ) (text1 : Text) (text2 : Text) : Text = 
+        match text1, text2 with
         | Doc.EmptyText, d2 -> d2
         | d1, Doc.EmptyText -> d1
         | d1,d2 -> d1 ^^ character ' ' ^^ d2
 
     /// Vertical concat.
-    let ( ^!^ ) (doc1 : Text) (doc2 : Text) : Text = 
-        match doc1, doc2 with
+    let ( ^/^ ) (text1 : Text) (text2 : Text) : Text = 
+        match text1, text2 with
         | Doc.EmptyText, d2 -> d2
         | d1, Doc.EmptyText -> d1
         | d1,d2 -> Doc.VCatText(d1,d2)
@@ -82,7 +82,7 @@ module Text =
     let textlines (docs : Text list) : Text = 
         match docs with
         | [] -> emptyText
-        | d1 :: rest -> List.fold (fun ac d -> ac ^!^ d) d1 rest
+        | d1 :: rest -> List.fold (fun ac d -> ac ^/^ d) d1 rest
 
     
     /// Build a multiline Text item from a string. 

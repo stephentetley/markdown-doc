@@ -67,11 +67,10 @@ let partners : Markdown =
     let partnerLine name desc : Markdown = 
         let body : Text = (doubleAsterisks <| text name) ^+^ text desc 
         markdownText body
-    concatMarkdown 
-        <| [ h2 (text "Asset Replacement Project Partners")
-           ; partnerLine "Metasphere" "Project Delivery"
-           ; partnerLine "OnSite" "Installation and Commmissioning"
-           ]
+    [ h2 (text "Asset Replacement Project Partners")
+    ; partnerLine "Metasphere" "Project Delivery"
+    ; partnerLine "OnSite" "Installation and Commmissioning"
+    ] |> vsep
 
 let workDoc (work:WorkType) : Text = 
     match work with
@@ -82,17 +81,16 @@ let contents (work:WorkType) : Markdown =
     h3 (text "Contents") ^!!^ unorderedList [ markdownText (workDoc work)]
 
 let makeDoc (item:Item) : Markdown = 
-    concatMarkdown  
-        <| [ logo
-           ; nbsp2
-           ; title1 item.Phase
-           ; nbsp2
-           ; title2 item.Uid item.Name
-           ; nbsp2
-           ; partners
-           ; nbsp2
-           ; contents item.Work
-           ]
+    [ logo
+    ; nbsp2
+    ; title1 item.Phase
+    ; nbsp2
+    ; title2 item.Uid item.Name
+    ; nbsp2
+    ; partners
+    ; nbsp2
+    ; contents item.Work
+    ] |> vsep
 
 
 // ****************************************************************************

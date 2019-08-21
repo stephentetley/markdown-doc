@@ -62,15 +62,14 @@ let documentControl : Markdown =
     h3 (text "Document Control")
 
 let makeDoc (item:Item) : Markdown = 
-    concatMarkdown 
-        <| [ logo
-           ; nbsp2
-           ; title1
-           ; nbsp2
-           ; title2 item.Uid item.Name
-           ; nbsp2
-           ; contents item.Worklist
-           ]
+    [ logo
+    ; nbsp2
+    ; title1
+    ; nbsp2
+    ; title2 item.Uid item.Name
+    ; nbsp2
+    ; contents item.Worklist
+    ] |> vsep
 
 
 

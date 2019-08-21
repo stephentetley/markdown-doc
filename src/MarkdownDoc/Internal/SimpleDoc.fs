@@ -182,6 +182,8 @@ module SimpleDoc =
                 let ans = applyIndent1 indent lines in cont (Block ans)
             | Table (spec, header, rows) -> 
                 cont (Table (spec, header, rows))
+            // 21/8/2019
+            // This is wrong and stops nested lists rendering correctly...
             | VConcat (d1, d2) -> 
                 work d1 (fun v1 -> 
                 work d2 (fun v2 -> 

@@ -8,30 +8,31 @@ open System.Text
 #r "SLFormat.dll"
 
 #load "..\src\MarkdownDoc\Internal\Common.fs"
-#load "..\src\MarkdownDoc\Internal\Syntax.fs"
-#load "..\src\MarkdownDoc\Markdown\Markdown.fs"
+#load "..\src\MarkdownDoc\Internal\GridTable.fs"
+#load "..\src\MarkdownDoc\Internal\SimpleDoc.fs"
+#load "..\src\MarkdownDoc\Internal\Doc.fs"
+#load "..\src\MarkdownDoc\Markdown\Text.fs"
+#load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
 open MarkdownDoc.Markdown
 
 let sample = text "Hello" ^^ character ' '  ^^ text "World!"
 
 let demo01 () =
-    testRenderText sample
+    testRenderText 80 sample
 
 let demo02 () =
-    let olist = orderedList [paraText sample; paraText sample; paraText sample]
-    let ulist = unorderedList [olist; paraText sample; paraText sample]
-    testRender (markdown ulist)
+    let olist = orderedList [markdownText sample; markdownText sample; markdownText sample]
+    let ulist = unorderedList [olist; markdownText sample; markdownText sample]
+    testRender 80  ulist
 
 
 let demo03 () =
-
-    let header = fixedWidthMarkdown 80 (paraText (rawtext "# Title"))
-    let olist = orderedList [paraText sample; paraText sample; paraText sample]
-    let ulist = unorderedList [olist; paraText sample; paraText sample]
-    let para1 = fixedWidthMarkdown 80 ulist
-    let document = header ^!!^ para1
-    testRender document
+    let header = h1 (rawtext "Title")
+    let olist = orderedList [markdownText sample; markdownText sample; markdownText sample]
+    let ulist = unorderedList [olist; markdownText sample; markdownText sample]
+    let document = header ^!!^ ulist ^!!^ olist
+    testRender 80 document
 
 let test01 () = 
     let text = "one two  three   four"

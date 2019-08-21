@@ -12,6 +12,7 @@
 #load "..\src\MarkdownDoc\Internal\Doc.fs"
 #load "..\src\MarkdownDoc\Markdown\Text.fs"
 #load "..\src\MarkdownDoc\Markdown\Block.fs"
+#load "..\src\MarkdownDoc\Markdown\Table.fs"
 open MarkdownDoc.Internal.GridTable
 open MarkdownDoc.Internal.SimpleDoc
 open MarkdownDoc.Markdown
