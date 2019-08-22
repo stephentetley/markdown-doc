@@ -15,6 +15,7 @@ open SLFormat.CommandOptions
 #load "..\src\MarkdownDoc\Markdown\Text.fs"
 #load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
+#load "..\src\MarkdownDoc\Markdown\InlineHtml.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 

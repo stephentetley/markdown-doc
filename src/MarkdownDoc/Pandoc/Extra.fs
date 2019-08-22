@@ -98,3 +98,18 @@ module Extra =
         enclose (character '~') (character '~') 
                 (text <| Common.escapeSpaces source)
 
+
+    /// Fenced code
+    let fencedCode (fenceWidth : int) (body : Markdown) : Markdown = 
+        let fence = replicated fenceWidth "~" |> markdownText
+        fence ^!^ body ^!^ fence
+
+    /// Line block - each line prefixed with `| `
+    let lineBlock (body : Markdown) : Markdown = 
+        simpleIndent "| " body
+
+    /// A 'fancy list' - each element is prefixed with `#.  `
+    let hashFancyList (elements : Markdown list) : Markdown = 
+        let listItem (d1 : Markdown) = hangingIndent "#.  " "    " d1
+        elements |> List.map listItem |> vcat
+

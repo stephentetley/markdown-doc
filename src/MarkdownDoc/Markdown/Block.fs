@@ -53,20 +53,29 @@ module Block =
         | [] -> emptyMarkdown
         | [d1] -> d1
         | d1 :: rest -> List.fold (fun ac d -> ac ^!!^ d) d1 rest
-        
+
+
+    let simpleIndent (prefix : string)  (body : Markdown) : Markdown = 
+        Doc.Block(Indent.Uniform prefix, body)
+
+    let hangingIndent (firstLinePrefix : string) 
+                        (remainingLinesPrefix : string)
+                        (body : Markdown) : Markdown = 
+        Doc.Block(Indent.Hanging (firstLinePrefix, remainingLinesPrefix), body)
 
     let unorderedList (elements : Markdown list) : Markdown = 
-        let listItem (d1 : Markdown) = Doc.Block(SimpleDoc.Hanging("*   ","    "), d1)
+        let listItem (d1 : Markdown) = hangingIndent "*   " "    " d1
         elements |> List.map listItem |> vcat
 
     let orderedList (elements : Markdown list) : Markdown = 
-        
         let size = 4 + elements.Length.ToString().Length
         let fill (width : int) (str : string) : string = 
             str.PadRight(totalWidth = width, paddingChar = ' ')
         let (items, _) = 
             List.mapFold (fun (ix : int) (d1 : Markdown) -> 
-                            let d2 = Doc.Block(SimpleDoc.Hanging(fill size (sprintf "%i." ix), String.replicate size " "), d1)
+                            let a = fill size (sprintf "%i." ix)
+                            let b = String.replicate size " "
+                            let d2 = hangingIndent a b d1
                             (d2, ix + 1))
                         1
                         elements

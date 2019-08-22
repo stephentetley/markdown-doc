@@ -239,6 +239,10 @@ module Text =
                   (value : 'a) : Text = 
         sprintf fmt value |> text
 
+    /// Make a Text element by replicating the supplied string `count` times.
+    let replicated (count : int) (str : string) : Text = 
+        String.replicate count str |> rawtext
+
 
     /// Print a unsigned byte literal as a decimal.
     /// Note no F# type specifying suffix is printed, if you want this
