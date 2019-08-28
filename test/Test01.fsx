@@ -114,6 +114,6 @@ let test13 () =
                             ]
                  ]
     testRender 80 (drawTree tree1)
-
+    testRender 80 (drawNumberedTree tree1)
 
 

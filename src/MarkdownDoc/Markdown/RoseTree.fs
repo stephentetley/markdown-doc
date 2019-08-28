@@ -17,6 +17,12 @@ module RoseTree =
     // in building it.
     type RoseTree<'a> = 
         | Node of node : 'a * children : RoseTree<'a> list
+        
+        member v.Label
+            with get () : 'a = let (Node(label,_)) = v in label
+            
+        member v.Kids
+            with get ()  : RoseTree<'a> list = let (Node(_,kids)) = v in kids
 
 
     type MarkdownRoseTree = RoseTree<Markdown>
@@ -44,7 +50,7 @@ module RoseTree =
         work tree (fun x -> x)
 
 
-    let drawTree (tree : MarkdownRoseTree) : Markdown = 
+    let drawForest (trees : MarkdownRoseTree list) : Markdown = 
         let rec work (level : int) (Node(a,kids)) (cont : Markdown-> Markdown) = 
             let ulist items = 
                 match level % 2 with
@@ -52,7 +58,8 @@ module RoseTree =
                 | _ -> unorderedListWithMinus items 
             workList (level+1) kids (fun xs -> 
             cont (a ^!^ ulist xs))
-         and workList (level : int) (kids : MarkdownRoseTree list) 
+         and workList (level : int) 
+                      (kids : MarkdownRoseTree list) 
                       (cont : Markdown list -> Markdown) = 
             match kids with
             | [] -> cont []
@@ -60,5 +67,24 @@ module RoseTree =
                 work level x (fun v1 -> 
                 workList level xs ( fun vs -> 
                 cont (v1::vs)))
-        workList 0 [tree] (fun xs -> unorderedList xs)
+        workList 0 trees (fun xs -> unorderedList xs)
     
+    let drawTree (tree : MarkdownRoseTree) : Markdown = 
+        drawForest [tree]
+
+    let drawNumberedForest (trees : MarkdownRoseTree list) : Markdown = 
+        let rec work (Node(a,kids)) (cont : Markdown-> Markdown) = 
+            workList kids (fun xs -> 
+            cont (a ^!^ orderedList xs))
+         and workList (kids : MarkdownRoseTree list) 
+                      (cont : Markdown list -> Markdown) = 
+            match kids with
+            | [] -> cont []
+            | x :: xs -> 
+                work x (fun v1 -> 
+                workList xs ( fun vs -> 
+                cont (v1::vs)))
+        workList trees (fun xs -> orderedList xs)
+
+    let drawNumberedTree (tree : MarkdownRoseTree) : Markdown = 
+        drawNumberedForest [tree]
