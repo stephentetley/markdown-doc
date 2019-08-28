@@ -63,9 +63,27 @@ module Block =
                         (body : Markdown) : Markdown = 
         Doc.Block(Indent.Hanging (firstLinePrefix, remainingLinesPrefix), body)
 
-    let unorderedList (elements : Markdown list) : Markdown = 
-        let listItem (d1 : Markdown) = hangingIndent "*   " "    " d1
+
+    /// An unordered list with a custom item marker 
+    let internal customUnorderedList (marker : char) 
+                                     (elements : Markdown list) : Markdown = 
+        let indent1 = sprintf "%c   " marker
+        let indent2 = "    "
+        let listItem (d1 : Markdown) = hangingIndent indent1 indent2 d1
         elements |> List.map listItem |> vcat
+
+    /// Draw an unordered list with star as the item marker.
+    let unorderedList (elements : Markdown list) : Markdown = 
+        customUnorderedList '*' elements
+
+    /// Draw an unordered list with plus as the item marker.
+    let unorderedListWithPlus (elements : Markdown list) : Markdown = 
+        customUnorderedList '+' elements
+    
+    /// Draw an unordered list with minus (dash) as the item marker.
+    let unorderedListWithMinus (elements : Markdown list) : Markdown = 
+        customUnorderedList '-' elements
+
 
     let orderedList (elements : Markdown list) : Markdown = 
         let size = 4 + elements.Length.ToString().Length

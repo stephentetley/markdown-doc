@@ -14,10 +14,12 @@
 #load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Markdown\InlineHtml.fs"
+#load "..\src\MarkdownDoc\Markdown\RoseTree.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc.Markdown
+open MarkdownDoc.Markdown.RoseTree
 open MarkdownDoc.Pandoc
 
 
@@ -96,6 +98,22 @@ let test12 () =
     let m1 : Markdown = 
         markdownText <| htmlIdAnchor "anchor1" (rawtext "This is an anchor")
     testRender 80 m1
+
+
+let test13 () = 
+
+    let label (s : string) : Markdown = markdownText (text s)
+
+    let tree1 : RoseTree<Markdown> = 
+        makeNode (label "top") 
+                 [ makeLeaf (label "one")
+                 ; makeLeaf (label "two")
+                 ; makeNode (label "three") 
+                            [ makeLeaf (label "A")
+                            ; makeLeaf (label "B")
+                            ]
+                 ]
+    testRender 80 (drawTree tree1)
 
 
 
