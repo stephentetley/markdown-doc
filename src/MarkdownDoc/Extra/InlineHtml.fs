@@ -34,16 +34,18 @@ module InlineHtml =
 
 
     let htmlElement (name : string) (attrs : HtmlAttrs) (body : Text) = 
+        // Note - avoid angleBrackets as it inhibits good line breaking.
         let startTag = 
             match attrs |> List.map (fun x -> x.Text) with
-            | [] -> rawtext name |> angleBrackets
-            | xs -> rawtext name ^+^ hsep xs |> angleBrackets
-        let endTag = angleBrackets (rawtext <| sprintf "/%s" name)
+            | [] -> rawtext <| sprintf "<%s>" name
+            | xs -> rawtext (sprintf "</%s" name) ^+^ hsep xs ^^ rawchar '>'
+        let endTag = rawtext <| sprintf "</%s>" name
         startTag ^^ body ^^ endTag
 
+
     /// ``<a id="anchorName">This is an anchor</a>``
-    let htmlIdAnchor (name : string) (body : Text) : Text = 
-        htmlElement name [] body
+    let htmlAnchorId (name : string) (body : Text) : Text = 
+        htmlElement "a" [ HtmlAttr("id", name) ] body
 
 
     /// ``<span >The text body...</a>``
