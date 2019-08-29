@@ -48,8 +48,8 @@ module InlineHtml =
 
     /// ``<span >The text body...</a>``
     /// (Not useful without attributes...
-    let htmlSpan (name : string) (attrs : HtmlAttrs) (body : Text) : Text = 
-        htmlElement name attrs body
+    let htmlSpan (attrs : HtmlAttrs) (body : Text) : Text = 
+        htmlElement "span" attrs body
 
 
     let attrStyle (decls : StyleDecls) : HtmlAttr = 

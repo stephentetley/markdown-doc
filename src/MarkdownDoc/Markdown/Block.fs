@@ -72,19 +72,23 @@ module Block =
         let listItem (d1 : Markdown) = hangingIndent indent1 indent2 d1
         elements |> List.map listItem |> vcat
 
+
+    /// ERROR - Does not indent forlong texts that have been split across lines
     /// Draw an unordered list with star as the item marker.
     let unorderedList (elements : Markdown list) : Markdown = 
         customUnorderedList '*' elements
 
+    /// ERROR - Does not indent forlong texts that have been split across lines
     /// Draw an unordered list with plus as the item marker.
     let unorderedListWithPlus (elements : Markdown list) : Markdown = 
         customUnorderedList '+' elements
     
+    /// ERROR - Does not indent forlong texts that have been split across lines
     /// Draw an unordered list with minus (dash) as the item marker.
     let unorderedListWithMinus (elements : Markdown list) : Markdown = 
         customUnorderedList '-' elements
 
-
+    /// ERROR - Does not indent forlong texts that have been split across lines
     let orderedList (elements : Markdown list) : Markdown = 
         let size = 4 + elements.Length.ToString().Length
         let fill (width : int) (str : string) : string = 
