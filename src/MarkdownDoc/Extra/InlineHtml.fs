@@ -23,12 +23,12 @@ module InlineHtml =
     type HtmlAttrs = HtmlAttr list
 
     type StyleDecl = 
-        | StyleDecl of name : string * value : string
+        | StyleDecl of property : string * value : string
 
         member v.Style
             with get () : string = 
-                let (StyleDecl(name,value)) = v 
-                sprintf "%s:%s;" name value
+                let (StyleDecl(property,value)) = v 
+                sprintf "%s:%s;" property value
 
     type StyleDecls = StyleDecl list
 
@@ -47,7 +47,6 @@ module InlineHtml =
 
 
     /// ``<span >The text body...</a>``
-    /// (Not useful without attributes...
     let htmlSpan (attrs : HtmlAttrs) (body : Text) : Text = 
         htmlElement "span" attrs body
 
@@ -55,3 +54,13 @@ module InlineHtml =
     let attrStyle (decls : StyleDecls) : HtmlAttr = 
         let body = decls |> List.map (fun x -> x.Style) |> String.concat ""
         HtmlAttr("style", body)
+
+
+
+    // ************************************************************************
+    // Style declarations
+
+
+    let backgroundColor (value : string) : StyleDecl = 
+        StyleDecl("background-color", value)
+

@@ -14,7 +14,7 @@
 #load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
 #load "..\src\MarkdownDoc\Extra\InlineHtml.fs"
-#load "..\src\MarkdownDoc\Extra\CssColours.fs"
+#load "..\src\MarkdownDoc\Extra\CssColors.fs"
 #load "..\src\MarkdownDoc\Extra\InlineHtml.fs"
 #load "..\src\MarkdownDoc\Extra\RoseTree.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
