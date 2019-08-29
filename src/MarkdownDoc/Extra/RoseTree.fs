@@ -3,8 +3,13 @@
 
 namespace MarkdownDoc.Markdown
 
-// Don't auto-open, not sure yet the appropriate 
-// namespace for this module.
+// Note - modules in the 'Extra' directory should be under
+// the MarkdownDoc.Markdown namespace, but opened explicitly
+// or called with a prefix.
+
+// For organization purposes they are in a separate directory 
+// as they are less fundamental.
+
 
 module RoseTree = 
     

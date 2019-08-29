@@ -13,12 +13,13 @@
 #load "..\src\MarkdownDoc\Markdown\Text.fs"
 #load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
-#load "..\src\MarkdownDoc\Markdown\InlineHtml.fs"
-#load "..\src\MarkdownDoc\Markdown\RoseTree.fs"
+#load "..\src\MarkdownDoc\Extra\InlineHtml.fs"
+#load "..\src\MarkdownDoc\Extra\RoseTree.fs"
 #load "..\src\MarkdownDoc\Pandoc\Extra.fs"
 #load "..\src\MarkdownDoc\Pandoc\Invoke.fs"
 
 open MarkdownDoc.Markdown
+open MarkdownDoc.Markdown.InlineHtml
 open MarkdownDoc.Markdown.RoseTree
 open MarkdownDoc.Pandoc
 

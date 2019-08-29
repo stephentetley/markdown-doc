@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1-alpha-20190828</Version>
+    <Version>1.0.1-alpha-20190829</Version>
     <Description>Combinator library for generating Markdown output. Pandoc biased.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>Stephen Tetley</Copyright>
@@ -22,8 +22,8 @@
     <Compile Include="MarkdownDoc\Markdown\Text.fs" />
     <Compile Include="MarkdownDoc\Markdown\Block.fs" />
     <Compile Include="MarkdownDoc\Markdown\Table.fs" />
-    <Compile Include="MarkdownDoc\Markdown\InlineHtml.fs" />
-    <Compile Include="MarkdownDoc\Markdown\RoseTree.fs" />
+    <Compile Include="MarkdownDoc\Extra\InlineHtml.fs" />
+    <Compile Include="MarkdownDoc\Extra\RoseTree.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Extra.fs" />
     <Compile Include="MarkdownDoc\Pandoc\Invoke.fs" />
   </ItemGroup>
