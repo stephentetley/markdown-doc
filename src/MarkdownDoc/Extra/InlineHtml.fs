@@ -38,7 +38,7 @@ module InlineHtml =
         let startTag = 
             match attrs |> List.map (fun x -> x.Text) with
             | [] -> rawtext <| sprintf "<%s>" name
-            | xs -> rawtext (sprintf "</%s" name) ^+^ hsep xs ^^ rawchar '>'
+            | xs -> rawtext (sprintf "<%s" name) ^+^ hsep xs ^^ rawchar '>'
         let endTag = rawtext <| sprintf "</%s>" name
         startTag ^^ body ^^ endTag
 
