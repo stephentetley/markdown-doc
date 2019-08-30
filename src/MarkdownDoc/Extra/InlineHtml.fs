@@ -14,11 +14,17 @@ module InlineHtml =
     type HtmlAttr = 
         internal | HtmlAttr of name : string * value : string
 
-        member v.Text
-            with get () : Text = 
+        member v.Attribute
+            with get () : string = 
                 let (HtmlAttr(name,value)) = v 
-                rawtext name ^^ character '=' ^^ doubleQuotes (rawtext value) 
-                    |> hgroup
+                sprintf "%s=\"%s\"" name value
+
+
+    /// Memo - adding html attributes should be used sparingly.
+    /// Obviously favour Markdown text combinators when one is 
+    /// available for the text effect you want.
+    let htmlAttr (attrName : string) (attrValue : string) : HtmlAttr =
+        HtmlAttr(attrName, attrValue)
 
     type HtmlAttrs = HtmlAttr list
 
@@ -30,40 +36,41 @@ module InlineHtml =
                 let (StyleDecl(property,value)) = v 
                 sprintf "%s:%s;" property value
 
+    /// Memo - adding styling should be used sparingly.
+    /// Obviously favour Markdown text combinators when one is 
+    /// available for the text style you want.
+    let styleDecl (property : string) (value : string) : StyleDecl = 
+        StyleDecl(property, value)
+
+
     type StyleDecls = StyleDecl list
 
 
     let htmlElement (name : string) (attrs : HtmlAttrs) (body : Text) = 
         // Note - avoid angleBrackets as it inhibits good line breaking.
         let startTag = 
-            match attrs |> List.map (fun x -> x.Text) with
-            | [] -> rawtext <| sprintf "<%s>" name
-            | xs -> rawtext (sprintf "<%s" name) ^+^ hsep xs ^^ rawchar '>'
-        let endTag = rawtext <| sprintf "</%s>" name
-        startTag ^^ body ^^ endTag
+            match attrs |> List.map (fun x -> x.Attribute) with
+            | [] -> sprintf "<%s>" name
+            | xs -> sprintf "<%s %s>" name (String.concat " " xs)
+        let endTag = sprintf "</%s>" name
+        rawtext startTag ^^ body ^^ rawtext endTag
 
 
     /// ``<a id="anchorName">This is an anchor</a>``
     let htmlAnchorId (name : string) (body : Text) : Text = 
-        htmlElement "a" [ HtmlAttr("id", name) ] body
+        htmlElement "a" [ htmlAttr "id" name ] body
 
 
-    /// ``<span >The text body...</a>``
+    /// ``<a id="anchorName" attr1="value1" ...>This is an anchor</a>``
+    /// Attrs suffix indicates this is the extended version of htmlAnchorId
+    let htmlAnchorIdAttrs (name : string) (attrs : HtmlAttrs) (body : Text) : Text = 
+        htmlElement "a" (HtmlAttr("id", name) :: attrs)  body
+
+
+    /// ``<span>The text body...</span>``
     let htmlSpan (attrs : HtmlAttrs) (body : Text) : Text = 
         htmlElement "span" attrs body
 
-
-    /// Memo - adding html attributes should be used sparingly.
-    /// Obviously favour Markdown text combinators when one is 
-    /// available for the text effect you want.
-    let htmlAttr (attrName : string) (attrValue : string) : HtmlAttr =
-        HtmlAttr(attrName, attrValue)
-
-    /// Typically for arbitrary colours. Obviously favour Markdown
-    /// text combinators for text styles.
-    let attrStyle (decls : StyleDecls) : HtmlAttr = 
-        let body = decls |> List.map (fun x -> x.Style) |> String.concat ""
-        htmlAttr "style"  body
         
     /// Title common appears as a tooltip.        
     let attrTitle (title : string) : HtmlAttr = 
@@ -74,8 +81,14 @@ module InlineHtml =
     // ************************************************************************
     // Style declarations
 
-    let styleDecl (property : string) (value : string) : StyleDecl = 
-        StyleDecl(property, value)
+    
+    
+    /// Typically for arbitrary colours. Obviously favour Markdown
+    /// text combinators for text styles.
+    let attrStyle (decls : StyleDecls) : HtmlAttr = 
+        let body = decls |> List.map (fun x -> x.Style) |> String.concat ""
+        htmlAttr "style"  body
+
 
     let backgroundColor (value : string) : StyleDecl = 
         styleDecl "background-color" value
