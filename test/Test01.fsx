@@ -99,7 +99,7 @@ let test11 () =
 
 let test12 () = 
     let m1 : Markdown = 
-        markdownText <| htmlIdAnchor "anchor1" (rawtext "This is an anchor")
+        markdownText <| htmlAnchorId "anchor1" (rawtext "This is an anchor")
     testRender 80 m1
 
 

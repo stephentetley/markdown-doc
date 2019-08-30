@@ -13,35 +13,35 @@ module Extra =
     
 
     [<Struct>]
-    type Attribute = 
-        | Attribute of Text
-        member x.Body 
-            with get () : Text = match x with | Attribute(t) -> t
+    type PandocAttribute = 
+        | PandocAttribute of Text
+        member v.AttributeText 
+            with get () : Text = let (PandocAttribute t) = v in t
 
     /// Renders as an hgroup inside braces, space separated.
-    let private renderAttrs (attrs:Attribute list) : Text = 
+    let private renderAttrs (attrs:PandocAttribute list) : Text = 
         attrs 
-            |> List.map (fun x -> x.Body)
+            |> List.map (fun x -> x.AttributeText)
             |> hsep
             |> braces
             |> hgroup
 
     /// Note - the function prefixes the name with a hash (#).
     /// You don't have to.
-    let identifier (name:string) : Attribute = 
-        Attribute <| rawtext (sprintf "#%s" name)
+    let identifier (name:string) : PandocAttribute = 
+        PandocAttribute <| rawtext (sprintf "#%s" name)
 
     /// Note - the function prefixes the name with a dot (.).
     /// You don't have to.
-    let selector (name:string) : Attribute = 
-        Attribute <| rawtext (sprintf ".%s" name)
+    let selector (name:string) : PandocAttribute = 
+        PandocAttribute <| rawtext (sprintf ".%s" name)
 
-    let keyValue (key:string) (value:Text) : Attribute = 
-        Attribute (rawtext key ^^ equalsSign ^^ value)
+    let keyValue (key:string) (value:Text) : PandocAttribute = 
+        PandocAttribute (rawtext key ^^ equalsSign ^^ value)
 
-    /// Produces '=format'
-    let rawAttribute (formatName:string) : Attribute = 
-        Attribute (equalsSign ^^ rawtext formatName)
+    /// Produces '=haskell' where formatName ="haskell"
+    let rawAttribute (formatName:string) : PandocAttribute = 
+        PandocAttribute (equalsSign ^^ rawtext formatName)
 
 
 
