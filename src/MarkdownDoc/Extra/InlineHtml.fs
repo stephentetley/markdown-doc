@@ -12,7 +12,7 @@ module InlineHtml =
     // A html_ prefix makes sense.
 
     type HtmlAttr = 
-        | HtmlAttr of name : string * value : string
+        internal | HtmlAttr of name : string * value : string
 
         member v.Text
             with get () : Text = 
@@ -23,7 +23,7 @@ module InlineHtml =
     type HtmlAttrs = HtmlAttr list
 
     type StyleDecl = 
-        | StyleDecl of property : string * value : string
+        internal | StyleDecl of property : string * value : string
 
         member v.Style
             with get () : string = 
@@ -53,16 +53,32 @@ module InlineHtml =
         htmlElement "span" attrs body
 
 
+    /// Memo - adding html attributes should be used sparingly.
+    /// Obviously favour Markdown text combinators when one is 
+    /// available for the text effect you want.
+    let htmlAttr (attrName : string) (attrValue : string) : HtmlAttr =
+        HtmlAttr(attrName, attrValue)
+
+    /// Typically for arbitrary colours. Obviously favour Markdown
+    /// text combinators for text styles.
     let attrStyle (decls : StyleDecls) : HtmlAttr = 
         let body = decls |> List.map (fun x -> x.Style) |> String.concat ""
-        HtmlAttr("style", body)
+        htmlAttr "style"  body
+        
+    /// Title common appears as a tooltip.        
+    let attrTitle (title : string) : HtmlAttr = 
+        htmlAttr "title" title
 
 
 
     // ************************************************************************
     // Style declarations
 
+    let styleDecl (property : string) (value : string) : StyleDecl = 
+        StyleDecl(property, value)
 
     let backgroundColor (value : string) : StyleDecl = 
-        StyleDecl("background-color", value)
+        styleDecl "background-color" value
+
+
 
