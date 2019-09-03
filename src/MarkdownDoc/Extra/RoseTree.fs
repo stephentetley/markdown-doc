@@ -54,6 +54,27 @@ module RoseTree =
                 cont (v1::vs)))
         work tree (fun x -> x)
 
+    /// A variant of mapTree that applies a specific operation 
+    /// to the root node.
+    let mapTree2 (rootMapper : 'a -> 'b) 
+                 (childMapper : 'a -> 'b) (tree : RoseTree<'a>) : RoseTree<'b> = 
+        let rec work (Node(a,kids)) (cont : RoseTree<'b> -> RoseTree<'b>) = 
+            let b = childMapper a
+            workList kids (fun xs -> 
+            cont (Node(b, xs)))
+         and workList (kids : RoseTree<'a> list) 
+                      (cont : RoseTree<'b> list -> RoseTree<'b>) = 
+            match kids with
+            | [] -> cont []
+            | x :: xs -> 
+                work x (fun v1 -> 
+                workList xs ( fun vs -> 
+                cont (v1::vs)))
+        match tree with
+        | Node (root,kids) ->
+            let root1 = rootMapper root
+            workList kids (fun xs -> Node(root1,xs)) 
+        
 
     let drawForest (trees : MarkdownRoseTree list) : Markdown = 
         let rec work (level : int) (Node(a,kids)) (cont : Markdown-> Markdown) = 
