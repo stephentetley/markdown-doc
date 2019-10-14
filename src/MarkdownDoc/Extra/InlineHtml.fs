@@ -89,9 +89,40 @@ module InlineHtml =
         let body = decls |> List.map (fun x -> x.Style) |> String.concat ""
         htmlAttr "style"  body
 
-
+    /// "background-color" style declaration
     let backgroundColor (value : string) : StyleDecl = 
         styleDecl "background-color" value
 
 
+    /// "color" style declaration - aka text-color
+    let color (value : string) : StyleDecl = 
+        styleDecl "color" value
 
+    /// "border" style declaration.
+    /// Width is typically px e.g. "2px"
+    let border (width : string option) 
+               (style : string) 
+               (color : string option) : StyleDecl = 
+        let props = List.choose id [width; Some style; color]
+        styleDecl "border" (String.concat "" props)
+
+    /// "border-style" style declaration, e.g.
+    /// "none" | "hidden" | "dotted" | "dashed" | "solid" |
+    /// "double" | "groove" | "ridge" | ...
+    let borderStyle (value : string) : StyleDecl = 
+        styleDecl "border-style" value
+
+
+    /// "border-color" style declaration
+    let borderColor (value : string) : StyleDecl = 
+        styleDecl "border-color" value
+
+    /// "border-width" style declaration, typically [0-9]px or
+    /// "thin" | "medium" | "thick" | ...
+    let borderWidth (value : string) : StyleDecl = 
+        styleDecl "border-width" value
+
+    /// "border-radius" style declaration, typically in px
+    /// Supply a single radius to round all four corners equally.
+    let borderRadius (values : string list) : StyleDecl = 
+        styleDecl "border-radius" (String.concat " " values)
