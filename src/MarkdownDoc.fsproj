@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1-alpha-20190903</Version>
+    <Version>1.0.1-alpha-20191014</Version>
     <Description>Combinator library for generating Markdown output. Pandoc biased.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>Stephen Tetley</Copyright>

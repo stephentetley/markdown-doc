@@ -56,14 +56,14 @@ module InlineHtml =
         rawtext startTag ^^ body ^^ rawtext endTag
 
 
-    /// ``<a id="anchorName">This is an anchor</a>``
-    let htmlAnchorId (name : string) (body : Text) : Text = 
-        htmlElement "a" [ htmlAttr "id" name ] body
+    /// "id" attribute
+    /// Typically used for anchors
+    let htmlAttrId (name : string)  : HtmlAttr = 
+        htmlAttr "id" name
 
 
     /// ``<a id="anchorName" attr1="value1" ...>This is an anchor</a>``
-    /// Attrs suffix indicates this is the extended version of htmlAnchorId
-    let htmlAnchorIdAttrs (name : string) (attrs : HtmlAttrs) (body : Text) : Text = 
+    let htmlAnchorId (name : string) (attrs : HtmlAttrs) (body : Text) : Text = 
         htmlElement "a" (HtmlAttr("id", name) :: attrs)  body
 
 
@@ -72,8 +72,9 @@ module InlineHtml =
         htmlElement "span" attrs body
 
         
+    /// "title" attribute
     /// Title common appears as a tooltip.        
-    let attrTitle (title : string) : HtmlAttr = 
+    let htmlAttrTitle (title : string) : HtmlAttr = 
         htmlAttr "title" title
 
 
@@ -85,7 +86,7 @@ module InlineHtml =
     
     /// Typically for arbitrary colours. Obviously favour Markdown
     /// text combinators for text styles.
-    let attrStyle (decls : StyleDecls) : HtmlAttr = 
+    let htmlAttrStyle (decls : StyleDecls) : HtmlAttr = 
         let body = decls |> List.map (fun x -> x.Style) |> String.concat ""
         htmlAttr "style"  body
 
@@ -126,3 +127,9 @@ module InlineHtml =
     /// Supply a single radius to round all four corners equally.
     let borderRadius (values : string list) : StyleDecl = 
         styleDecl "border-radius" (String.concat " " values)
+
+
+    /// "padding" style declaration, typically in px
+    /// Supply a single value to pad all four sides equally.
+    let padding (values : string list) : StyleDecl = 
+        styleDecl "padding" (String.concat " " values)
