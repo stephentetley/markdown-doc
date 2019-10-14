@@ -22,6 +22,7 @@
     <Compile Include="MarkdownDoc\Markdown\Text.fs" />
     <Compile Include="MarkdownDoc\Markdown\Block.fs" />
     <Compile Include="MarkdownDoc\Markdown\Table.fs" />
+    <Compile Include="MarkdownDoc\Extra\Utils.fs" />
     <Compile Include="MarkdownDoc\Extra\InlineHtml.fs" />
     <Compile Include="MarkdownDoc\Extra\CssColors.fs" />
     <Compile Include="MarkdownDoc\Extra\RoseTree.fs" />

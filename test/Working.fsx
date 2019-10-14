@@ -14,7 +14,9 @@ open System.Text
 #load "..\src\MarkdownDoc\Markdown\Text.fs"
 #load "..\src\MarkdownDoc\Markdown\Block.fs"
 #load "..\src\MarkdownDoc\Markdown\Table.fs"
+#load "..\src\MarkdownDoc\Extra\Utils.fs"
 open MarkdownDoc.Markdown
+open MarkdownDoc.Markdown.Utils
 
 let sample = text "Hello" ^^ character ' '  ^^ text "World!"
 
@@ -117,3 +119,7 @@ let demo05 () =
 
 let demo06 () = 
     breakText 20 sample1
+
+let demo07 (source : string) : string = 
+    md5Hash source
+
