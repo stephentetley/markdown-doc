@@ -74,7 +74,7 @@ let test07 () =
 
 let test08 () = 
     let m1 : Markdown = 
-        markdownText <| textlines [text "hello"; text "world"]
+        markdownText <| textLines [text "hello"; text "world"]
     testRender 80 m1
 
 
@@ -91,15 +91,16 @@ let test10 () =
 
 let test11 () = 
     let ms : Markdown list = 
-        [ h1 (rawtext "title1")
-        ; h2 (rawtext "title1.1")
+        [ h1 (rawText "title1")
+        ; h2 (rawText "title1.1")
         ]
     testRender 80 (vcat ms)
     testRender 80 (vsep ms)
 
 let test12 () = 
     let m1 : Markdown = 
-        markdownText <| htmlAnchorId "anchor1" [htmlAttrTitle "anchor\nline2"] (rawtext "This is an anchor")
+        markdownText 
+            <| htmlAnchorId "anchor1" [htmlAttrTitle "anchor\nline2"] (rawText "This is an anchor")
     testRender 80 m1
 
 

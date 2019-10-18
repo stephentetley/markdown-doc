@@ -53,7 +53,7 @@ module InlineHtml =
             | [] -> sprintf "<%s>" name
             | xs -> sprintf "<%s %s>" name (String.concat " " xs)
         let endTag = sprintf "</%s>" name
-        rawtext startTag ^^ body ^^ rawtext endTag
+        rawText startTag ^^ body ^^ rawText endTag
 
 
     /// "id" attribute

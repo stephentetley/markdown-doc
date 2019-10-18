@@ -30,7 +30,7 @@ let demo02 () =
 
 
 let demo03 () =
-    let header = h1 (rawtext "Title")
+    let header = h1 (rawText "Title")
     let olist = orderedList [markdownText sample; markdownText sample; markdownText sample]
     let ulist = unorderedList [olist; markdownText sample; markdownText sample]
     let document = header ^!!^ ulist ^!!^ olist

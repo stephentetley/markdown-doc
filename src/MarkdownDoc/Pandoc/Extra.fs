@@ -29,19 +29,19 @@ module Extra =
     /// Note - the function prefixes the name with a hash (#).
     /// You don't have to.
     let identifier (name:string) : PandocAttribute = 
-        PandocAttribute <| rawtext (sprintf "#%s" name)
+        PandocAttribute <| rawText (sprintf "#%s" name)
 
     /// Note - the function prefixes the name with a dot (.).
     /// You don't have to.
     let selector (name:string) : PandocAttribute = 
-        PandocAttribute <| rawtext (sprintf ".%s" name)
+        PandocAttribute <| rawText (sprintf ".%s" name)
 
     let keyValue (key:string) (value:Text) : PandocAttribute = 
-        PandocAttribute (rawtext key ^^ equalsSign ^^ value)
+        PandocAttribute (rawText key ^^ equalsSign ^^ value)
 
     /// Produces '=haskell' where formatName ="haskell"
     let rawAttribute (formatName:string) : PandocAttribute = 
-        PandocAttribute (equalsSign ^^ rawtext formatName)
+        PandocAttribute (equalsSign ^^ rawText formatName)
 
 
 
@@ -79,7 +79,7 @@ module Extra =
             ; "  </w:r>"
             ; "</w:p>"
             ]
-        rawCode "openxml" << markdownText <| rawlines block
+        rawCode "openxml" << markdownText <| rawLines block
 
     /// Strikeout the enclosed text.
     /// ~~deleted text~~

@@ -35,7 +35,7 @@ module Text =
 
     /// Build a Text item from a single char. 
     /// No escaping.
-    let rawchar (ch : char) : Text = Doc.Text <| ch.ToString()
+    let rawChar (ch : char) : Text = Doc.Text <| ch.ToString()
         
 
     let private escapedText (content : string) : Text = 
@@ -50,7 +50,7 @@ module Text =
         
     /// Build a Text item from a string. 
     /// No escaping is performed, use this function with care.
-    let rawtext (content : string) : Text = 
+    let rawText (content : string) : Text = 
         Doc.Text content  
 
 
@@ -79,7 +79,7 @@ module Text =
    
     /// Build a text document from a list of Text lines.
     /// The lines are vertically concatenated.
-    let textlines (docs : Text list) : Text = 
+    let textLines (docs : Text list) : Text = 
         match docs with
         | [] -> emptyText
         | d1 :: rest -> List.fold (fun ac d -> ac ^/^ d) d1 rest
@@ -87,8 +87,8 @@ module Text =
     
     /// Build a multiline Text item from a string. 
     /// No escaping is performed, use this function with care.
-    let rawlines (contents : string list) : Text = 
-        textlines <| List.map rawtext contents
+    let rawLines (contents : string list) : Text = 
+        textLines <| List.map rawText contents
 
     /// Horizontal concatenate. No separating space.
     let hcat (items : Text list) : Text = 
@@ -104,7 +104,7 @@ module Text =
     let space : Text = character ' '
     let equalsSign : Text = character '='
 
-    let entity (name : string) : Text = rawtext <| sprintf "&%s;" name
+    let entity (name : string) : Text = rawText <| sprintf "&%s;" name
 
 
 
@@ -125,7 +125,7 @@ module Text =
     let euro : Text = entity "euro"
 
     /// Print 3 backticks.
-    let backticks3 : Text = rawtext "```"
+    let backticks3 : Text = rawText "```"
 
 
     let enclose (left : Text) (right : Text) (d1 : Text) : Text = 
@@ -140,49 +140,49 @@ module Text =
 
 
     let parens (source : Text) : Text = 
-        enclose (rawchar '(') (rawchar ')') source
+        enclose (rawChar '(') (rawChar ')') source
 
     let squareBrackets (source : Text) : Text = 
-        enclose (rawchar '[') (rawchar ']') source
+        enclose (rawChar '[') (rawChar ']') source
 
     /// Can be used for inlining links.
     let angleBrackets (source : Text) : Text = 
-        enclose (rawchar '<') (rawchar '>') source
+        enclose (rawChar '<') (rawChar '>') source
 
     /// Curly braces
     let braces (source : Text) : Text = 
-        enclose (rawchar '{') (rawchar '}') source
+        enclose (rawChar '{') (rawChar '}') source
 
 
     let singleQuotes (source : Text) : Text = 
-        enclose (rawchar '\'') (rawchar '\'') source
+        enclose (rawChar '\'') (rawChar '\'') source
 
     let doubleQuotes (source : Text) : Text = 
-        enclose (rawchar '"') (rawchar '"') source
+        enclose (rawChar '"') (rawChar '"') source
 
     /// Emphasis
     let asterisks (source : Text) : Text = 
-        enclose (rawchar '*') (rawchar '*') source
+        enclose (rawChar '*') (rawChar '*') source
 
     /// Emphasis
     let underscores (source : Text) : Text = 
-        enclose (rawchar '_') (rawchar '_') source
+        enclose (rawChar '_') (rawChar '_') source
 
     /// Strong emphasis
     let doubleAsterisks (source : Text) : Text = 
-        enclose (rawtext "**") (rawtext "**") source
+        enclose (rawText "**") (rawText "**") source
 
     /// Strong emphasis
     let doubleUnderscores (source : Text) : Text = 
-        enclose (rawtext "__") (rawtext "__") source
+        enclose (rawText "__") (rawText "__") source
 
     /// Backticks for inline code.
     let backticks (source : Text) : Text = 
-        enclose (rawchar '`') (rawchar '`') source
+        enclose (rawChar '`') (rawChar '`') source
 
     /// Backticks for inline code.
     let doubleBackticks (source : Text) : Text = 
-        enclose (rawtext "``") (rawtext "``") source
+        enclose (rawText "``") (rawText "``") source
 
 
     let private useReference (altText : string) (identifier : string) : Text = 
@@ -205,8 +205,8 @@ module Text =
         let path1 = Common.replaceBackslashes path
         let body : Text = 
             match title with
-            | None -> rawtext path1
-            | Some ss -> rawtext path1 ^+^ text ss
+            | None -> rawText path1
+            | Some ss -> rawText path1 ^+^ text ss
         squareBrackets (text altText) ^^ parens body
 
     /// [Alt text](/path/to)
@@ -241,7 +241,7 @@ module Text =
 
     /// Make a Text element by replicating the supplied string `count` times.
     let replicated (count : int) (str : string) : Text = 
-        String.replicate count str |> rawtext
+        String.replicate count str |> rawText
 
 
     /// Print a unsigned byte literal as a decimal.

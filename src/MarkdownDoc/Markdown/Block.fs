@@ -32,7 +32,7 @@ module Block =
         Doc.TextBlock text
 
     let markdownLines (lines : Text list) : Markdown = 
-        lines |> textlines |> Doc.TextBlock
+        lines |> textLines |> Doc.TextBlock
     
     /// Vertical concat - no blank line between.
     let ( ^!^ ) (doc1 : Markdown) (doc2 : Markdown) : Markdown = 
